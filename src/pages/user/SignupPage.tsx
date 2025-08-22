@@ -67,7 +67,7 @@ const SignupPage: React.FC = () => {
 
     async function requestOtp() {
         try {
-            const response = await axios.post("http://localhost:3000/auth/signup/request-otp", {
+            const response = await axios.post("http://localhost:3000/api/auth/signup/request-otp", {
                 email,
                 userName: username,
                 fullName: name
@@ -87,7 +87,7 @@ const SignupPage: React.FC = () => {
 
     async function createAccount() {
         try {
-            const response = await axios.post("http://localhost:3000/auth/signup/verify-otp", {
+            const response = await axios.post("http://localhost:3000/api/auth/signup/verify-otp", {
                 email,
                 password: confirmPassword,
                 otp: Number(otp.join(""))
