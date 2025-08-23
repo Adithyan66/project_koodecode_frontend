@@ -16,13 +16,10 @@ const LoginPage: React.FC = () => {
 
     const navigate = useNavigate();
 
-    // async function handleSubmit(e: React.FormEvent) {
-    //     e.preventDefault();
-    //     dispatch(loginUser({ email, password }));
-    // }
-
-
     const { user, status } = useAppSelector(state => state.user);
+
+    const isAdmin = useAppSelector(state => state.user.user?.isAdmin === true)
+
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -31,9 +28,12 @@ const LoginPage: React.FC = () => {
 
     // watch success state and navigate
     useEffect(() => {
-        console.log(user)
-        if (status == "succeeded" && user) {
-            navigate('/problems');
+        if (user) {
+            if (isAdmin) {
+                navigate('/admin');
+            } else {
+                navigate("/")
+            }
         }
     }, [status, user, navigate]);
 

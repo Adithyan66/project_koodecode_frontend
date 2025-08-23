@@ -5,7 +5,8 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/user/Navbar';
 import { Check } from 'lucide-react';
-import axios from 'axios';
+import axios from 'axios'
+import { useAppDispatch } from '../../app/hooks';
 
 
 
@@ -18,10 +19,10 @@ const SignupPage: React.FC = () => {
     const [email, setEmail] = useState('');
 
     const navigate = useNavigate()
+    const dispatch = useAppDispatch()
 
 
     const [otpPage, setOtpPage] = useState(false)
-
     const [otp, setOtp] = useState(['', '', '', '', '']);
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -94,7 +95,17 @@ const SignupPage: React.FC = () => {
             });
 
             if (response.data.success) {
-                navigate("/")
+
+                dispatch({ type: "user/login", payload: { user: response.data.user } })
+
+          
+                    if (response.data.user.isAdmin) {
+                        navigate('/admin');
+                    } else {
+                        navigate("/")
+                    }
+                
+
             }
 
         } catch (error) {

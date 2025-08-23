@@ -1,25 +1,26 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { loginUser } from './userThunks';
 
-export type UserRole = 'admin' | 'user'
 
 export interface UserDetails {
     id: string;
     name: string;
     email: string;
-    role: UserRole;
+    isAdmin: boolean;
     avatarUrl?: string;
 }
 
 interface UserState {
     user: UserDetails | null;
     isAuthenticated: boolean;
+    isAdmin: boolean;
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
     error: string | null;
 }
 
 const initialState: UserState = {
     user: null,
+    isAdmin:false,
     isAuthenticated: false,
     status: 'idle',
     error: null,
@@ -32,6 +33,7 @@ export const userSlice = createSlice({
     reducers: {
         setUser: (state, action: PayloadAction<UserDetails>) => {
             state.user = action.payload;
+            state.isAdmin = action.payload.isAdmin;
             state.isAuthenticated = true;
             state.error = null;
             state.status = 'succeeded';
@@ -48,6 +50,7 @@ export const userSlice = createSlice({
             }
         },
     },
+
     extraReducers: (builder) => {
         builder
             .addCase(loginUser.pending, (state) => {
@@ -56,6 +59,7 @@ export const userSlice = createSlice({
             })
             .addCase(loginUser.fulfilled, (state, action) => {
                 state.status = 'succeeded';
+                state.isAdmin = action.payload.user.isAdmin;
                 state.user = action.payload.user;
                 state.isAuthenticated = true;
                 state.error = null;
