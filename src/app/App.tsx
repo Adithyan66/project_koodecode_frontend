@@ -8,7 +8,11 @@ import Router from "./router"
 
 function App() {
 
+      console.log("isAuthenticated:", );
+
+
   return (
+
     <Provider store={store}  >
 
       <BrowserRouter>

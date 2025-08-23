@@ -22,7 +22,7 @@ export const loginUser = createAsyncThunk<
 
     try {
 
-        const response = await axios.post('http://localhost:3000/auth/login', payload);
+        const response = await axios.post('http://localhost:3000/api/auth/login', payload);
 
         return { user: response.data.user };
 
