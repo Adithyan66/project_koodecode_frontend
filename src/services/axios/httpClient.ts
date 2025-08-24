@@ -2,19 +2,23 @@
 import axios from "axios";
 // import { login, logout } from "./authService";
 import { toast } from "react-toastify";
+import { tokenManager } from "../../utils/tokenManager";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const VITE_API_URL = import.meta.env.VITE_API_URL;
+
+console.log("http",VITE_API_URL);
+
 
 const httpClient = axios.create({
-    baseURL: API_BASE_URL,
-    withCredentials: true,
+    baseURL: VITE_API_URL,
+    // withCredentials: true,
 })
 
 
 httpClient.interceptors.request.use(
 
     (config) => {
-        const token = localStorage.getItem('accessToken');
+         const token = tokenManager.getToken();
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }

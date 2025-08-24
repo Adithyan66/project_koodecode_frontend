@@ -7,6 +7,7 @@ import Navbar from '../../components/user/Navbar';
 import { Check } from 'lucide-react';
 import axios from 'axios'
 import { useAppDispatch } from '../../app/hooks';
+import { tokenManager } from '../../utils/tokenManager';
 
 
 const SignupPage: React.FC = () => {
@@ -19,7 +20,6 @@ const SignupPage: React.FC = () => {
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
 
-
     const [otpPage, setOtpPage] = useState(false)
     const [otp, setOtp] = useState(['', '', '', '', '']);
     const [password, setPassword] = useState('');
@@ -27,7 +27,7 @@ const SignupPage: React.FC = () => {
     const [timeLeft, setTimeLeft] = useState(29);
     const [showPasswordSection, setShowPasswordSection] = useState(false);
 
-    // Countdown timer
+
     useEffect(() => {
         if (timeLeft > 0) {
             const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
@@ -35,7 +35,7 @@ const SignupPage: React.FC = () => {
         }
     }, [timeLeft]);
 
-    // Handle OTP input change
+
     const handleOtpChange = (index: number, value: string) => {
         if (value.length <= 1) {
             const newOtp = [...otp];
@@ -55,7 +55,7 @@ const SignupPage: React.FC = () => {
         }
     };
 
-    // Handle backspace
+
     const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
         if (e.key === 'Backspace' && !otp[index] && index > 0) {
             const prevInput = document.getElementById(`otp-${index - 1}`);
@@ -96,14 +96,15 @@ const SignupPage: React.FC = () => {
 
                 dispatch({ type: "user/login", payload: { user: response.data.user } })
 
-          
-                    if (response.data.user.isAdmin) {
-                        navigate('/admin');
-                    } else {
-                        navigate("/")
-                    }
-                
+                const { token } = response.data.user
 
+                tokenManager.setToken(token);
+
+                if (response.data.user.isAdmin) {
+                    navigate('/admin');
+                } else {
+                    navigate("/")
+                }
             }
 
         } catch (error) {

@@ -17,45 +17,69 @@ export default function Router() {
 
     const isAdmin = useAppSelector(state => state.user.user?.isAdmin === true);
 
-    console.log("isAuthenticated:", isAdmin);
+    console.log("isAuthenticated:",);
 
     return (
+        // <Routes>
+        //     <Route path="/" element={<LandingPage />} />
+        //     <Route path="/login" element={<LoginPage />} />
+        //     <Route path="/signup" element={<SignupPage />} />
+
+        //     <Route path="/*" element={
+
+        //         (isAuthenticated && !isAdmin) ? (
+
+        //             <React.Suspense fallback={<div>Loading...</div>}>
+        //                 <Route path="/problems" element={<UserProtected><Problems /></UserProtected>} />
+        //                 <Route path="/problem/:id" element={<UserProtected><ProblemSolvingPage /></UserProtected>} />
+        //                 <Route path="*" element={<Navigate to="/" />} />
+        //             </React.Suspense>
+
+        //         )
+        //             : (
+        //                 <Navigate to="/login" />
+        //             )
+        //     } />
+
+
+        //     < Route path="/admin/*" element={
+        //         isAuthenticated ? (
+        //             <React.Suspense fallback={< div > Loading...</div>}>
+        //                 <h1>Admin Panel - Under Construction</h1>
+        //             </React.Suspense >
+        //         ) : (
+        //             <Navigate to="/login" />
+        //         )
+        //     } />
+
+        // </Routes >
+
+
+
         <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
 
-            <Route path="/*" element={
 
-                (isAuthenticated && !isAdmin) ? (
-
-                    <React.Suspense fallback={<div>Loading...</div>}>
-                        <Route path="/problems" element={<UserProtected><Problems /></UserProtected>} />
-                        <Route path="/problem/:id" element={<UserProtected><ProblemSolvingPage /></UserProtected>} />
-                        <Route path="*" element={<Navigate to="/" />} />
-                    </React.Suspense>
-
-                )
-                    : (
-                        <Navigate to="/login" />
-                    )
-            } />
+            <Route path="/problems" element={<UserProtected><Problems /></UserProtected>} />
+            <Route path="/problem/:id" element={<UserProtected><ProblemSolvingPage /></UserProtected>} />
 
 
 
-
-
-
-            < Route path="/admin/*" element={
+            <Route path="/admin/*" element={
                 isAuthenticated ? (
-                    <React.Suspense fallback={< div > Loading...</div>}>
+                    <React.Suspense fallback={<div>Loading...</div>}>
                         <h1>Admin Panel - Under Construction</h1>
-                    </React.Suspense >
+                    </React.Suspense>
                 ) : (
                     <Navigate to="/login" />
                 )
             } />
+        </Routes>
 
-        </Routes >
+
     )
 }
+
+
