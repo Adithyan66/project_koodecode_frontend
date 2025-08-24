@@ -1,25 +1,34 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { BrowserRouter } from "react-router-dom"
 import { Provider } from "react-redux"
 import { store } from "./store"
 import Router from "./router"
+import httpClient from "../services/axios/httpClient"
+import { useAppDispatch, useAppSelector } from "./hooks"
+import { initializeAuth } from "../features/auth/userThunks"
 
 
 
 function App() {
 
-      console.log("isAuthenticated:", );
+  const dispatch = useAppDispatch()
+
+  // const { isInitialized, isAuthenticated } = useAppSelector((state) => state.user);
+
+
+  useEffect(() => {
+
+    dispatch(initializeAuth());
+
+  }, [dispatch]);
+
 
 
   return (
 
-    <Provider store={store}  >
-
-      <BrowserRouter>
-        <Router />
-      </BrowserRouter>
-
-    </Provider>
+    <BrowserRouter>
+      <Router />
+    </BrowserRouter>
 
   )
 }
