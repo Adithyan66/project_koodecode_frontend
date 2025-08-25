@@ -10,6 +10,9 @@ import { useAppSelector } from './hooks'
 import React from 'react'
 
 import UserProtected from "../components/protectedRoutes/UserProtected"
+import AdminProtected from '../components/protectedRoutes/AdminProtected'
+import ProblemListingPage from '../pages/admin/ProblemListingPage'
+import { DashboardPage } from '../pages/admin/DashboardPage'
 
 export default function Router() {
 
@@ -20,41 +23,6 @@ export default function Router() {
     console.log("isAuthenticated:",);
 
     return (
-        // <Routes>
-        //     <Route path="/" element={<LandingPage />} />
-        //     <Route path="/login" element={<LoginPage />} />
-        //     <Route path="/signup" element={<SignupPage />} />
-
-        //     <Route path="/*" element={
-
-        //         (isAuthenticated && !isAdmin) ? (
-
-        //             <React.Suspense fallback={<div>Loading...</div>}>
-        //                 <Route path="/problems" element={<UserProtected><Problems /></UserProtected>} />
-        //                 <Route path="/problem/:id" element={<UserProtected><ProblemSolvingPage /></UserProtected>} />
-        //                 <Route path="*" element={<Navigate to="/" />} />
-        //             </React.Suspense>
-
-        //         )
-        //             : (
-        //                 <Navigate to="/login" />
-        //             )
-        //     } />
-
-
-        //     < Route path="/admin/*" element={
-        //         isAuthenticated ? (
-        //             <React.Suspense fallback={< div > Loading...</div>}>
-        //                 <h1>Admin Panel - Under Construction</h1>
-        //             </React.Suspense >
-        //         ) : (
-        //             <Navigate to="/login" />
-        //         )
-        //     } />
-
-        // </Routes >
-
-
 
         <Routes>
             <Route path="/" element={<LandingPage />} />
@@ -67,15 +35,8 @@ export default function Router() {
 
 
 
-            <Route path="/admin/*" element={
-                isAuthenticated ? (
-                    <React.Suspense fallback={<div>Loading...</div>}>
-                        <h1>Admin Panel - Under Construction</h1>
-                    </React.Suspense>
-                ) : (
-                    <Navigate to="/login" />
-                )
-            } />
+            <Route path="/admin/dashboard" element={<AdminProtected> <DashboardPage /></AdminProtected>} />
+            <Route path="/admin/problems" element={<AdminProtected> <ProblemListingPage /></AdminProtected>} />
         </Routes>
 
 
