@@ -13,6 +13,7 @@ import UserProtected from "../components/protectedRoutes/UserProtected"
 import AdminProtected from '../components/protectedRoutes/AdminProtected'
 import ProblemListingPage from '../pages/admin/ProblemListingPage'
 import { DashboardPage } from '../pages/admin/DashboardPage'
+import AddProblemPage from '../pages/admin/AddProblemPage'
 
 export default function Router() {
 
@@ -37,9 +38,8 @@ export default function Router() {
 
             <Route path="/admin/dashboard" element={<AdminProtected> <DashboardPage /></AdminProtected>} />
             <Route path="/admin/problems" element={<AdminProtected> <ProblemListingPage /></AdminProtected>} />
+            <Route path="/admin/problems/addProblem" element={<AdminProtected> <AddProblemPage /></AdminProtected>} />
         </Routes>
-
-
     )
 }
 

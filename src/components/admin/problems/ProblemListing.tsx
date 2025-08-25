@@ -5,6 +5,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Search, ChevronLeft, ChevronRight, Settings, Users, BookOpen, BarChart3, FileText, Plus, Edit, Trash2, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 
 // Types
@@ -23,6 +24,11 @@ interface Problem {
 
 // Problem Listing Content Component (used internally by AdminPanel)
 export const ProblemListing: React.FC<{ problems: Problem[] }> = ({ problems }) => {
+
+
+
+    const navigate = useNavigate()
+
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [difficultyFilter, setDifficultyFilter] = useState<string>('All');
@@ -69,7 +75,9 @@ export const ProblemListing: React.FC<{ problems: Problem[] }> = ({ problems }) 
                     <h1 className="text-2xl font-bold text-gray-900">Problem Management</h1>
                     <p className="text-gray-600 mt-1">Manage coding problems and challenges</p>
                 </div>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                onClick={()=>navigate("/admin/problems/addProblem")}
+                >
                     <Plus size={16} />
                     Add Problem
                 </button>
