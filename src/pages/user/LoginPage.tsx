@@ -30,7 +30,7 @@ const LoginPage: React.FC = () => {
     useEffect(() => {
         if (user) {
             if (isAdmin) {
-                navigate('/admin');
+                navigate('/admin/dashboard');
             } else {
                 navigate("/")
             }
