@@ -6,15 +6,13 @@ import Router from "./router"
 import httpClient from "../services/axios/httpClient"
 import { useAppDispatch, useAppSelector } from "./hooks"
 import { initializeAuth } from "../features/auth/userThunks"
+import { ToastContainer, toast } from 'react-toastify';
 
 
 
 function App() {
 
   const dispatch = useAppDispatch()
-
-  // const { isInitialized, isAuthenticated } = useAppSelector((state) => state.user);
-
 
   useEffect(() => {
 
@@ -25,11 +23,12 @@ function App() {
 
 
   return (
-
-    <BrowserRouter>
-      <Router />
-    </BrowserRouter>
-
+    <>
+      <BrowserRouter>
+        <Router />
+      </BrowserRouter>
+      <ToastContainer position="top-center" autoClose={4000} hideProgressBar />
+    </>
   )
 }
 

@@ -33,14 +33,9 @@ export const loginUser = createAsyncThunk<
 
             const response = await authAPI.login(credentials);
 
-            // const { token } = response.data.user;
-
             const { token, ...user } = response.data.user;
 
-
             tokenManager.setToken(token);
-
-            // return { user: response.data.user as UserDetails };
 
             return user as UserDetails
 

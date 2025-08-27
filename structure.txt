@@ -1,0 +1,72 @@
+tree  -I 'node_modules' > structure.txt
+
+
+├── eslint.config.js
+├── index.html
+├── package.json
+├── package-lock.json
+├── README.md
+├── src
+│   ├── app
+│   │   ├── App.css
+│   │   ├── App.tsx
+│   │   ├── hooks.ts
+│   │   ├── router.tsx
+│   │   └── store.ts
+│   ├── assets
+│   │   └── images
+│   │       ├── ChatGPT_Image_Aug_2__2025__11_16_25_AM-removebg-preview 1.svg
+│   │       ├── ChatGPT Image Aug 27, 2025, 01_25_59 PM.png
+│   │       ├── Homepage-BigHero-1200x500_2x.webp
+│   │       ├── Icon.svg
+│   │       ├── login_student-removebg-preview.png
+│   │       ├── Screenshot from 2025-08-02 10-50-58 1.svg
+│   │       └── Screenshot from 2025-08-03 23-40-27.png
+│   ├── components
+│   │   ├── admin
+│   │   │   ├── AdminPanel.tsx
+│   │   │   └── problems
+│   │   │       ├── AddProblem.tsx
+│   │   │       └── ProblemListing.tsx
+│   │   ├── protectedRoutes
+│   │   │   ├── AdminProtected.tsx
+│   │   │   └── UserProtected.tsx
+│   │   └── user
+│   │       ├── codeEditor
+│   │       │   └── CodeEditor.tsx
+│   │       └── Navbar.tsx
+│   ├── features
+│   │   └── auth
+│   │       ├── userSlice.ts
+│   │       └── userThunks.ts
+│   ├── index.css
+│   ├── main.tsx
+│   ├── pages
+│   │   ├── admin
+│   │   │   ├── AddProblemPage.tsx
+│   │   │   ├── DashboardPage.tsx
+│   │   │   └── ProblemListingPage.tsx
+│   │   ├── NotFoundPage.tsx
+│   │   └── user
+│   │       ├── LandingPage.tsx
+│   │       ├── LoginPage.tsx
+│   │       ├── OtpPage.tsx
+│   │       ├── ProblemSolvingPage.tsx
+│   │       ├── Problems.tsx
+│   │       └── SignupPage.tsx
+│   ├── services
+│   │   ├── axios
+│   │   │   ├── auth
+│   │   │   │   └── authService.ts
+│   │   │   └── httpClient.ts
+│   │   └── socketClient.ts
+│   ├── utils
+│   │   └── tokenManager.ts
+│   └── vite-env.d.ts
+├── structure.txt
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
+
+20 directories, 48 files
