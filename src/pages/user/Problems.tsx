@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, User, Calendar, Settings, Crown } from 'lucide-react';
 import Navbar from '../../components/user/Navbar';
+import { useNavigate } from 'react-router-dom';
 
 interface Problem {
     id: number;
@@ -36,6 +37,8 @@ const Problems: React.FC = () => {
         }
     };
 
+    const navigate = useNavigate()
+
     const calendar = [
         [null, null, null, null, null, 1, 2],
         [3, 4, 5, 6, 7, 8, 9],
@@ -49,18 +52,7 @@ const Problems: React.FC = () => {
         <div className="min-h-screen bg-black text-white">
 
             <Navbar />
-            {/* <div className="flex min-h-[calc(100vh-88px)]"> */}
-            {/* Left side with character */}
-            {/* <div className="flex-1 flex items-center justify-center">
-                    <div className="relative">
-                        <img
-                            src={LoginHero}
-                            alt="Character"
-                            className="w-150 h-150 object-cover rounded-full opacity-80"
-                        />
-                    </div>
-                </div> */}
-
+    
 
             <div className="flex">
                 {/* Main Content */}
@@ -95,7 +87,9 @@ const Problems: React.FC = () => {
                     {/* Problems List */}
                     <div className="space-y-1">
                         {problems.map((problem, index) => (
-                            <div key={index} className="bg-gray-800 rounded-lg px-4 py-3 flex items-center justify-between hover:bg-gray-750 transition-colors">
+                            <div key={index} className="bg-gray-800 rounded-lg px-4 py-3 flex items-center justify-between hover:bg-gray-750 transition-colors"
+                                onClick={() => navigate(`/problem/${problem.id}`)}
+                            >
                                 <div className="flex items-center space-x-4">
                                     <span className="text-gray-400 text-sm w-4">{problem.id}.</span>
                                     <span className="text-white">{problem.title}</span>

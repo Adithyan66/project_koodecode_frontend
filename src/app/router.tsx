@@ -17,11 +17,6 @@ import AddProblemPage from '../pages/admin/AddProblemPage'
 
 export default function Router() {
 
-    const isAuthenticated = useAppSelector(state => state.user.isAuthenticated);
-
-    const isAdmin = useAppSelector(state => state.user.user?.isAdmin === true);
-
-    console.log("isAuthenticated:",);
 
     return (
 
