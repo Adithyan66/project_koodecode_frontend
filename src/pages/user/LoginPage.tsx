@@ -26,8 +26,9 @@ const LoginPage: React.FC = () => {
         dispatch(loginUser({ email, password }));
     }
 
-    // watch success state and navigate
     useEffect(() => {
+        console.log("worksssss");
+        
         if (user) {
             if (isAdmin) {
                 navigate('/admin/dashboard');

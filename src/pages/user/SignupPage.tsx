@@ -6,9 +6,10 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/user/Navbar';
 import { Check } from 'lucide-react';
 import axios from 'axios'
-import { useAppDispatch } from '../../app/hooks';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { tokenManager } from '../../utils/tokenManager';
 
+import { signupUser } from '../../features/auth/userThunks';
 
 const SignupPage: React.FC = () => {
 
@@ -27,6 +28,10 @@ const SignupPage: React.FC = () => {
     const [timeLeft, setTimeLeft] = useState(29);
     const [showPasswordSection, setShowPasswordSection] = useState(false);
 
+    const { user, status } = useAppSelector(state => state.user);
+
+    const isAdmin = useAppSelector(state => state.user.user?.isAdmin === true)
+
 
     useEffect(() => {
         if (timeLeft > 0) {
@@ -34,6 +39,7 @@ const SignupPage: React.FC = () => {
             return () => clearTimeout(timer);
         }
     }, [timeLeft]);
+
 
 
     const handleOtpChange = (index: number, value: string) => {
@@ -65,6 +71,8 @@ const SignupPage: React.FC = () => {
 
 
     async function requestOtp() {
+
+
         try {
             const response = await axios.post("http://localhost:3000/api/auth/signup/request-otp", {
                 email,
@@ -85,36 +93,22 @@ const SignupPage: React.FC = () => {
     }
 
     async function createAccount() {
-        try {
-            const response = await axios.post("http://localhost:3000/api/auth/signup/verify-otp", {
-                email,
-                password: confirmPassword,
-                otp: Number(otp.join(""))
-            });
 
-            if (response.data.success) {
+        dispatch(signupUser({ email, password: confirmPassword, otp: Number(otp.join("")) }))
 
-                dispatch({ type: "user/login", payload: { user: response.data.user } })
+    }
 
-                const { token } = response.data.user
+    useEffect(() => {
+        console.log("worksssss");
 
-                tokenManager.setToken(token);
-
-                if (response.data.user.isAdmin) {
-                    navigate('/admin');
-                } else {
-                    navigate("/")
-                }
-            }
-
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.error("❌ Axios error:", error.response?.data || error.message);
+        if (user) {
+            if (isAdmin) {
+                navigate('/admin/dashboard');
             } else {
-                console.error("❌ Unexpected error:", error);
+                navigate("/")
             }
         }
-    }
+    }, [status, user, navigate]);
 
 
 

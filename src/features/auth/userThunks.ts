@@ -4,6 +4,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { tokenManager } from '../../utils/tokenManager';
 import type { UserDetails } from './userSlice';
 import httpClient from '../../services/axios/httpClient';
+import { toast } from 'react-toastify';
 
 
 
@@ -18,13 +19,13 @@ interface LoginResponse {
 }
 
 interface LoginError {
-  message: string;
+    message: string;
 }
 
 export const loginUser = createAsyncThunk<
-    UserDetails,              
-    LoginCredentials,  
-    { rejectValue: LoginError }  
+    UserDetails,
+    LoginCredentials,
+    { rejectValue: LoginError }
 >(
     'user/login',
     async (credentials: LoginCredentials, { dispatch, rejectWithValue }) => {
@@ -40,13 +41,32 @@ export const loginUser = createAsyncThunk<
             return user as UserDetails
 
         } catch (error: any) {
-
+        
             return rejectWithValue(error.response?.data?.message || 'Login failed');
         }
     }
 );
 
-// Fetch user profile using stored token
+
+export const signupUser = createAsyncThunk(
+    'user/signup',
+    async (credentials: any, { dispatch, rejectWithValue }) => {
+
+        try {
+            const response = await authAPI.signup(credentials);
+
+            const { token, ...user } = response.data.user;
+
+            tokenManager.setToken(token);
+
+            return user as UserDetails
+
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || "signup failed")
+        }
+    }
+)
+
 export const fetchUserProfile = createAsyncThunk(
     'user/fetchProfile',
     async (_, { rejectWithValue }) => {
@@ -74,8 +94,8 @@ export const fetchUserProfile = createAsyncThunk(
 
 export const initializeAuth = createAsyncThunk(
     'user/initializeAuth',
-    async (_, {  }) => {
-    // async (_, { dispatch, rejectWithValue }) => {
+    async (_, { }) => {
+        // async (_, { dispatch, rejectWithValue }) => {
 
         try {
             const token = tokenManager.getToken();
@@ -90,7 +110,7 @@ export const initializeAuth = createAsyncThunk(
 
             return {
                 isAuthenticated: true,
-                user: response.data.user 
+                user: response.data.user
             };
 
         } catch (error: any) {
@@ -106,7 +126,7 @@ export const initializeAuth = createAsyncThunk(
 
 export const logoutUser = createAsyncThunk(
     'user/logout',
-    async (_, {  }) => {
+    async (_, { }) => {
 
         try {
 
@@ -139,6 +159,11 @@ export const refreshUserProfile = createAsyncThunk(
 export const authAPI = {
     login: async (credentials: LoginCredentials) => {
         let res = await httpClient.post('/auth/login', credentials)
+        return res
+    },
+
+    signup: async (credentials: any) => {
+        let res = await httpClient.post('/auth/signup/verify-otp', credentials)
         console.log("res of login", res);
         return res
     },
