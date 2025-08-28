@@ -3,7 +3,7 @@
 
 
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { loginUser, initializeAuth, logoutUser, fetchUserProfile } from './userThunks';
+import { loginUser, initializeAuth, logoutUser, fetchUserProfile, signupUser } from './userThunks';
 
 export interface UserDetails {
     id: string;
@@ -20,7 +20,7 @@ interface UserState {
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
     error: string | null;
     isInitialized: boolean;
-    profileLoading: boolean; // Separate loading state for profile fetches
+    profileLoading: boolean; 
 }
 
 const initialState: UserState = {
@@ -62,9 +62,6 @@ export const userSlice = createSlice({
 
     extraReducers: (builder) => {
         builder
-
-
-            // Login cases - only handle token, fetch user data separately
             .addCase(loginUser.pending, (state) => {
                 state.status = 'loading';
                 state.error = null;
@@ -84,8 +81,25 @@ export const userSlice = createSlice({
             })
 
 
+            .addCase(signupUser.pending, (state, action) => {
+                state.status = 'loading';
+                state.error = null
+            })
 
-            // Initialize auth cases
+            .addCase(signupUser.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.isAuthenticated = true;
+                state.user = action.payload;
+                state.isAdmin = action.payload.isAdmin;
+                state.profileLoading = false;
+                state.error = null;
+            })
+
+            .addCase(signupUser.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error =  'signup failed';
+            })
+
             .addCase(initializeAuth.fulfilled, (state, action) => {
                 state.isAuthenticated = action.payload.isAuthenticated;
                 if (action.payload.user) {
@@ -100,20 +114,7 @@ export const userSlice = createSlice({
                 state.status = 'idle';
             })
 
-            // Fetch user profile cases
-            // .addCase(fetchUserProfile.pending, (state) => {
-            //     state.profileLoading = true;
-            // })
-            // .addCase(fetchUserProfile.fulfilled, (state, action) => {
-            //     state.user = action.payload;
-            //     state.isAdmin = action.payload.isAdmin;
-            //     state.profileLoading = false;
-            //     state.error = null;
-            // })
-            // .addCase(fetchUserProfile.rejected, (state, action) => {
-            //     state.profileLoading = false;
-            //     state.error = action.payload.message || 'Failed to fetch user profile';
-            // })
+
 
             // Logout cases
             .addCase(logoutUser.fulfilled, (state) => {
