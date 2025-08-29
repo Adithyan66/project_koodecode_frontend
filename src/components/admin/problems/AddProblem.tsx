@@ -221,7 +221,7 @@ const AddProblem = () => {
 
       try {
         
-        let res = await httpClient.post(`admin/problems`, problemData)
+        let res = await httpClient.post(`admin/problems/create-problem`, problemData)
 
         if (res.data.success) {
           toast.success("success")
