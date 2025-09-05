@@ -6,6 +6,7 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { loginUser, initializeAuth, logoutUser, fetchUserProfile, signupUser } from './userThunks';
 
 export interface UserDetails {
+    userName: string;
     id: string;
     fullName: string;
     email: string;

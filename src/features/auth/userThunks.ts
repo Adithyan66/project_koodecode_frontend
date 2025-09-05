@@ -5,6 +5,7 @@ import { tokenManager } from '../../utils/tokenManager';
 import type { UserDetails } from './userSlice';
 import httpClient from '../../services/axios/httpClient';
 import { toast } from 'react-toastify';
+import { authAPI } from '../../services/axios/auth/authService';
 
 
 
@@ -41,7 +42,7 @@ export const loginUser = createAsyncThunk<
             return user as UserDetails
 
         } catch (error: any) {
-        
+
             return rejectWithValue(error.response?.data?.message || 'Login failed');
         }
     }
@@ -62,10 +63,16 @@ export const signupUser = createAsyncThunk(
             return user as UserDetails
 
         } catch (error: any) {
-            return rejectWithValue(error.response?.data?.message || "signup failed")
+            // return rejectWithValue(error.response?.data?.message || "signup failed")
+
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({ message: 'Network error occurred' });
         }
     }
 )
+
 
 export const fetchUserProfile = createAsyncThunk(
     'user/fetchProfile',
@@ -156,33 +163,33 @@ export const refreshUserProfile = createAsyncThunk(
 
 
 
-export const authAPI = {
-    login: async (credentials: LoginCredentials) => {
-        let res = await httpClient.post('/auth/login', credentials)
-        return res
-    },
+// export const authAPI = {
+//     login: async (credentials: LoginCredentials) => {
+//         let res = await httpClient.post('/auth/login', credentials)
+//         return res
+//     },
 
-    signup: async (credentials: any) => {
-        let res = await httpClient.post('/auth/signup/verify-otp', credentials)
-        console.log("res of login", res);
-        return res
-    },
+//     signup: async (credentials: any) => {
+//         let res = await httpClient.post('/auth/signup/verify-otp', credentials)
+//         console.log("res of login", res);
+//         return res
+//     },
 
-    getProfile: (token?: string) =>
+//     getProfile: (token?: string) =>
 
-        httpClient.get('/auth/profile'),
+//         httpClient.get('/auth/profile'),
 
-    validateTokenAndGetUser: (token: string) =>
+//     validateTokenAndGetUser: (token: string) =>
 
-        httpClient.get('/auth/validate', {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-    ,
+//         httpClient.get('/auth/validate', {
+//             headers: { Authorization: `Bearer ${token}` }
+//         })
+//     ,
 
-    logout: (token: string) =>
+//     logout: (token: string) =>
 
-        httpClient.post('/auth/logout', {}, {
-            headers: { Authorization: `Bearer ${token}` }
-        }),
-};
+//         httpClient.post('/auth/logout', {}, {
+//             headers: { Authorization: `Bearer ${token}` }
+//         }),
+// };
 
