@@ -5,39 +5,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Users, MessageSquare, Trophy, User, Settings, LogOut, HelpCircle } from 'lucide-react';
 import homeHero from "../../assets/images/Homepage-BigHero-1200x500_2x.webp"
-import Logo from "../../assets/images/Screenshot from 2025-08-02 10-50-58 1.svg"
-import userIcon from "../../assets/images/Icon.svg"
+import handShakeImg from "../../assets/images/ChatGPT_Image_Aug_2__2025__11_16_25_AM-removebg-preview 1.svg"
 
-import { Link } from "react-router-dom"
+
 import Navbar from '../../components/user/Navbar';
 
 
 const LandingPage: React.FC = () => {
-    // const [isModalOpen, setIsModalOpen] = useState(false);
-    // const modalRef = useRef<HTMLDivElement>(null);
-    // const userIconRef = useRef<HTMLImageElement>(null);
 
-    // // Close modal when clicking outside
-    // useEffect(() => {
-    //     const handleClickOutside = (event: MouseEvent) => {
-    //         if (modalRef.current && !modalRef.current.contains(event.target as Node) &&
-    //             userIconRef.current && !userIconRef.current.contains(event.target as Node)) {
-    //             setIsModalOpen(false);
-    //         }
-    //     };
-
-    //     if (isModalOpen) {
-    //         document.addEventListener('mousedown', handleClickOutside);
-    //     }
-
-    //     return () => {
-    //         document.removeEventListener('mousedown', handleClickOutside);
-    //     };
-    // }, [isModalOpen]);
-
-    // const toggleModal = () => {
-    //     setIsModalOpen(!isModalOpen);
-    // };
 
     return (
         <div className="min-h-screen bg-black text-white">
@@ -67,24 +42,9 @@ const LandingPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="relative">
-                            <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-8 transform rotate-3 hover:rotate-0 transition-transform duration-300">
-                                <div className="bg-white rounded-lg p-4 mb-4">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="w-10 h-10 bg-orange-400 rounded-full"></div>
-                                        <div className="w-10 h-10 bg-blue-400 rounded-full"></div>
-                                        <div className="w-10 h-10 bg-pink-400 rounded-full"></div>
-                                    </div>
-                                </div>
-                                <div className="text-center">
-                                    <div className="w-16 h-16 bg-yellow-400 rounded-full mx-auto mb-4"></div>
-                                    <div className="space-y-2">
-                                        <div className="h-2 bg-white/30 rounded w-3/4 mx-auto"></div>
-                                        <div className="h-2 bg-white/30 rounded w-1/2 mx-auto"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        {/* <div className=""> */}
+                            <img src={handShakeImg} alt="" />
+                        {/* </div> */}
                     </div>
                 </div>
 

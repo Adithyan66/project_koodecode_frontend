@@ -1,26 +1,34 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { BrowserRouter } from "react-router-dom"
 import { Provider } from "react-redux"
 import { store } from "./store"
 import Router from "./router"
+import httpClient from "../services/axios/httpClient"
+import { useAppDispatch, useAppSelector } from "./hooks"
+import { initializeAuth } from "../features/auth/userThunks"
+import { ToastContainer, toast } from 'react-toastify';
 
 
 
 function App() {
 
-      console.log("isAuthenticated:", );
+  const dispatch = useAppDispatch()
+
+  useEffect(() => {
+
+    dispatch(initializeAuth());
+
+  }, [dispatch]);
+
 
 
   return (
-
-    <Provider store={store}  >
-
+    <>
       <BrowserRouter>
         <Router />
       </BrowserRouter>
-
-    </Provider>
-
+      <ToastContainer position="top-center" autoClose={4000} hideProgressBar />
+    </>
   )
 }
 

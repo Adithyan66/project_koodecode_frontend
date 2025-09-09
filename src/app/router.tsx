@@ -10,52 +10,35 @@ import { useAppSelector } from './hooks'
 import React from 'react'
 
 import UserProtected from "../components/protectedRoutes/UserProtected"
+import AdminProtected from '../components/protectedRoutes/AdminProtected'
+import ProblemListingPage from '../pages/admin/ProblemListingPage'
+import { DashboardPage } from '../pages/admin/DashboardPage'
+import AddProblemPage from '../pages/admin/AddProblemPage'
+import ProfilePage from '../pages/user/ProfilePage'
 
 export default function Router() {
 
-    const isAuthenticated = useAppSelector(state => state.user.isAuthenticated);
-
-    const isAdmin = useAppSelector(state => state.user.user?.isAdmin === true);
-
-    console.log("isAuthenticated:", isAdmin);
 
     return (
+
         <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
 
-            <Route path="/*" element={
 
-                (isAuthenticated && !isAdmin) ? (
+            <Route path="/problems" element={<UserProtected><Problems /></UserProtected>} />
+            <Route path="/problem/:problemId" element={<UserProtected><ProblemSolvingPage /></UserProtected>} />
 
-                    <React.Suspense fallback={<div>Loading...</div>}>
-                        <Route path="/problems" element={<UserProtected><Problems /></UserProtected>} />
-                        <Route path="/problem/:id" element={<UserProtected><ProblemSolvingPage /></UserProtected>} />
-                        <Route path="*" element={<Navigate to="/" />} />
-                    </React.Suspense>
-
-                )
-                    : (
-                        <Navigate to="/login" />
-                    )
-            } />
+            <Route path="/profile" element={<UserProtected><ProfilePage /></UserProtected>} />
 
 
-
-
-
-
-            < Route path="/admin/*" element={
-                isAuthenticated ? (
-                    <React.Suspense fallback={< div > Loading...</div>}>
-                        <h1>Admin Panel - Under Construction</h1>
-                    </React.Suspense >
-                ) : (
-                    <Navigate to="/login" />
-                )
-            } />
-
-        </Routes >
+            <Route path="/admin/dashboard" element={<AdminProtected> <DashboardPage /></AdminProtected>} />
+            <Route path="/admin/problems" element={<AdminProtected> <ProblemListingPage /></AdminProtected>} />
+            <Route path="/admin/problems/addProblem" element={<AdminProtected> <AddProblemPage /></AdminProtected>} />
+            <Route path="/admin/*" element={<AdminProtected> <DashboardPage /></AdminProtected>} />
+        </Routes>
     )
 }
+
+
