@@ -14,7 +14,7 @@ import AdminProtected from '../components/protectedRoutes/AdminProtected'
 import ProblemListingPage from '../pages/admin/ProblemListingPage'
 import { DashboardPage } from '../pages/admin/DashboardPage'
 import AddProblemPage from '../pages/admin/AddProblemPage'
-import ProfilePage from '../pages/user/ProfilePage'
+import UserProfilePage from '../pages/user/UserProfilePage'
 
 export default function Router() {
 
@@ -30,7 +30,7 @@ export default function Router() {
             <Route path="/problems" element={<UserProtected><Problems /></UserProtected>} />
             <Route path="/problem/:problemId" element={<UserProtected><ProblemSolvingPage /></UserProtected>} />
 
-            <Route path="/profile" element={<UserProtected><ProfilePage /></UserProtected>} />
+            <Route path="/profile" element={<UserProtected><UserProfilePage /></UserProtected>} />
 
 
             <Route path="/admin/dashboard" element={<AdminProtected> <DashboardPage /></AdminProtected>} />
