@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+
+
+
+import React, { useEffect, useState } from 'react';
 import { ProfileHeader } from '../../components/user/profile/ProfileHeader';
 import { StatsOverview } from '../../components/user/profile/StatsOverview';
 import { ProblemStatsChart } from '../../components/user/profile/ProblemStatsChart';
@@ -6,112 +9,52 @@ import { StreakCalendar } from '../../components/user/profile/StreakCalendar';
 import { BadgeShowcase } from '../../components/user/profile/BadgeShowcase';
 import { RecentActivity } from '../../components/user/profile/RecentActivity';
 import { SocialStats } from '../../components/user/profile/SocialStats';
-import type { Badge } from '../../types/profile';
-import type { UserProfileData } from '../../types/profile';
+import type { Badge, UserProfileData } from '../../types/profile';
+import Navbar from '../../components/user/Navbar';
+import httpClient from '../../services/axios/httpClient';
 
-
-// Dummy data - matches your backend response structure
-const dummyUserProfile: UserProfileData = {
-    user: {
-        id: "user123",
-        fullName: "Adithyan Kumar",
-        userName: "adithyan_dev",
-        email: "adithyan@koodecode.com",
-        profilePicUrl: undefined
-    },
-    profile: {
-        bio: "Full-stack developer passionate about algorithms and clean code architecture. Building KoodeCode with TypeScript, MongoDB, and React. Love solving complex problems and teaching others! 🚀",
-        location: "Kerala, India",
-        githubUrl: "https://github.com/adithyan",
-        linkedinUrl: "https://linkedin.com/in/adithyan-kumar",
-        isPremium: true,
-        ranking: 1247,
-        coinBalance: 2500,
-        gender: "male"
-    },
-    stats: {
-        followersCount: 234,
-        followingCount: 189,
-        totalProblems: 247,
-        problemsByDifficulty: {
-            easy: 87,
-            medium: 134,
-            hard: 26
-        },
-        streak: {
-            current: 23,
-            max: 67,
-            lastActiveDate: "2025-09-09T00:00:00.000Z"
-        },
-        badges: 12,
-        acceptanceRate: 73.2,
-        contestRating: 1856,
-        activeDays: 156
-    },
-    activities: {
-        "2025-09-09": 4,
-        "2025-09-08": 2,
-        "2025-09-07": 1,
-        "2025-09-06": 3,
-        "2025-09-05": 1,
-        "2025-09-04": 5,
-        "2025-09-03": 2,
-        "2025-09-02": 1,
-        "2025-09-01": 3,
-        "2025-08-31": 2,
-        "2025-08-30": 4,
-        "2025-08-29": 1,
-        "2025-08-28": 2,
-        "2025-08-27": 3,
-        // ... more activity data for past 365 days
-    },
-    recentBadges: [
-        {
-            badgeId: "badge1",
-            name: "Streak Master",
-            description: "Maintained a 30-day coding streak",
-            iconUrl: "/badges/streak-master.svg",
-            badgeType: "streak_master",
-            rarity: "rare",
-            awardedAt: "2025-09-08T10:30:00.000Z"
-        },
-        {
-            badgeId: "badge2",
-            name: "Problem Solver",
-            description: "Solved 200 problems",
-            iconUrl: "/badges/problem-solver.svg",
-            badgeType: "problem_solver",
-            rarity: "epic",
-            awardedAt: "2025-09-05T14:15:00.000Z"
-        },
-        {
-            badgeId: "badge3",
-            name: "Hard Hitter",
-            description: "Solved 25 Hard problems",
-            iconUrl: "/badges/hard-hitter.svg",
-            badgeType: "difficulty_master",
-            rarity: "legendary",
-            awardedAt: "2025-08-28T09:45:00.000Z"
-        }
-    ]
-};
 
 const UserProfilePage: React.FC = () => {
     const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
+    const [profileData, setProfileData] = useState<UserProfileData | null>(null);
+
+    async function fetchProfileData() {
+        try {
+            const response = await httpClient.get(`/user`);
+            if (response.data.success) {
+                setProfileData(response.data.data);
+            }
+        } catch (error) {
+            console.log("Error fetching profile:", error);
+        }
+    }
+
+    useEffect(() => {
+        fetchProfileData();
+    }, []);
+
+    if (!profileData) {
+        return (
+            <div className="min-h-screen bg-black text-white flex items-center justify-center">
+                <p>Loading profile...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-black text-white">
+            <Navbar />
             <div className="max-w-7xl mx-auto px-4 py-8">
 
                 {/* Profile Header */}
                 <ProfileHeader
-                    user={dummyUserProfile.user}
-                    profile={dummyUserProfile.profile}
+                    user={profileData.user}
+                    profile={profileData.profile}
                 />
 
                 {/* Stats Overview */}
                 <div className="mt-8">
-                    <StatsOverview stats={dummyUserProfile.stats} />
+                    <StatsOverview stats={profileData.stats} />
                 </div>
 
                 {/* Main Content Grid */}
@@ -119,43 +62,32 @@ const UserProfilePage: React.FC = () => {
 
                     {/* Left Column - Charts and Calendar */}
                     <div className="lg:col-span-2 space-y-8">
+                        <ProblemStatsChart stats={profileData.stats} />
 
-                        {/* Problem Stats Chart */}
-                        <ProblemStatsChart
-                            stats={dummyUserProfile.stats}
-                        />
-
-                        {/* Streak Calendar */}
                         <StreakCalendar
-                            activities={dummyUserProfile.activities}
-                            currentStreak={dummyUserProfile.stats.streak.current}
-                            maxStreak={dummyUserProfile.stats.streak.max}
+                            activities={profileData.activities}
+                            currentStreak={profileData.stats.streak.current}
+                            maxStreak={profileData.stats.streak.max}
                         />
-
                     </div>
 
                     {/* Right Column - Badges and Activity */}
                     <div className="space-y-8">
-
-                        {/* Social Stats */}
                         <SocialStats
-                            followersCount={dummyUserProfile.stats.followersCount}
-                            followingCount={dummyUserProfile.stats.followingCount}
+                            followersCount={profileData.stats.followersCount}
+                            followingCount={profileData.stats.followingCount}
                         />
 
-                        {/* Badge Showcase */}
                         <BadgeShowcase
-                            badges={dummyUserProfile.recentBadges}
-                            totalBadges={dummyUserProfile.stats.badges}
+                            badges={profileData.recentBadges}
+                            totalBadges={profileData.stats.badges}
                             onBadgeClick={setSelectedBadge}
                         />
 
-                        {/* Recent Activity */}
                         <RecentActivity
-                            activities={dummyUserProfile.activities}
-                            recentBadges={dummyUserProfile.recentBadges}
+                            activities={profileData.activities}
+                            recentBadges={profileData.recentBadges}
                         />
-
                     </div>
                 </div>
 
@@ -166,7 +98,6 @@ const UserProfilePage: React.FC = () => {
                         onClose={() => setSelectedBadge(null)}
                     />
                 )}
-
             </div>
         </div>
     );
@@ -179,7 +110,7 @@ interface BadgeDetailModalProps {
 }
 
 const BadgeDetailModal: React.FC<BadgeDetailModalProps> = ({ badge, onClose }) => {
-    const rarityColors = {
+    const rarityColors: Record<string, string> = {
         common: 'from-gray-600 to-gray-700',
         rare: 'from-blue-600 to-blue-700',
         epic: 'from-purple-600 to-purple-700',
@@ -190,7 +121,7 @@ const BadgeDetailModal: React.FC<BadgeDetailModalProps> = ({ badge, onClose }) =
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
             <div className="bg-gray-900 rounded-xl p-6 max-w-md w-full mx-4 border border-gray-700">
                 <div className="flex justify-between items-start mb-4">
-                    <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${rarityColors[badge.rarity]} flex items-center justify-center text-2xl`}>
+                    <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${rarityColors[badge.rarity] || 'from-gray-600 to-gray-700'} flex items-center justify-center text-2xl`}>
                         🏆
                     </div>
                     <button
@@ -207,8 +138,8 @@ const BadgeDetailModal: React.FC<BadgeDetailModalProps> = ({ badge, onClose }) =
                 <p className="text-gray-300 mb-4">{badge.description}</p>
 
                 <div className="flex items-center justify-between">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${rarityColors[badge.rarity]} text-white`}>
-                        {badge.rarity.charAt(0).toUpperCase() + badge.rarity.slice(1)}
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${rarityColors[badge.rarity] || 'from-gray-600 to-gray-700'} text-white`}>
+                        {badge.rarity?.charAt(0).toUpperCase() + badge.rarity?.slice(1)}
                     </span>
                     <span className="text-gray-400 text-sm">
                         {new Date(badge.awardedAt).toLocaleDateString()}
@@ -219,5 +150,4 @@ const BadgeDetailModal: React.FC<BadgeDetailModalProps> = ({ badge, onClose }) =
     );
 };
 
-
-export default UserProfilePage
+export default UserProfilePage;

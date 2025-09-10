@@ -15,6 +15,7 @@ import ProblemListingPage from '../pages/admin/ProblemListingPage'
 import { DashboardPage } from '../pages/admin/DashboardPage'
 import AddProblemPage from '../pages/admin/AddProblemPage'
 import UserProfilePage from '../pages/user/UserProfilePage'
+import SettingsPage from '../pages/user/SettingsPage'
 
 export default function Router() {
 
@@ -31,6 +32,7 @@ export default function Router() {
             <Route path="/problem/:problemId" element={<UserProtected><ProblemSolvingPage /></UserProtected>} />
 
             <Route path="/profile" element={<UserProtected><UserProfilePage /></UserProtected>} />
+            <Route path="/settings" element={<UserProtected><SettingsPage /></UserProtected>} />
 
 
             <Route path="/admin/dashboard" element={<AdminProtected> <DashboardPage /></AdminProtected>} />
