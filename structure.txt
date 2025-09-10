@@ -1,6 +1,9 @@
 tree  -I 'node_modules' > structure.txt
 
 
+
+
+
 ├── eslint.config.js
 ├── index.html
 ├── package.json
@@ -34,7 +37,22 @@ tree  -I 'node_modules' > structure.txt
 │   │   └── user
 │   │       ├── codeEditor
 │   │       │   └── CodeEditor.tsx
-│   │       └── Navbar.tsx
+│   │       ├── Navbar.tsx
+│   │       ├── profile
+│   │       │   ├── BadgeShowcase.tsx
+│   │       │   ├── ProblemStatsChart.tsx
+│   │       │   ├── ProfileHeader.tsx
+│   │       │   ├── RecentActivity.tsx
+│   │       │   ├── SocialStats.tsx
+│   │       │   ├── StatsOverview.tsx
+│   │       │   └── StreakCalendar.tsx
+│   │       └── settings
+│   │           ├── AccessibilitySettings.tsx
+│   │           ├── AccountData.tsx
+│   │           ├── CodingPreferences.tsx
+│   │           ├── NotificationSettings.tsx
+│   │           ├── ProfileSettings.tsx
+│   │           └── SecurityPrivacy.tsx
 │   ├── features
 │   │   └── auth
 │   │       ├── userSlice.ts
@@ -53,13 +71,21 @@ tree  -I 'node_modules' > structure.txt
 │   │       ├── OtpPage.tsx
 │   │       ├── ProblemSolvingPage.tsx
 │   │       ├── Problems.tsx
-│   │       └── SignupPage.tsx
+│   │       ├── SettingsPage.tsx
+│   │       ├── SignupPage.tsx
+│   │       └── UserProfilePage.tsx
 │   ├── services
 │   │   ├── axios
+│   │   │   ├── admin
 │   │   │   ├── auth
 │   │   │   │   └── authService.ts
-│   │   │   └── httpClient.ts
+│   │   │   ├── httpClient.ts
+│   │   │   └── user
+│   │   │       └── problem.ts
+│   │   ├── ImageKitService.ts
 │   │   └── socketClient.ts
+│   ├── types
+│   │   └── profile.ts
 │   ├── utils
 │   │   └── tokenManager.ts
 │   └── vite-env.d.ts
@@ -69,4 +95,4 @@ tree  -I 'node_modules' > structure.txt
 ├── tsconfig.node.json
 └── vite.config.ts
 
-20 directories, 48 files
+25 directories, 66 files

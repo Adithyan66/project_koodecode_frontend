@@ -4,6 +4,7 @@ import React from 'react';
 
 import type { User } from '../../../types/profile';
 import type { UserProfile } from '../../../types/profile';
+import Avatar from '../Avatar';
 
 
 interface ProfileHeaderProps {
@@ -22,7 +23,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, profile }) =
       <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6">
         
         {/* Avatar */}
-        <div className="flex-shrink-0">
+        {/* <div className="flex-shrink-0">
           {user.profilePicUrl ? (
             <img 
               src={user.profilePicUrl}
@@ -34,7 +35,15 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, profile }) =
               {getInitials(user.fullName)}
             </div>
           )}
-        </div>
+        </div> */}
+
+         <Avatar 
+                profileImageKey={user.profileImageKey}
+                username={"user.username"}
+                // username={user.username}
+                size="xl"
+                className="border-4 border-white shadow-lg"
+            />
 
         {/* User Info */}
         <div className="flex-grow">

@@ -94,11 +94,11 @@ const Problems: React.FC = () => {
         [31, null, null, null, null, null, null],
     ];
 
-    if (problems.length == 0) {
-        console.log("workss for problem");
+    // if (problems.length == 0) {
+    //     console.log("workss for problem");
 
-        return <h1>Loading........</h1>
-    }
+    //     return <h1>Loading........</h1>
+    // }
 
     return (
         <div className="min-h-screen bg-black text-white">
