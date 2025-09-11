@@ -10,28 +10,27 @@ interface AvatarProps {
     className?: string;
 }
 
-const Avatar: React.FC<AvatarProps> = ({ 
-    profileImageKey, 
-    username, 
-    size = 'md', 
-    className = '' 
+const Avatar: React.FC<AvatarProps> = ({
+    profileImageKey,
+    username,
+    size = 'md',
+    className = ''
 }) => {
     const sizeClasses = {
         xs: 'w-6 h-6 text-xs',
         sm: 'w-8 h-8 text-sm',
         md: 'w-10 h-10 text-base',
         lg: 'w-12 h-12 text-lg',
-        xl: 'w-16 h-16 text-xl'
+        xl: 'w-40 h-36 text-xl'
     };
 
-    const optimizedImageUrl = profileImageKey 
-        ? imageKitService.getProfileImageUrl(profileImageKey, 'small')
+    const optimizedImageUrl = profileImageKey
+        ? imageKitService.getProfileImageUrl(profileImageKey, 200, 200,)
         : null;
 
     return (
         <div className={`
             ${sizeClasses[size]} 
-            rounded-full 
             overflow-hidden 
             bg-gray-300 
             dark:bg-gray-600 
@@ -41,8 +40,8 @@ const Avatar: React.FC<AvatarProps> = ({
             ${className}
         `}>
             {optimizedImageUrl ? (
-                <img 
-                    src={optimizedImageUrl} 
+                <img
+                    src={optimizedImageUrl}
                     alt={`${username}'s avatar`}
                     className="w-full h-full object-cover"
                     loading="lazy"

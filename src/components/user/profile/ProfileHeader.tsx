@@ -13,36 +13,25 @@ interface ProfileHeaderProps {
 }
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, profile }) => {
-  // Generate initials from full name
+
+
   const getInitials = (name: string) => {
+
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
+
 
   return (
     <div className="bg-gray-900 rounded-xl p-6 border border-gray-700">
       <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6">
         
         {/* Avatar */}
-        {/* <div className="flex-shrink-0">
-          {user.profilePicUrl ? (
-            <img 
-              src={user.profilePicUrl}
-              alt={user.fullName}
-              className="w-24 h-24 rounded-full border-2 border-gray-600"
-            />
-          ) : (
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold border-2 border-gray-600">
-              {getInitials(user.fullName)}
-            </div>
-          )}
-        </div> */}
 
          <Avatar 
-                profileImageKey={user.profileImageKey}
-                username={"user.username"}
-                // username={user.username}
+                profileImageKey={user.profilePicKey}
+                username={user.userName}
                 size="xl"
-                className="border-4 border-white shadow-lg"
+                className=" border-white shadow-lg"
             />
 
         {/* User Info */}

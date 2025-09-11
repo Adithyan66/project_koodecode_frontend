@@ -23,6 +23,8 @@ const UserProfilePage: React.FC = () => {
             const response = await httpClient.get(`/user`);
             if (response.data.success) {
                 setProfileData(response.data.data);
+                console.log(response.data.data);
+                
             }
         } catch (error) {
             console.log("Error fetching profile:", error);

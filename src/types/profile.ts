@@ -5,7 +5,7 @@ export interface User {
   fullName: string;
   userName: string;
   email: string;
-  profilePicUrl?: string;
+  profilePicKey?: string;
 }
 
 export interface UserProfile {
