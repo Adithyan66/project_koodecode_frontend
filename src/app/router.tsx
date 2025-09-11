@@ -16,6 +16,7 @@ import { DashboardPage } from '../pages/admin/DashboardPage'
 import AddProblemPage from '../pages/admin/AddProblemPage'
 import UserProfilePage from '../pages/user/UserProfilePage'
 import SettingsPage from '../pages/user/SettingsPage'
+import ForgotPasswordPage from '../pages/user/ForgotPasswordPage'
 
 export default function Router() {
 
@@ -26,6 +27,7 @@ export default function Router() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/forgot" element={<ForgotPasswordPage />} />
 
 
             <Route path="/problems" element={<UserProtected><Problems /></UserProtected>} />

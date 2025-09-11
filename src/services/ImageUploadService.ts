@@ -28,6 +28,7 @@ export class ImageUploadService {
             headers: {
                 'Content-Type': file.type,
                 // 'ACL': 'public-read'
+                // 'x-amz-acl': 'public-read'
             },
             onUploadProgress: (progressEvent) => {
                 if (onProgress && progressEvent.total) {
