@@ -45,4 +45,9 @@ export const authAPI = {
         httpClient.post('/auth/logout', {}, {
             headers: { Authorization: `Bearer ${token}` }
         }),
+
+    requestPasswordReset: (email: string) =>
+
+        httpClient.post(`auth/forgot/request-otp`, { email })
+
 };
