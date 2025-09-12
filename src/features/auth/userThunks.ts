@@ -130,6 +130,33 @@ export const initializeAuth = createAsyncThunk(
 );
 
 
+export const forgotPassword = createAsyncThunk(
+    'user/forgot-password',
+    async (data: any, { dispatch, rejectWithValue }) => {
+
+        try {
+            console.log("ivte varatteee,", data.email, data.otp, data.password);
+
+            let response = await authAPI.resetPassword(data.email, data.otp, data.password)
+
+            console.log(response.data.user);
+
+            const { token, ...user } = response.data.user;  
+
+            tokenManager.setToken(token);
+
+            return user as UserDetails;  
+
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue({ message: 'Network error occurred' });
+        }
+    }
+)
+
+
 
 export const logoutUser = createAsyncThunk(
     'user/logout',
@@ -161,35 +188,4 @@ export const refreshUserProfile = createAsyncThunk(
     }
 );
 
-
-
-// export const authAPI = {
-//     login: async (credentials: LoginCredentials) => {
-//         let res = await httpClient.post('/auth/login', credentials)
-//         return res
-//     },
-
-//     signup: async (credentials: any) => {
-//         let res = await httpClient.post('/auth/signup/verify-otp', credentials)
-//         console.log("res of login", res);
-//         return res
-//     },
-
-//     getProfile: (token?: string) =>
-
-//         httpClient.get('/auth/profile'),
-
-//     validateTokenAndGetUser: (token: string) =>
-
-//         httpClient.get('/auth/validate', {
-//             headers: { Authorization: `Bearer ${token}` }
-//         })
-//     ,
-
-//     logout: (token: string) =>
-
-//         httpClient.post('/auth/logout', {}, {
-//             headers: { Authorization: `Bearer ${token}` }
-//         }),
-// };
 

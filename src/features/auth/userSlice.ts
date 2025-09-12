@@ -3,7 +3,7 @@
 
 
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { loginUser, initializeAuth, logoutUser, fetchUserProfile, signupUser } from './userThunks';
+import { loginUser, initializeAuth, logoutUser, fetchUserProfile, signupUser, forgotPassword } from './userThunks';
 
 export interface UserDetails {
     userName: string;
@@ -21,7 +21,7 @@ interface UserState {
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
     error: string | null;
     isInitialized: boolean;
-    profileLoading: boolean; 
+    profileLoading: boolean;
 }
 
 const initialState: UserState = {
@@ -98,7 +98,7 @@ export const userSlice = createSlice({
 
             .addCase(signupUser.rejected, (state, action) => {
                 state.status = 'failed';
-                state.error =  'signup failed';
+                state.error = 'signup failed';
             })
 
             .addCase(initializeAuth.fulfilled, (state, action) => {
@@ -116,8 +116,26 @@ export const userSlice = createSlice({
             })
 
 
+            .addCase(forgotPassword.pending, (state, action) => {
+                state.status = 'loading';
+                state.error = null;
+            })
 
-            // Logout cases
+            .addCase(forgotPassword.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.isAuthenticated = true;
+                state.user = action.payload;
+                state.isAdmin = action.payload.isAdmin;
+                state.profileLoading = false;
+                state.error = null;
+
+            })
+            .addCase(forgotPassword.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload?.message || 'request failed';
+            })
+
+
             .addCase(logoutUser.fulfilled, (state) => {
                 state.user = null;
                 state.isAuthenticated = false;

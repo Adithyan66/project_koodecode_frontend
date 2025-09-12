@@ -6,6 +6,10 @@ import Navbar from '../../components/user/Navbar';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { authAPI } from '../../services/axios/auth/authService';
+import { forgotPassword } from '../../features/auth/userThunks';
+import { useDispatch } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import axios from 'axios';
 
 interface ForgotPasswordPageProps { }
 
@@ -19,6 +23,11 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [timeLeft, setTimeLeft] = useState(60);
     const [isLoading, setIsLoading] = useState(false);
+
+    const dispatch = useAppDispatch()
+
+    const { user, status } = useAppSelector(state => state.user);
+    const isAdmin = useAppSelector(state => state.user.user?.isAdmin === true)
 
     // Error states
     const [errors, setErrors] = useState({
@@ -183,33 +192,14 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = () => {
             !errors.confirmPassword;
     };
 
-    // API call functions (replace with your actual API calls)
-    // const requestPasswordReset = async (email: string) => {
-    //     // Replace with your actual API call
-    //     console.log('Requesting password reset for:', email);
-    //     // Simulate API call
-    //     return new Promise((resolve) => setTimeout(resolve, 1000));
-    // };
 
-    // const verifyOtp = async (email: string, otpCode: string) => {
-    //     // Replace with your actual API call
-    //     console.log('Verifying OTP:', otpCode, 'for email:', email);
-    //     // Simulate API call
-    //     return new Promise((resolve) => setTimeout(resolve, 1000));
-    // };
 
-    const resetPassword = async (email: string, otpCode: string, newPassword: string) => {
-        // Replace with your actual API call
-        console.log('Resetting password for:', email);
-        // Simulate API call
-        return new Promise((resolve) => setTimeout(resolve, 1000));
-    };
 
     const resendOtp = async (email: string) => {
         // Replace with your actual API call
         console.log('Resending OTP for:', email);
-        // Simulate API call
-        return new Promise((resolve) => setTimeout(resolve, 1000));
+        setOtp(['', '', '', '', ''])
+        await authAPI.requestPasswordReset(email);
     };
 
     // Form submission handlers
@@ -225,7 +215,7 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = () => {
 
         try {
             await authAPI.requestPasswordReset(email);
-            toast.success('OTP sent to your email address');  
+            toast.success('OTP sent to your email address');
             setCurrentStep('otp');
             setTimeLeft(60);
         } catch (error: any) {
@@ -234,27 +224,6 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = () => {
             setIsSubmitting(false);
         }
     };
-
-    // const handleOtpSubmit = async (e: React.FormEvent) => {
-    //     e.preventDefault();
-
-    //     if (!validateField('otp', otp)) {
-    //         toast.error('Please enter a valid OTP');
-    //         return;
-    //     }
-
-    //     setIsSubmitting(true);
-
-    //     try {
-    //         await verifyOtp(email, otp.join(''));
-    //         toast.success('OTP verified successfully');
-    //         setCurrentStep('reset');
-    //     } catch (error: any) {
-    //         toast.error(error?.message || 'Invalid OTP. Please try again.');
-    //     } finally {
-    //         setIsSubmitting(false);
-    //     }
-    // };
 
     const handlePasswordResetSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -270,10 +239,14 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = () => {
         setIsSubmitting(true);
 
         try {
-            await resetPassword(email, otp.join(''), newPassword);
+            console.log(email, otp.join(''), newPassword);
+
+            let res = await dispatch(forgotPassword({ email, otp: Number(otp.join('')), password: newPassword })).unwrap();
+
             toast.success('Password reset successfully');
-            navigate('/login');
+
         } catch (error: any) {
+
             toast.error(error?.message || 'Failed to reset password. Please try again.');
         } finally {
             setIsSubmitting(false);
@@ -296,6 +269,17 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = () => {
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (user) {
+            if (isAdmin) {
+                navigate('/admin/dashboard');
+            } else {
+                
+                navigate("/")
+            }
+        }
+    }, [status, user, navigate]);
 
     const renderStepContent = () => {
         switch (currentStep) {

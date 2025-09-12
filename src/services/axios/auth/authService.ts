@@ -46,8 +46,10 @@ export const authAPI = {
             headers: { Authorization: `Bearer ${token}` }
         }),
 
-    requestPasswordReset: (email: string) =>
+    requestPasswordReset: (email: string) => httpClient.post(`auth/forgot/request-otp`, { email })
 
-        httpClient.post(`auth/forgot/request-otp`, { email })
+    ,
+    
+    resetPassword: (email: string, otp: number, password: string) => httpClient.post(`auth/forgot/change-password`, { email, otp, password })
 
 };
