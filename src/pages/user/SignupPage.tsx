@@ -153,7 +153,7 @@ const SignupPage: React.FC = () => {
             }
         } catch (error) {
             if (axios.isAxiosError(error)) {
-                const errorMessage = error.response?.data?.message || 'Failed to send OTP. Please try again.';
+                const errorMessage = error.response?.data?.error || 'Failed to send OTP. Please try again.';
                 toast.error(errorMessage);
             } else {
                 toast.error('An unexpected error occurred');
