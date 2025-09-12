@@ -7,7 +7,7 @@ import Problems from '../pages/user/Problems'
 import ProblemSolvingPage from '../pages/user/ProblemSolvingPage'
 
 import { useAppSelector } from './hooks'
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import UserProtected from "../components/protectedRoutes/UserProtected"
 import AdminProtected from '../components/protectedRoutes/AdminProtected'
@@ -19,6 +19,7 @@ import SettingsPage from '../pages/user/SettingsPage'
 import ForgotPasswordPage from '../pages/user/ForgotPasswordPage'
 
 export default function Router() {
+
 
 
     return (
