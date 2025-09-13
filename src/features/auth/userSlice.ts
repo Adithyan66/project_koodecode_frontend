@@ -3,7 +3,7 @@
 
 
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { loginUser, initializeAuth, logoutUser, fetchUserProfile, signupUser, forgotPassword } from './userThunks';
+import { loginUser, initializeAuth, logoutUser, fetchUserProfile, signupUser, forgotPassword, googleOAuthLogin, githubOAuthLogin } from './userThunks';
 
 export interface UserDetails {
     userName: string;
@@ -98,8 +98,42 @@ export const userSlice = createSlice({
 
             .addCase(signupUser.rejected, (state, action) => {
                 state.status = 'failed';
-                state.error = 'signup failed';
+                // state.error = 'signup failed';
             })
+
+            .addCase(googleOAuthLogin.pending, (state) => {
+                state.status = 'loading';
+                state.error = null;
+            })
+            .addCase(googleOAuthLogin.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.isAuthenticated = true;
+                state.user = action.payload;
+                state.isAdmin = action.payload.isAdmin;
+                state.profileLoading = false;
+                state.error = null;
+            })
+            .addCase(googleOAuthLogin.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload?.message || 'Google authentication failed';
+            })
+            .addCase(githubOAuthLogin.pending, (state) => {
+                state.status = 'loading';
+                state.error = null;
+            })
+            .addCase(githubOAuthLogin.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.isAuthenticated = true;
+                state.user = action.payload;
+                state.isAdmin = action.payload.isAdmin;
+                state.profileLoading = false;
+                state.error = null;
+            })
+            .addCase(githubOAuthLogin.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload?.message || 'GitHub authentication failed';
+            })
+
 
             .addCase(initializeAuth.fulfilled, (state, action) => {
                 state.isAuthenticated = action.payload.isAuthenticated;
@@ -132,7 +166,7 @@ export const userSlice = createSlice({
             })
             .addCase(forgotPassword.rejected, (state, action) => {
                 state.status = 'failed';
-                state.error = action.payload?.message || 'request failed';
+                state.error = 'request failed this is hardcoded in slice check';
             })
 
 

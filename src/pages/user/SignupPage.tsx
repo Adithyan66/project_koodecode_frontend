@@ -12,6 +12,8 @@ import { Check } from 'lucide-react';
 import axios from 'axios'
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { signupUser } from '../../features/auth/userThunks';
+import { authAPI } from '../../services/axios/auth/authService';
+import AuthOButtons from '../../components/user/buttons/Auth0Buttons';
 
 const SignupPage: React.FC = () => {
     const [name, setName] = useState('');
@@ -91,7 +93,7 @@ const SignupPage: React.FC = () => {
     const validateOTP = (): boolean => {
         const otpValue = otp.join('');
         if (otpValue.length !== 5) {
-            toast.error('Please enter the complete 5-digit OTP');
+            toast.error('Please enter the complete 5-digit OTP', { toastId: 'otp-incomplete' });
             return false;
         }
 
@@ -102,6 +104,8 @@ const SignupPage: React.FC = () => {
 
         return true;
     };
+
+
 
     useEffect(() => {
         if (timeLeft > 0) {
@@ -138,11 +142,13 @@ const SignupPage: React.FC = () => {
 
         setIsLoading(true);
         try {
-            const response = await axios.post("http://localhost:3000/api/auth/signup/request-otp", {
-                email,
-                userName: username,
-                fullName: name
-            });
+            // const response = await axios.post("http://localhost:3000/api/auth/signup/request-otp", {
+            //     email,
+            //     userName: username,
+            //     fullName: name
+            // });
+
+            const response = await authAPI.signUpOtp(email, username, name)
 
             if (response.data.success) {
                 setTimeLeft(59);
@@ -164,6 +170,7 @@ const SignupPage: React.FC = () => {
     }
 
     async function createAccount() {
+
         if (!validateOTP() || !validatePasswordForm()) {
             return;
         }
@@ -289,12 +296,12 @@ const SignupPage: React.FC = () => {
 
                                 {/* Create Account button */}
                                 <button
-                                    className={`w-full font-semibold py-4 rounded-lg transition-colors ${isLoading
+                                    className={`w-full font-semibold py-4 rounded-lg transition-colors hover:cursor-pointer ${isLoading
                                         ? 'bg-green-600 cursor-not-allowed'
                                         : 'bg-green-700 hover:bg-green-600'
                                         } text-white`}
                                     onClick={requestOtp}
-                                    disabled={isLoading || !name || !username || !email || !validateName(name) || !validateUsername(username) || !validateEmail(email)}
+                                    disabled={isLoading}
                                 >
                                     {isLoading ? 'Sending OTP...' : 'Create Account'}
                                 </button>
@@ -318,21 +325,9 @@ const SignupPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <button className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-4 rounded-lg flex items-center justify-center space-x-2 transition-colors">
-                                    <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center border">
-                                        <span className="text-xs font-bold text-red-500">G</span>
-                                    </div>
-                                    <span className="text-sm">Sign up with Google</span>
-                                </button>
 
-                                <button className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center space-x-2 transition-colors">
-                                    <div className="w-5 h-5 bg-white rounded flex items-center justify-center">
-                                        <span className="text-xs font-bold text-blue-600">f</span>
-                                    </div>
-                                    <span className="text-sm">Sign up with Facebook</span>
-                                </button>
-                            </div>
+
+                            <AuthOButtons isSubmitting={isLoading} process='signup' />
                         </div>
                     </div>
                 ) : (
@@ -371,7 +366,7 @@ const SignupPage: React.FC = () => {
                                         ? 'text-gray-500 cursor-not-allowed'
                                         : 'text-green-400 hover:text-green-300'
                                         }`}
-                              
+
                                     onClick={() => {
                                         if (timeLeft === 0 && !isLoading) {
                                             setOtp(["", "", "", "", ""]);
@@ -387,12 +382,6 @@ const SignupPage: React.FC = () => {
                             {/* Password Creation Section */}
                             <div className={`transition-all duration-500 ${showPasswordSection ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-4'}`}>
 
-                                {/* Success Icon */}
-                                <div className="flex justify-center mb-6">
-                                    <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
-                                        <Check size={32} className="text-white" />
-                                    </div>
-                                </div>
 
                                 {/* Create Password Section */}
                                 <div className="text-center mb-8">
@@ -431,12 +420,12 @@ const SignupPage: React.FC = () => {
 
                                         {/* Create Account Button */}
                                         <button
-                                            className={`w-full font-semibold py-3 rounded-lg transition-colors mt-6 ${isLoading
+                                            className={`w-full font-semibold py-3 rounded-lg transition-colors mt-6 hover:cursor-pointer ${isLoading
                                                 ? 'bg-gray-400 cursor-not-allowed text-gray-700'
                                                 : 'bg-white hover:bg-gray-100 text-black'
                                                 }`}
                                             onClick={createAccount}
-                                            disabled={isLoading || !password || !confirmPassword || !validatePassword(password) || password !== confirmPassword || !validateOTP()}
+                                            disabled={isLoading}
                                         >
                                             {isLoading ? 'Creating Account...' : 'Create Account'}
                                         </button>

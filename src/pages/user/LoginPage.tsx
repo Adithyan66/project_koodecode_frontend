@@ -10,6 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { loginUser } from '../../features/auth/userThunks';
+import AuthOButtons from '../../components/user/buttons/Auth0Buttons';
 
 const LoginPage: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -163,8 +164,8 @@ const LoginPage: React.FC = () => {
                                     value={email}
                                     onChange={handleEmailChange}
                                     className={`w-full bg-gray-800 border rounded-lg py-4 pl-12 pr-4 text-white placeholder-gray-400 focus:outline-none focus:ring-1 transition-colors ${errors.email
-                                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                                            : 'border-gray-700 focus:border-green-500 focus:ring-green-500'
+                                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                                        : 'border-gray-700 focus:border-green-500 focus:ring-green-500'
                                         }`}
                                     disabled={isSubmitting}
                                 />
@@ -184,8 +185,8 @@ const LoginPage: React.FC = () => {
                                     value={password}
                                     onChange={handlePasswordChange}
                                     className={`w-full bg-gray-800 border rounded-lg py-4 pl-12 pr-4 text-white placeholder-gray-400 focus:outline-none focus:ring-1 transition-colors ${errors.password
-                                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                                            : 'border-gray-700 focus:border-green-500 focus:ring-green-500'
+                                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                                        : 'border-gray-700 focus:border-green-500 focus:ring-green-500'
                                         }`}
                                     disabled={isSubmitting}
                                 />
@@ -202,10 +203,10 @@ const LoginPage: React.FC = () => {
                             {/* Login button */}
                             <button
                                 type="submit"
-                                disabled={!isFormValid() || isSubmitting}
+                                disabled={isSubmitting}
                                 className={`w-full font-semibold py-4 rounded-lg transition-colors uppercase tracking-wider ${!isFormValid() || isSubmitting
-                                        ? 'bg-green-600 text-green-400 cursor-not-allowed'
-                                        : 'bg-green-700 hover:bg-green-600 text-white'
+                                    ? 'bg-green-600 text-green-400 cursor-not-allowed'
+                                    : 'bg-green-700 hover:bg-green-600 text-white'
                                     }`}
                             >
                                 {isSubmitting ? (
@@ -231,29 +232,7 @@ const LoginPage: React.FC = () => {
                         </div>
 
                         {/* Social login buttons */}
-                        <div className="mt-8 space-y-3">
-                            {/* Google login */}
-                            <button
-                                className="w-full bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg py-3 px-4 flex items-center justify-center space-x-3 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={isSubmitting}
-                            >
-                                <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
-                                    <span className="text-xs font-bold text-black">G</span>
-                                </div>
-                                <span className="text-white font-medium">Login with google</span>
-                            </button>
-
-                            {/* Facebook login */}
-                            <button
-                                className="w-full bg-blue-600 hover:bg-blue-700 rounded-lg py-3 px-4 flex items-center justify-center space-x-3 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={isSubmitting}
-                            >
-                                <div className="w-5 h-5 bg-white rounded flex items-center justify-center">
-                                    <span className="text-xs font-bold text-blue-600">f</span>
-                                </div>
-                                <span className="text-white font-medium">Login with Facebook</span>
-                            </button>
-                        </div>
+                        <AuthOButtons isSubmitting={isSubmitting} process='login' />
                     </div>
                 </div>
             </div>
