@@ -18,16 +18,30 @@ interface LoginError {
 
 
 export const authAPI = {
+
+
     login: async (credentials: LoginCredentials) => {
         let res = await httpClient.post('/auth/login', credentials)
         return res
     },
+
+    signUpOtp: async (email: string, userName: string, fullName: string) =>
+        await httpClient.post("/auth/signup/request-otp", { email, userName, fullName })
+    ,
 
     signup: async (credentials: any) => {
         let res = await httpClient.post('/auth/signup/verify-otp', credentials)
         console.log("res of login", res);
         return res
     },
+
+    googleOAuth: (credentials: { token: string }) =>
+        httpClient.post('/auth/google/callback', credentials)
+    ,
+
+    githubOAuth: (credentials: { code: string }) =>
+        httpClient.post('/auth/github/callback', credentials)
+    ,
 
     getProfile: (token?: string) =>
 
@@ -49,7 +63,7 @@ export const authAPI = {
     requestPasswordReset: (email: string) => httpClient.post(`auth/forgot/request-otp`, { email })
 
     ,
-    
+
     resetPassword: (email: string, otp: number, password: string) => httpClient.post(`auth/forgot/change-password`, { email, otp, password })
 
 };

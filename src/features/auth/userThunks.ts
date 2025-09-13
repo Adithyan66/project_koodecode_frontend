@@ -23,6 +23,19 @@ interface LoginError {
     message: string;
 }
 
+interface OAuthCredentials {
+    token: string;
+}
+
+interface GitHubOAuthCredentials {
+    code: string;
+}
+
+interface OAuthError {
+    message: string;
+}
+
+
 export const loginUser = createAsyncThunk<
     UserDetails,
     LoginCredentials,
@@ -73,6 +86,59 @@ export const signupUser = createAsyncThunk(
     }
 )
 
+export const googleOAuthLogin = createAsyncThunk<
+    UserDetails,
+    OAuthCredentials,
+    { rejectValue: OAuthError }
+>(
+    'user/googleOAuth',
+    async (credentials: OAuthCredentials, { rejectWithValue }) => {
+        try {
+            const response = await authAPI.googleOAuth(credentials);
+
+            const { token, ...user } = response.data.user;
+
+            tokenManager.setToken(token);
+            // If you store refresh tokens separately:
+            // tokenManager.setRefreshToken(tokens.refreshToken);
+
+            return user as UserDetails;
+        } catch (error: any) {
+            return rejectWithValue({
+                message: error.response?.data?.error || 'Google authentication failed'
+            });
+        }
+    }
+);
+
+
+export const githubOAuthLogin = createAsyncThunk<
+    UserDetails,
+    GitHubOAuthCredentials,
+    { rejectValue: OAuthError }
+>(
+    'user/githubOAuth',
+    async (credentials: GitHubOAuthCredentials, { rejectWithValue }) => {
+        try {
+            const response = await authAPI.githubOAuth(credentials);
+
+            const { token, ...user } = response.data.user;
+
+            console.log("thi si token ",token);
+            
+
+            tokenManager.setToken(token);
+            // If you store refresh tokens separately:
+            // tokenManager.setRefreshToken(tokens.refreshToken);
+
+            return user as UserDetails;
+        } catch (error: any) {
+            return rejectWithValue({
+                message: error.response?.data?.error || 'GitHub authentication failed'
+            });
+        }
+    }
+);
 
 export const fetchUserProfile = createAsyncThunk(
     'user/fetchProfile',
@@ -141,11 +207,11 @@ export const forgotPassword = createAsyncThunk(
 
             console.log(response.data.user);
 
-            const { token, ...user } = response.data.user;  
+            const { token, ...user } = response.data.user;
 
             tokenManager.setToken(token);
 
-            return user as UserDetails;  
+            return user as UserDetails;
 
         } catch (error: any) {
             if (error.response && error.response.data) {

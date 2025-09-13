@@ -17,6 +17,7 @@ import AddProblemPage from '../pages/admin/AddProblemPage'
 import UserProfilePage from '../pages/user/UserProfilePage'
 import SettingsPage from '../pages/user/SettingsPage'
 import ForgotPasswordPage from '../pages/user/ForgotPasswordPage'
+import GitHubCallback from '../components/user/auth/GitHubCallback'
 
 export default function Router() {
 
@@ -29,10 +30,11 @@ export default function Router() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot" element={<ForgotPasswordPage />} />
+            <Route path="/auth/github/callback" element={<GitHubCallback />} />
 
 
             <Route path="/problems" element={<UserProtected><Problems /></UserProtected>} />
-            <Route path="/problem/:problemId" element={<UserProtected><ProblemSolvingPage /></UserProtected>} />
+            <Route path="/problem/:slug" element={<UserProtected><ProblemSolvingPage /></UserProtected>} />
 
             <Route path="/profile" element={<UserProtected><UserProfilePage /></UserProtected>} />
             <Route path="/settings" element={<UserProtected><SettingsPage /></UserProtected>} />
