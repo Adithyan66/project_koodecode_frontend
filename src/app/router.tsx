@@ -18,6 +18,10 @@ import UserProfilePage from '../pages/user/UserProfilePage'
 import SettingsPage from '../pages/user/SettingsPage'
 import ForgotPasswordPage from '../pages/user/ForgotPasswordPage'
 import GitHubCallback from '../components/user/auth/GitHubCallback'
+import { ContestListing } from '../components/admin/contests/contestListing/ContestListing'
+import ContestListingPage from '../pages/admin/ContestListingPage'
+import CreateContestPage from '../pages/admin/CreateContestPage'
+import ContestDashboardPage from '../pages/user/ContestDashboardPage'
 
 export default function Router() {
 
@@ -39,10 +43,13 @@ export default function Router() {
             <Route path="/profile" element={<UserProtected><UserProfilePage /></UserProtected>} />
             <Route path="/settings" element={<UserProtected><SettingsPage /></UserProtected>} />
 
+            <Route path="/contests" element={<UserProtected><ContestDashboardPage /></UserProtected>} />
 
             <Route path="/admin/dashboard" element={<AdminProtected> <DashboardPage /></AdminProtected>} />
             <Route path="/admin/problems" element={<AdminProtected> <ProblemListingPage /></AdminProtected>} />
             <Route path="/admin/problems/addProblem" element={<AdminProtected> <AddProblemPage /></AdminProtected>} />
+            <Route path="/admin/contests" element={<AdminProtected> <ContestListingPage /></AdminProtected>} />
+            <Route path="/admin/contests/create-contest" element={<AdminProtected> <CreateContestPage /></AdminProtected>} />
             <Route path="/admin/*" element={<AdminProtected> <DashboardPage /></AdminProtected>} />
         </Routes>
     )
