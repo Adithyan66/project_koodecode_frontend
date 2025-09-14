@@ -51,7 +51,7 @@ const Navbar: React.FC = () => {
             <div className="hidden md:flex items-center space-x-8">
                 <Link to="/" className="text-gray-300 hover:text-white transition-colors">Explore</Link>
                 <Link to="/problems" className="text-gray-300 hover:text-white transition-colors">Problems</Link>
-                <Link to="#" className="text-gray-300 hover:text-white transition-colors">Contest</Link>
+                <Link to="contests" className="text-gray-300 hover:text-white transition-colors">Contest</Link>
                 <Link to="#" className="text-gray-300 hover:text-white transition-colors">Coins</Link>
             </div>
 

@@ -43,7 +43,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = () => {
     const sidebarItems = [
         { id: 'dashboard', label: 'Dashboard', icon: <BarChart3 size={20} /> },
         { id: 'problems', label: 'Problems', icon: <BookOpen size={20} /> },
-        { id: 'users', label: 'Users', icon: <Users size={20} /> },
+        { id: 'contests', label: 'contests', icon: <Users size={20} /> },
         { id: 'submissions', label: 'Submissions', icon: <FileText size={20} /> },
         { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
     ];

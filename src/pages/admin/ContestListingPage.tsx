@@ -1,5 +1,6 @@
 
 import { AdminPanel } from "../../components/admin/AdminPanel";
+import { ContestListing } from "../../components/admin/contests/contestListing/ContestListing";
 import { ProblemListing } from "../../components/admin/problems/ProblemListing";
 
 // Types
@@ -36,14 +37,14 @@ const mockProblems: Problem[] = [
 
 
 
-const  ProblemListingPage: React.FC = () => {
+const  ContestListingPage: React.FC = () => {
   return (
     <div className="flex h-screen">
       <div className="w-64 bg-gray-100">
         <AdminPanel />
       </div>
       <div className="flex-1 p-4">
-        <ProblemListing problems={mockProblems}/>
+        <ContestListing problems={mockProblems}/>
       </div>
     </div>
   );
@@ -51,4 +52,4 @@ const  ProblemListingPage: React.FC = () => {
 
 
 
-export default ProblemListingPage;
+export default ContestListingPage;
