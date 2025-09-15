@@ -1,4 +1,5 @@
-export const mockActiveContest = {
+export const mockActiveContest = [
+{
   id: "64f2a1e5b8c9d0123456789a",
   contestNumber: 15,
   title: "Weekly Algorithm Challenge #15",
@@ -13,7 +14,24 @@ export const mockActiveContest = {
   isRegistered: true,
   canRegister: false,
   timeRemaining: 3600 // 1 hour in seconds
-};
+},
+{
+  id: "64f2a1e5b8c9d0123456789a",
+  contestNumber: 15,
+  title: "Weekly Algorithm Challenge #15",
+  description: "Test your skills with dynamic programming, graph algorithms, and data structures. Perfect for intermediate to advanced developers looking to enhance their problem-solving abilities.",
+  thumbnailKey: "profile-images/68c57150ab58780028e1df1f/1757874510573.png",
+  startTime: new Date(Date.now() - 2 * 60 * 60 * 1000), // Started 2 hours ago
+  endTime: new Date(Date.now() + 1 * 60 * 60 * 1000), // Ends in 1 hour
+  registrationDeadline: new Date(Date.now() - 3 * 60 * 60 * 1000), // Closed 3 hours ago
+  totalParticipants: 1247,
+  maxReward: 2000,
+  state: "active",
+  isRegistered: true,
+  canRegister: false,
+  timeRemaining: 3600 // 1 hour in seconds
+}
+];
 
 export const mockUpcomingContests = [
   {
@@ -29,7 +47,9 @@ export const mockUpcomingContests = [
     maxReward: 1500,
     state: "upcoming",
     isRegistered: false,
-    canRegister: true
+    canRegister: true,
+
+
   },
   {
     id: "64f2a1e5b8c9d0123456789c",
@@ -45,52 +65,8 @@ export const mockUpcomingContests = [
     state: "upcoming",
     isRegistered: true,
     canRegister: true
-  },
-  {
-    id: "64f2a1e5b8c9d0123456789d",
-    contestNumber: 18,
-    title: "Graph Theory Deep Dive",
-    description: "Explore complex graph algorithms including shortest paths, minimum spanning trees, network flows, and graph traversal optimizations.",
-    thumbnailKey: "profile-images/68c57150ab58780028e1df1f/1757874920228.png",
-    startTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 week from now
-    endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000), // 4 hours duration
-    registrationDeadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000 - 60 * 60 * 1000), // 1 hour before
-    totalParticipants: 156,
-    maxReward: 2500,
-    state: "upcoming",
-    isRegistered: false,
-    canRegister: true
-  },
-  {
-    id: "64f2a1e5b8c9d0123456789e",
-    contestNumber: 19,
-    title: "Dynamic Programming Marathon",
-    description: "Intensive DP problems covering optimization, memoization, and advanced state transitions. Perfect for mastering algorithmic thinking.",
-    thumbnailKey: "profile-images/68c57150ab58780028e1df1f/1757874920228.png",
-    startTime: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10 days from now
-    endTime: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000), // 3 hours
-    registrationDeadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000 - 30 * 60 * 1000),
-    totalParticipants: 67,
-    maxReward: 1200,
-    state: "upcoming",
-    isRegistered: false,
-    canRegister: true
-  },
-  {
-    id: "64f2a1e5b8c9d0123456789f",
-    contestNumber: 20,
-    title: "Binary Search & Two Pointers Special",
-    description: "Master search algorithms and two-pointer techniques with challenging problems from beginner to expert level.",
-    thumbnailKey: "profile-images/68c57150ab58780028e1df1f/1757874920228.png",
-    startTime: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 2 weeks from now
-    endTime: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000), // 2 hours
-    registrationDeadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000 - 15 * 60 * 1000),
-    totalParticipants: 298,
-    maxReward: 1000,
-    state: "upcoming",
-    isRegistered: true,
-    canRegister: true
   }
+  
 ];
 
 export const mockPastContests = [
@@ -107,7 +83,8 @@ export const mockPastContests = [
     maxReward: 1800,
     state: "ended",
     isRegistered: true,
-    canRegister: false
+    canRegister: false,
+
   },
   {
     id: "64f2a1e5b8c9d0123456788b",
@@ -123,23 +100,65 @@ export const mockPastContests = [
     state: "ended",
     isRegistered: true,
     canRegister: false
-  },
-  {
-    id: "64f2a1e5b8c9d0123456788c",
-    contestNumber: 12,
-    title: "Tree Algorithms Championship",
-    description: "Binary trees, BSTs, and advanced tree data structures.",
-    thumbnailKey: "profile-images/68c57150ab58780028e1df1f/1757874920228.png",
-    startTime: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000), // 3 weeks ago
-    endTime: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000),
-    registrationDeadline: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000 - 60 * 60 * 1000),
-    totalParticipants: 743,
-    maxReward: 1600,
-    state: "ended",
-    isRegistered: false,
-    canRegister: false
   }
 ];
+
+
+
+
+export const mockApiResponses = {
+  getActiveContest: () => ({
+    success: true,
+    message: "Active contest retrieved successfully",
+    data: {
+      data: mockActiveContest
+    }
+  }),
+
+  getUpcomingContests: () => ({
+    success: true,
+    message: "Upcoming contests retrieved successfully",
+    data: {
+      data: mockUpcomingContests
+    }
+  }),
+
+  getPastContests: () => ({
+    success: true,
+    message: "Past contests retrieved successfully",
+    data: {
+      data: mockPastContests
+    }
+  }),
+
+  getLeaderboard: (contestId: string) => ({
+    success: true,
+    message: "Leaderboard retrieved successfully",
+    data: {
+      data: mockLeaderboard
+    }
+  }),
+
+
+  registerForContest: (contestId: string) => ({
+    success: true,
+    message: "Successfully registered for contest",
+    data: {
+      participantId: "64f2a1e5b8c9d0123456790a",
+      contestId,
+      registrationTime: new Date(),
+      assignedProblemTitle: "Maximum Subarray Sum"
+    }
+  })
+};
+
+
+
+
+
+
+
+
 
 export const mockLeaderboard = {
   contestId: "64f2a1e5b8c9d0123456789a",
@@ -369,67 +388,6 @@ export const mockLeaderboard = {
   userRank: 7
 };
 
-export const mockUserStats = {
-  totalContestsParticipated: 28,
-  bestRank: 3,
-  totalCoinsEarned: 8750,
-  averageRank: 12
-};
-
-// API Mock Functions
-export const mockApiResponses = {
-  getActiveContest: () => ({
-    success: true,
-    message: "Active contest retrieved successfully",
-    data: {
-      data: mockActiveContest
-    }
-  }),
-
-  getUpcomingContests: () => ({
-    success: true,
-    message: "Upcoming contests retrieved successfully",
-    data: {
-      data: mockUpcomingContests
-    }
-  }),
-
-  getPastContests: () => ({
-    success: true,
-    message: "Past contests retrieved successfully",
-    data: {
-      data: mockPastContests
-    }
-  }),
-
-  getLeaderboard: (contestId: string) => ({
-    success: true,
-    message: "Leaderboard retrieved successfully",
-    data: {
-      data: mockLeaderboard
-    }
-  }),
-
-  getUserStats: () => ({
-    success: true,
-    message: "User contest stats retrieved successfully",
-    data: {
-      data: mockUserStats
-    }
-  }),
-
-  registerForContest: (contestId: string) => ({
-    success: true,
-    message: "Successfully registered for contest",
-    data: {
-      participantId: "64f2a1e5b8c9d0123456790a",
-      contestId,
-      registrationTime: new Date(),
-      assignedProblemTitle: "Maximum Subarray Sum"
-    }
-  })
-};
-
 // WebSocket Mock Data for real-time updates
 export const mockWebSocketUpdates = [
   {
@@ -464,3 +422,5 @@ export const mockWebSocketUpdates = [
     }
   }
 ];
+
+
