@@ -1,9 +1,8 @@
-import { 
-  mockActiveContest, 
-  mockUpcomingContests, 
+import {
+  mockActiveContest,
+  mockUpcomingContests,
   mockPastContests,
   mockLeaderboard,
-  mockUserStats,
   mockApiResponses
 } from '../../../mock.ts'
 
@@ -17,13 +16,15 @@ import {
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { 
-  Clock, 
-  Users, 
-  Trophy, 
-  Play, 
-  Calendar, 
-  Target, 
+import trophy from "../../assets/images/trophy 1.png"
+import contestText from "../../assets/images/KoodeCode Contest.svg"
+import {
+  Clock,
+  Users,
+  Trophy,
+  Play,
+  Calendar,
+  Target,
   Star,
   ChevronRight,
   Loader2,
@@ -34,13 +35,14 @@ import {
 } from 'lucide-react';
 import httpClient from '../../services/axios/httpClient';
 import { imageKitService } from '../../services/ImageKitService';
+import Navbar from '../../components/user/Navbar.tsx';
 
 interface Contest {
   id: string;
   contestNumber: number;
   title: string;
   description: string;
-  thumbnailKey?: string;
+  thumbnail?: string;
   startTime: Date;
   endTime: Date;
   registrationDeadline: Date;
@@ -78,32 +80,43 @@ interface UserContestStats {
   averageRank: number;
 }
 
+
+
+
+
+
+
 const ContestDashboardPage: React.FC = () => {
+
+
+
   const navigate = useNavigate();
-  
+
   // State management
-  const [activeContest, setActiveContest] = useState<Contest | null>(null);
+  const [activeContest, setActiveContest] = useState<Contest[] | null>(null);
   const [upcomingContests, setUpcomingContests] = useState<Contest[]>([]);
   const [pastContests, setPastContests] = useState<Contest[]>([]);
   const [leaderboard, setLeaderboard] = useState<ContestLeaderboard | null>(null);
   const [userStats, setUserStats] = useState<UserContestStats | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredUpcoming, setFilteredUpcoming] = useState<Contest[]>([]);
-  
+
   // Loading states
   const [loadingActive, setLoadingActive] = useState(true);
   const [loadingUpcoming, setLoadingUpcoming] = useState(true);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(true);
   const [loadingPast, setLoadingPast] = useState(false);
-  
+
   // UI states
-  const [showPastContests, setShowPastContests] = useState(false);
+  // const [showPastContests, setShowPastContests] = useState(false);
   const [timeLeft, setTimeLeft] = useState<string>('');
+  const [activeTab, setActiveTab] = useState('upcoming');
 
   // Fetch data on component mount
   useEffect(() => {
     fetchActiveContest();
     fetchUpcomingContests();
+    fetchPastContests()
     fetchUserStats();
   }, []);
 
@@ -111,10 +124,10 @@ const ContestDashboardPage: React.FC = () => {
   useEffect(() => {
     if (activeContest) {
       fetchLeaderboard(activeContest.id);
-      
+
       // Setup WebSocket connection (you'll need to implement this)
       const ws = new WebSocket(`ws://localhost:3000/contests/${activeContest.id}/leaderboard`);
-      
+
       ws.onmessage = (event) => {
         const updatedLeaderboard = JSON.parse(event.data);
         setLeaderboard(updatedLeaderboard);
@@ -172,8 +185,7 @@ const ContestDashboardPage: React.FC = () => {
 
   const fetchActiveContest = async () => {
     try {
-    //   const response = await httpClient.get('/api/contests/active');
-      const response = mockApiResponses.getActiveContest()      
+      const response = await httpClient.get('/user/contests/state/active');
       setActiveContest(response.data.data || null);
     } catch (error) {
       console.error('Error fetching active contest:', error);
@@ -184,10 +196,10 @@ const ContestDashboardPage: React.FC = () => {
 
   const fetchUpcomingContests = async () => {
     try {
-    //   const response = await httpClient.get('/api/contests/upcoming');
-      const response = mockApiResponses.getUpcomingContests()
-      console.log("ummddddddddddddddddddddddddddddooooooooooo",response.data.data);
-      
+      const response = await httpClient.get('/user/contests/state/upcoming');
+      // const response = mockApiResponses.getUpcomingContests()
+      console.log("ummddddddddddddddddddddddddddddooooooooooo", response.data.data);
+
       setUpcomingContests(response.data.data || []);
       setFilteredUpcoming(response.data.data || []);
     } catch (error) {
@@ -199,7 +211,7 @@ const ContestDashboardPage: React.FC = () => {
 
   const fetchLeaderboard = async (contestId: string) => {
     try {
-    //   const response = await httpClient.get(`/api/contests/${contestId}/leaderboard`);
+      //   const response = await httpClient.get(`/api/contests/${contestId}/leaderboard`);
       const response = mockApiResponses.getLeaderboard("hih")
       setLeaderboard(response.data.data);
     } catch (error) {
@@ -211,7 +223,7 @@ const ContestDashboardPage: React.FC = () => {
 
   const fetchUserStats = async () => {
     try {
-    //   const response = await httpClient.get('/api/user/contest-stats');
+      //   const response = await httpClient.get('/api/user/contest-stats');
       const response = mockApiResponses.getUserStats()
       setUserStats(response.data.data);
     } catch (error) {
@@ -221,13 +233,13 @@ const ContestDashboardPage: React.FC = () => {
 
   const fetchPastContests = async () => {
     if (loadingPast) return;
-    
+
     setLoadingPast(true);
     try {
-    //   const response = await httpClient.get('/api/contests/past');
-      const response = mockApiResponses.getPastContests()
-      console.log("passssssssssssssssssssstttttttttttttt",response.data.data);
-      
+      const response = await httpClient.get('/user/contests/state/past');
+      // const response = mockApiResponses.getPastContests()
+      console.log("passssssssssssssssssssstttttttttttttt", response.data.data);
+
       setPastContests(response.data.data || []);
     } catch (error) {
       console.error('Error fetching past contests:', error);
@@ -250,12 +262,12 @@ const ContestDashboardPage: React.FC = () => {
     navigate(`/contests/${contestId}/problem`);
   };
 
-  const handleViewPastContests = () => {
-    if (!showPastContests && pastContests.length === 0) {
-      fetchPastContests();
-    }
-    setShowPastContests(!showPastContests);
-  };
+  // const handleViewPastContests = () => {
+  //   if (!showPastContests && pastContests.length === 0) {
+  //     fetchPastContests();
+  //   }
+  //   setShowPastContests(!showPastContests);
+  // };
 
   const formatTime = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -274,345 +286,332 @@ const ContestDashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    // <div className="min-h-screen bg-black text-white">
+    <div className=" bg-black text-white flex flex-col">
+      <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-green-400 mb-2">Contests</h1>
-          <p className="text-gray-400">Compete with developers worldwide and climb the leaderboard</p>
+
+        <div className="flex flex-col items-center justify-center  text-center ">
+          <img src={trophy} alt="Trophy" className="w-100 h-100 mb-1" />
+          <img src={contestText} alt="Contest Text" className="w-80 h-auto mb-4" />
+          <h1 className="text-3xl md:text-lg font-extrabold text-green-700 tracking-tight drop-shadow-lg animate-pulse">
+            Contest every day, compete and see your ranking
+          </h1>
         </div>
 
-        {/* User Stats */}
-        {userStats && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-              <div className="flex items-center">
-                <Target className="h-5 w-5 text-green-400 mr-2" />
-                <span className="text-gray-400 text-sm">Contests</span>
-              </div>
-              <p className="text-2xl font-bold text-white mt-1">{userStats.totalContestsParticipated}</p>
-            </div>
-            <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-              <div className="flex items-center">
-                <Medal className="h-5 w-5 text-green-400 mr-2" />
-                <span className="text-gray-400 text-sm">Best Rank</span>
-              </div>
-              <p className="text-2xl font-bold text-white mt-1">#{userStats.bestRank}</p>
-            </div>
-            <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-              <div className="flex items-center">
-                <Star className="h-5 w-5 text-green-400 mr-2" />
-                <span className="text-gray-400 text-sm">Coins Earned</span>
-              </div>
-              <p className="text-2xl font-bold text-white mt-1">{userStats.totalCoinsEarned}</p>
-            </div>
-            <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-              <div className="flex items-center">
-                <TrendingUp className="h-5 w-5 text-green-400 mr-2" />
-                <span className="text-gray-400 text-sm">Avg Rank</span>
-              </div>
-              <p className="text-2xl font-bold text-white mt-1">#{userStats.averageRank}</p>
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-10">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            
-            {/* Active Contest */}
+          <div className="lg:col-span-3 space-y-8">
             <div>
-              <h2 className="text-2xl font-bold text-green-400 mb-4">Active Contest</h2>
               {loadingActive ? (
                 <div className="bg-gray-900 border border-gray-800 rounded-lg p-8 flex items-center justify-center">
                   <Loader2 className="h-8 w-8 animate-spin text-green-400" />
-                  <span className="ml-3 text-gray-400">Loading active contest...</span>
+                  <span className="ml-3 text-gray-400">Loading active contests...</span>
                 </div>
-              ) : activeContest ? (
-                <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
-                  <div className="relative">
-                    <img
-                      src={getContestThumbnail(activeContest.thumbnailKey)}
-                      alt={activeContest.title}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center">
-                      <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>
-                      LIVE
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-xl font-bold text-white mb-2">{activeContest.title}</h3>
-                        <p className="text-gray-400 text-sm">{activeContest.description}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-3xl font-mono font-bold text-green-400">{timeLeft}</div>
-                        <p className="text-gray-400 text-sm">Time Remaining</p>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4 mb-6">
-                      <div className="flex items-center text-gray-400">
-                        <Users className="h-4 w-4 mr-2" />
-                        <span>{activeContest.totalParticipants} participants</span>
-                      </div>
-                      <div className="flex items-center text-gray-400">
-                        <Trophy className="h-4 w-4 mr-2" />
-                        <span>{activeContest.maxReward} coins prize</span>
-                      </div>
-                    </div>
-
-                    {activeContest.isRegistered ? (
-                      <button
-                        onClick={() => handleJoinContest(activeContest.id)}
-                        className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
-                      >
-                        <Play className="h-5 w-5 mr-2" />
-                        Join Contest
-                      </button>
-                    ) : (
-                      <div className="text-center p-4 bg-gray-800 rounded-lg">
-                        <p className="text-gray-400">Contest is running. Registration closed.</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
+              ) : activeContest.length === 0 ? (
                 <div className="bg-gray-900 border border-gray-800 rounded-lg p-8 text-center">
                   <Clock className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-400 mb-2">No Active Contest</h3>
+                  <h3 className="text-lg font-medium text-gray-400 mb-2">No Active Contests</h3>
                   <p className="text-gray-500">Check back later for upcoming contests</p>
                 </div>
-              )}
-            </div>
-
-            {/* Upcoming Contests */}
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-green-400">Upcoming Contests</h2>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search contests..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 w-64"
-                  />
-                </div>
-              </div>
-
-              {loadingUpcoming ? (
-                <div className="space-y-4">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="bg-gray-900 border border-gray-800 rounded-lg p-6 animate-pulse">
-                      <div className="flex space-x-4">
-                        <div className="w-24 h-16 bg-gray-700 rounded"></div>
-                        <div className="flex-1 space-y-2">
-                          <div className="h-4 bg-gray-700 rounded w-3/4"></div>
-                          <div className="h-3 bg-gray-700 rounded w-1/2"></div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               ) : (
-                <div className="space-y-4">
-                  {filteredUpcoming.map((contest) => (
-                    <div key={contest.id} className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-colors">
-                      <div className="flex space-x-4">
-                        <img
-                          src={getContestThumbnail(contest.thumbnailKey)}
-                          alt={contest.title}
-                          className="w-24 h-16 object-cover rounded-lg"
-                        />
-                        <div className="flex-1">
-                          <div className="flex justify-between items-start mb-2">
-                            <h3 className="text-lg font-semibold text-white">{contest.title}</h3>
-                            <div className="text-right">
-                              <div className="text-green-400 font-medium">{contest.maxReward} coins</div>
-                              <div className="text-gray-400 text-sm">Max reward</div>
-                            </div>
-                          </div>
-                          <p className="text-gray-400 text-sm mb-3 line-clamp-2">{contest.description}</p>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center space-x-4 text-sm text-gray-400">
-                              <div className="flex items-center">
-                                <Calendar className="h-4 w-4 mr-1" />
-                                {formatTime(contest.startTime.toString())}
-                              </div>
-                              <div className="flex items-center">
-                                <Users className="h-4 w-4 mr-1" />
-                                {contest.totalParticipants} registered
-                              </div>
-                            </div>
-                            {contest.isRegistered ? (
-                              <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                Registered
-                              </span>
-                            ) : contest.canRegister ? (
-                              <button
-                                onClick={() => handleRegisterForContest(contest.id)}
-                                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                              >
-                                Register
-                              </button>
-                            ) : (
-                              <span className="bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-sm">
-                                Registration Closed
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {filteredUpcoming.length === 0 && !loadingUpcoming && (
-                    <div className="text-center py-8">
-                      <Calendar className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-400 mb-2">No Upcoming Contests</h3>
-                      <p className="text-gray-500">
-                        {searchTerm ? 'No contests match your search' : 'New contests will appear here'}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Past Contests */}
-            <div>
-              <button
-                onClick={handleViewPastContests}
-                className="flex items-center text-green-400 hover:text-green-300 transition-colors mb-4"
-              >
-                <h2 className="text-2xl font-bold mr-2">Past Contests</h2>
-                <ChevronRight className={`h-5 w-5 transition-transform ${showPastContests ? 'rotate-90' : ''}`} />
-              </button>
-
-              {showPastContests && (
-                <div className="space-y-4">
-                  {loadingPast ? (
-                    <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
-                      <Loader2 className="h-6 w-6 animate-spin text-green-400 mx-auto" />
-                    </div>
-                  ) : (
-                    pastContests.map((contest) => (
-                      <div key={contest.id} className="bg-gray-900 border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-colors">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <h3 className="text-white font-medium">{contest.title}</h3>
-                            <p className="text-gray-400 text-sm">{formatTime(contest.startTime.toString())}</p>
-                          </div>
-                          <button
-                            onClick={() => navigate(`/contests/${contest.id}/results`)}
-                            className="flex items-center text-green-400 hover:text-green-300 transition-colors"
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            View Results
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Leaderboard Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden sticky top-8">
-              <div className="p-4 border-b border-gray-800">
-                <h3 className="text-lg font-bold text-green-400 flex items-center">
-                  <Trophy className="h-5 w-5 mr-2" />
-                  Live Leaderboard
-                </h3>
-                {activeContest && (
-                  <p className="text-gray-400 text-sm mt-1">{activeContest.title}</p>
-                )}
-              </div>
-
-              <div className="max-h-96 overflow-y-auto">
-                {loadingLeaderboard ? (
-                  <div className="p-6 text-center">
-                    <Loader2 className="h-6 w-6 animate-spin text-green-400 mx-auto mb-2" />
-                    <p className="text-gray-400">Loading leaderboard...</p>
-                  </div>
-                ) : leaderboard && leaderboard.rankings.length > 0 ? (
-                  <>
-                    {leaderboard.rankings.slice(0, 20).map((entry) => (
-                      <div
-                        key={entry.rank}
-                        className={`p-3 border-b border-gray-800 last:border-b-0 ${
-                          entry.isCurrentUser ? 'bg-green-900/20 border-green-600' : ''
+                <div className="flex justify-center gap-6 flex-wrap">
+                  {activeContest.slice(0, 2).map((contest) => (
+                    <div
+                      key={contest.id}
+                      onClick={() => navigate(`/contest/${contest.id}`)}
+                      className={`bg-gray-900 border hover:cursor-pointer border-gray-800 rounded-lg overflow-hidden ${activeContest.length === 1 ? 'w-full max-w-xl' : 'w-full max-w-md'
                         }`}
+                    >
+                      <div className="relative"
+                        onClick={() => handleJoinContest(contest.id)}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                              entry.rank === 1 ? 'bg-yellow-500 text-black' :
-                              entry.rank === 2 ? 'bg-gray-400 text-black' :
-                              entry.rank === 3 ? 'bg-amber-600 text-white' :
-                              'bg-gray-700 text-gray-300'
-                            }`}>
-                              {entry.rank}
-                            </div>
-                            <div>
-                              <p className={`font-medium text-sm ${entry.isCurrentUser ? 'text-green-400' : 'text-white'}`}>
-                                {entry.username}
-                                {entry.isCurrentUser && <span className="ml-1 text-xs">(You)</span>}
-                              </p>
-                              <p className="text-gray-400 text-xs">{entry.timeTaken}</p>
-                            </div>
+                        <img
+                          src={getContestThumbnail(contest.thumbnail)}
+                          alt={contest.title}
+                          className="w-full h-68 object-cover"
+                        />
+                        <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                          <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>
+                          LIVE
+                        </div>
+                      </div>
+                      <div className="p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h3 className="text-xl font-bold text-white mb-2">{contest.title}</h3>
+                            {/* <p className="text-gray-400 text-sm">{contest.description}</p> */}
                           </div>
                           <div className="text-right">
-                            <p className="text-green-400 font-medium text-sm">{entry.totalScore}</p>
-                            <p className="text-gray-400 text-xs">{entry.attempts} attempts</p>
+                            <div className="text-xl font-bold text-green-400">
+                              {formatTime(contest.timeRemaining)}
+                            </div>
+                            <p className="text-gray-400 text-sm">Time Remaining</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mb-6">
+                          <div className="flex items-center text-gray-400">
+                            <Users className="h-4 w-4 mr-2" />
+                            <span>{contest.totalParticipants} participants</span>
+                          </div>
+                          <div className="flex items-center text-gray-400">
+                            <Trophy className="h-4 w-4 mr-2" />
+                            <span>{contest.maxReward} coins prize</span>
                           </div>
                         </div>
                       </div>
-                    ))}
-                    
-                    {leaderboard.userRank && leaderboard.userRank > 20 && (
-                      <>
-                        <div className="p-2 text-center text-gray-500 text-xs">
-                          ... {leaderboard.totalParticipants - 20} more participants
-                        </div>
-                        <div className="p-3 bg-green-900/20 border-green-600 border-t">
-                          <div className="text-center">
-                            <p className="text-green-400 font-medium">Your Rank: #{leaderboard.userRank}</p>
-                            <p className="text-gray-400 text-xs">out of {leaderboard.totalParticipants}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+
+
+
+
+            <div className="container mx-auto px-4 py-8 max-w-7xl">
+              <div className="grid grid-cols-5 gap-6">
+                {/* Contests Section (3/5) */}
+                <div className="col-span-3 bg-gray-900 rounded-lg border border-gray-800 p-6 min-h-[600px]">
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="flex space-x-4">
+                      <button
+                        onClick={() => setActiveTab('upcoming')}
+                        className={`text-xl font-bold px-4 py-2 rounded-lg transition-colors ${activeTab === 'upcoming' ? 'text-green-400 bg-gray-800' : 'text-gray-400 hover:text-green-400'
+                          }`}
+                      >
+                        Upcoming Contests
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('past')}
+                        className={`text-xl font-bold px-4 py-2 rounded-lg transition-colors ${activeTab === 'past' ? 'text-green-400 bg-gray-800' : 'text-gray-400 hover:text-green-400'
+                          }`}
+                      >
+                        Past Contests
+                      </button>
+                    </div>
+
+                  </div>
+
+                  {activeTab === 'upcoming' ? (
+                    loadingUpcoming ? (
+                      <div className="space-y-4">
+                        {[...Array(3)].map((_, i) => (
+                          <div key={i} className="bg-gray-900 border border-gray-800 rounded-lg p-6 animate-pulse">
+                            <div className="flex space-x-4">
+                              <div className="w-24 h-16 bg-gray-700 rounded"></div>
+                              <div className="flex-1 space-y-2">
+                                <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+                                <div className="h-3 bg-gray-700 rounded w-1/2"></div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <div className="p-6 text-center">
-                    {activeContest ? (
-                      <>
-                        <Trophy className="h-8 w-8 text-gray-600 mx-auto mb-2" />
-                        <p className="text-gray-400">No participants yet</p>
-                      </>
+                        ))}
+                      </div>
                     ) : (
-                      <>
-                        <Timer className="h-8 w-8 text-gray-600 mx-auto mb-2" />
-                        <p className="text-gray-400">No active contest</p>
-                      </>
+                      <div className="space-y-4">
+                        {filteredUpcoming.map((contest) => (
+                          <div key={contest.id} className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-colors">
+                            <div className="flex space-x-4">
+                              <img
+                                src={getContestThumbnail(contest.thumbnail)}
+                                alt={contest.title}
+                                className="w-24 h-16 object-cover rounded-lg"
+                              />
+                              <div className="flex-1">
+                                <div className="flex justify-between items-start mb-2">
+                                  <h3 className="text-lg font-semibold text-white">{contest.title}</h3>
+                                  <div className="text-right">
+                                    <div className="text-green-400 font-medium">{contest.maxReward} coins</div>
+                                    <div className="text-gray-400 text-sm">Max reward</div>
+                                  </div>
+                                </div>
+                                <p className="text-gray-400 text-sm mb-3 line-clamp-2">{contest.description}</p>
+                                <div className="flex justify-between items-center">
+                                  <div className="flex items-center space-x-4 text-sm text-gray-400">
+                                    <div className="flex items-center">
+                                      <Calendar className="h-4 w-4 mr-1" />
+                                      {formatTime(contest.startTime.toString())}
+                                    </div>
+                                    <div className="flex items-center">
+                                      <Users className="h-4 w-4 mr-1" />
+                                      {contest.totalParticipants} registered
+                                    </div>
+                                  </div>
+                                  {contest.isRegistered ? (
+                                    <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                      Registered
+                                    </span>
+                                  ) : contest.canRegister ? (
+                                    <button
+                                      onClick={() => handleRegisterForContest(contest.id)}
+                                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                                    >
+                                      Register
+                                    </button>
+                                  ) : (
+                                    <span className="bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-sm">
+                                      Registration Closed
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        {filteredUpcoming.length === 0 && !loadingUpcoming && (
+                          <div className="text-center py-8">
+                            <Calendar className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                            <h3 className="text-lg font-medium text-gray-400 mb-2">No Upcoming Contests</h3>
+                            <p className="text-gray-500">
+                              {searchTerm ? 'No contests match your search' : 'New contests will appear here'}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  ) : (
+                    <div className="space-y-4">
+                      {loadingPast ? (
+                        <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
+                          <Loader2 className="h-6 w-6 animate-spin text-green-400 mx-auto" />
+                        </div>
+                      ) : (
+                        pastContests.map((contest) => (
+                          <div key={contest.id} className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-colors">
+                            <div className="flex space-x-4">
+                              <img
+                                src={getContestThumbnail(contest.thumbnail)}
+                                alt={contest.title}
+                                className="w-24 h-16 object-cover rounded-lg"
+                              />
+                              <div className="flex-1">
+                                <div className="flex justify-between items-start mb-2">
+                                  <h3 className="text-lg font-semibold text-white">{contest.title}</h3>
+                                  <button
+                                    onClick={() => navigate(`/contests/${contest.id}/results`)}
+                                    className="flex items-center text-green-400 hover:text-green-300 transition-colors"
+                                  >
+                                    <Eye className="h-4 w-4 mr-1" />
+                                    View Results
+                                  </button>
+                                </div>
+                                <p className="text-gray-400 text-sm mb-3 line-clamp-2">{contest.description}</p>
+                                <div className="flex items-center space-x-4 text-sm text-gray-400">
+                                  <div className="flex items-center">
+                                    <Calendar className="h-4 w-4 mr-1" />
+                                    {formatTime(contest.startTime.toString())}
+                                  </div>
+                                  <div className="flex items-center">
+                                    <Users className="h-4 w-4 mr-1" />
+                                    {contest.totalParticipants} registered
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Leaderboard Section (2/5) */}
+                <div className="col-span-2">
+                  <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 min-h-[600px]">
+                    <div className="mb-4">
+                      <h3 className="text-lg font-bold text-green-400 flex items-center">
+                        <Trophy className="h-5 w-5 mr-2" />
+                        Live Leaderboard
+                      </h3>
+                      {activeContest && (
+                        <p className="text-gray-400 text-sm mt-1">{activeContest.title}</p>
+                      )}
+                    </div>
+                    {loadingLeaderboard ? (
+                      <div className="text-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin text-green-400 mx-auto mb-2" />
+                        <p className="text-gray-400">Loading leaderboard...</p>
+                      </div>
+                    ) : leaderboard && leaderboard.rankings.length > 0 ? (
+                      <div className="space-y-2">
+                        {leaderboard.rankings.slice(0, 20).map((entry) => (
+                          <div
+                            key={entry.rank}
+                            className={`p-3 border border-gray-800 rounded-lg ${entry.isCurrentUser ? 'bg-green-900/20 border-green-600' : ''
+                              }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <div
+                                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${entry.rank === 1
+                                    ? 'bg-yellow-500 text-black'
+                                    : entry.rank === 2
+                                      ? 'bg-gray-400 text-black'
+                                      : entry.rank === 3
+                                        ? 'bg-amber-600 text-white'
+                                        : 'bg-gray-700 text-gray-300'
+                                    }`}
+                                >
+                                  {entry.rank}
+                                </div>
+                                <div>
+                                  <p
+                                    className={`font-medium text-sm ${entry.isCurrentUser ? 'text-green-400' : 'text-white'
+                                      }`}
+                                  >
+                                    {entry.username}
+                                    {entry.isCurrentUser && <span className="ml-1 text-xs">(You)</span>}
+                                  </p>
+                                  <p className="text-gray-400 text-xs">{entry.timeTaken}</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-green-400 font-medium text-sm">{entry.totalScore}</p>
+                                <p className="text-gray-400 text-xs">{entry.attempts} attempts</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        {leaderboard.userRank && leaderboard.userRank > 20 && (
+                          <div className="p-3 bg-green-900/20 border border-green-600 rounded-lg mt-2">
+                            <div className="text-center">
+                              <p className="text-green-400 font-medium">Your Rank: #{leaderboard.userRank}</p>
+                              <p className="text-gray-400 text-xs">out of {leaderboard.totalParticipants}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        {activeContest ? (
+                          <>
+                            <Trophy className="h-8 w-8 text-gray-600 mx-auto mb-2" />
+                            <p className="text-gray-400">No participants yet</p>
+                          </>
+                        ) : (
+                          <>
+                            <Timer className="h-8 w-8 text-gray-600 mx-auto mb-2" />
+                            <p className="text-gray-400">No active contest</p>
+                          </>
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
+
+
+
           </div>
         </div>
       </div>
     </div>
+
   );
-};
+}
 
 export default ContestDashboardPage;

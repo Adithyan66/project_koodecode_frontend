@@ -22,6 +22,7 @@ import { ContestListing } from '../components/admin/contests/contestListing/Cont
 import ContestListingPage from '../pages/admin/ContestListingPage'
 import CreateContestPage from '../pages/admin/CreateContestPage'
 import ContestDashboardPage from '../pages/user/ContestDashboardPage'
+import ContestInfo from '../pages/user/ContestInfoPage'
 
 export default function Router() {
 
@@ -44,6 +45,7 @@ export default function Router() {
             <Route path="/settings" element={<UserProtected><SettingsPage /></UserProtected>} />
 
             <Route path="/contests" element={<UserProtected><ContestDashboardPage /></UserProtected>} />
+            <Route path="/contest/:contestId" element={<UserProtected><ContestInfoPage /></UserProtected>} />
 
             <Route path="/admin/dashboard" element={<AdminProtected> <DashboardPage /></AdminProtected>} />
             <Route path="/admin/problems" element={<AdminProtected> <ProblemListingPage /></AdminProtected>} />
