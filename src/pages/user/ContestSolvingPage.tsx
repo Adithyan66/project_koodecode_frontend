@@ -4,17 +4,15 @@
 
 
 
-
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import { Play, RotateCcw, User, Menu, Heart, ThumbsUp, Users, CheckCircle, X, Check } from 'lucide-react';
 import Navbar from '../../components/user/Navbar';
 import httpClient from '../../services/axios/httpClient';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Timer from '../../components/common/Timer';
 
 // Updated interfaces based on your API response
 interface TestCaseResult {
@@ -130,6 +128,7 @@ interface ApiResponse {
     data: {
         problem: ProblemData;
         sampleTestCases: SampleTestCase[];
+        timeRemaining: number
     };
 }
 
@@ -149,7 +148,7 @@ const languageMap: Record<number, { value: string; label: string }> = {
     83: { value: 'swift', label: 'Swift' },
 };
 
-const ProblemSolvingPage: React.FC = () => {
+const ContestSolvingPage: React.FC = () => {
     const [selectedLanguage, setSelectedLanguage] = useState('');
     const [code, setCode] = useState('');
     const [problemData, setProblemData] = useState<ProblemData | null>(null);
@@ -166,9 +165,12 @@ const ProblemSolvingPage: React.FC = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showHints, setShowHints] = useState(false);
     const [languages, setLanguages] = useState<{ value: string; label: string }[]>([]);
+    const [remainingSeconds, setRemainingSeconds] = React.useState(1800);
 
     const editorRef = useRef<any>(null);
-    const { slug } = useParams();
+    const { contestNumber } = useParams();
+    const navigate = useNavigate()
+
 
     // Helper to get default function body based on language
     const getFunctionSeparator = (language: string): string => {
@@ -224,21 +226,34 @@ const ProblemSolvingPage: React.FC = () => {
         return `${((accepted / total) * 100).toFixed(1)}%`;
     };
 
+    const handleTimeUp = () => {
+        console.log('Time is up! Auto-submitting solution...');
+
+    };
+
+
+
     useEffect(() => {
         const fetchProblemData = async () => {
             setLoading(true);
             setError(null);
 
             try {
-                const response = await httpClient.get(`user/problems/${slug}/detail`);
+                const response = await httpClient.get(`user/contests/${contestNumber}/start`);
 
+                console.log("vanuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
                 if (!response.data.success) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    // throw new Error(`HTTP error! status: ${response.status}`);
+
+                    toast.error(response.data.message)
+                    navigate(`/contest/${contestNumber}`)
+                    return
                 }
 
                 const { data }: { data: ApiResponse['data'] } = response.data;
                 setProblemData(data.problem);
                 setSampleTestCases(data.sampleTestCases || []);
+                setRemainingSeconds(data.timeRemaining)
                 console.log("problem data ", data);
 
                 // Set supported languages
@@ -264,17 +279,20 @@ const ProblemSolvingPage: React.FC = () => {
                 }
 
             } catch (err: any) {
+
                 setError(err.message || 'Failed to fetch problem data');
-                console.error('Error fetching problem data:', err);
+                console.error('Error fetching problem data:', err.response.data.message);
+                toast.error(err.response.data.message)
+                navigate(`/contest/${contestNumber}`)
             } finally {
                 setLoading(false);
             }
         };
 
-        if (slug) {
+        if (contestNumber) {
             fetchProblemData();
         }
-    }, [slug]);
+    }, [contestNumber]);
 
     const handleEditorDidMount = (editor: any) => {
         editorRef.current = editor;
@@ -372,8 +390,8 @@ const ProblemSolvingPage: React.FC = () => {
         setSubmissionResults(null);
 
         try {
-            const response = await httpClient.post(`user/problems/submit`, {
-                problemId: problemData?.id,
+            const response = await httpClient.post(`user/contests/submit-solution`, {
+                contestNumber,
                 sourceCode: code,
                 languageId: getLanguageId(selectedLanguage)
             });
@@ -685,57 +703,34 @@ const ProblemSolvingPage: React.FC = () => {
                     <div className="p-6">
                         {/* Problem Header */}
                         <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center space-x-3">
-                                <span className={`px-2 py-1 text-white text-xs rounded font-medium ${problemData.difficulty.toLowerCase() === 'easy' ? 'bg-green-600' :
-                                    problemData.difficulty.toLowerCase() === 'medium' ? 'bg-yellow-600' :
-                                        'bg-red-600'
-                                    }`}>
-                                    {problemData.difficulty}
-                                </span>
-                                <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded font-medium">AI Assist</span>
-                            </div>
 
-                            <div className="flex items-center space-x-4 text-sm text-gray-400">
-                                <div className="flex items-center space-x-1">
-                                    <ThumbsUp size={14} />
-                                    <span>{problemData.likes?.length || 0}</span>
-                                </div>
-                                <div className="flex items-center space-x-1">
-                                    <Users size={14} />
-                                    <span>{problemData.totalSubmissions}</span>
-                                </div>
-                                <div className="flex items-center space-x-1">
-                                    <CheckCircle size={14} />
-                                    <span>{acceptanceRate}</span>
-                                </div>
-                            </div>
                         </div>
 
-                        <h1 className="text-2xl font-bold mb-2 text-white mb-6 mt-10">
-                            {problemData.problemNumber}. {problemData.title}
+                        <h1 className="text-2xl font-bold mb-2 text-white">
+                            {/* {problemData.problemNumber}. */}
+                            Q ,  {problemData.title}
                         </h1>
-
-
-                        {/* Tags */}
-                        {problemData.tags && problemData.tags.length > 0 && (
-                            <div className="mb-4 flex flex-wrap gap-2">
-                                {problemData.tags.map((tag, index) => (
-                                    <span key={index} className="px-2 py-1 bg-gray-700 text-gray-300 text-xs rounded">
-                                        {tag}
-                                    </span>
-                                ))}
-                            </div>
-                        )}
 
 
 
                         {/* Problem Description */}
-                        <div className="space-y-4 text-gray-300 leading-relaxed">
+                        <div className="space-y-4 text-gray-300 leading-relaxed mt-9">
                             <div dangerouslySetInnerHTML={{ __html: problemData.description }} />
 
-                           
+                            {/* Tags */}
+                            {problemData.tags && problemData.tags.length > 0 && (
+                                <div className="mb-4 flex flex-wrap gap-2">
+                                    {problemData.tags.map((tag, index) => (
+                                        <span key={index} className="px-2 py-1 bg-gray-700 text-gray-300 text-xs rounded">
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
 
-                             {problemData.examples && problemData.examples.map((example, index) => (
+
+                            {/* Examples */}
+                            {problemData.examples && problemData.examples.map((example, index) => (
                                 <div key={index} className="mt-8">
                                     <h3 className="text-lg font-semibold mb-4 text-white">Example {index + 1}:</h3>
                                     <div className="p-4 rounded-lg border-l-4 border-gray-500 bg-gray-950 space-y-2">
@@ -777,41 +772,7 @@ const ProblemSolvingPage: React.FC = () => {
                                     </ul>
                                 </div>
                             )}
-
-                            {/* Hints */}
-                            {problemData.hints && problemData.hints.length > 0 && (
-                                <div className="mt-8">
-                                    <button
-                                        onClick={() => setShowHints(!showHints)}
-                                        className="text-lg font-semibold mb-4 text-white hover:text-yellow-400 transition-colors"
-                                    >
-                                        💡 Hints ({problemData.hints.length}) {showHints ? '▼' : '▶'}
-                                    </button>
-                                    {showHints && (
-                                        <div className="space-y-2">
-                                            {problemData.hints.map((hint, index) => (
-                                                <div key={index} className="p-3 bg-gray-900 bg-opacity-20 border-l-4 border-yellow-500 rounded">
-                                                    <p className="text-yellow-200 text-sm">{hint}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
                         </div>
-                        {/* Companies */}
-                        {problemData.companies && problemData.companies.length > 0 && (
-                            <div className="mt-6">
-                                <h3 className="text-sm font-semibold mb-2 text-gray-400">Companies:</h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {problemData.companies.map((company, index) => (
-                                        <span key={index} className="px-2 py-1 bg-blue-900 text-blue-300 text-xs rounded">
-                                            {company}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
 
@@ -837,10 +798,14 @@ const ProblemSolvingPage: React.FC = () => {
                                 <RotateCcw size={16} />
                             </button>
                         </div>
+
+                        <Timer remainingTimeSeconds={remainingSeconds}
+                            onTimeUp={handleTimeUp}
+                        />
                     </div>
 
                     {/* Monaco Code Editor */}
-                    <div className="flex-1">
+                    <div className="flex-1 p-5 bg-black">
                         <Editor
                             height="100%"
                             language={selectedLanguage}
@@ -851,7 +816,7 @@ const ProblemSolvingPage: React.FC = () => {
                             options={{
                                 minimap: { enabled: false },
                                 fontSize: 14,
-                                lineNumbers: 'off',
+                                lineNumbers: 'on',
                                 roundedSelection: false,
                                 scrollBeyondLastLine: false,
                                 automaticLayout: true,
@@ -860,143 +825,142 @@ const ProblemSolvingPage: React.FC = () => {
                                 wordWrap: 'on',
                                 contextmenu: false,
                                 copyWithSyntaxHighlighting: false,
-
                             }}
                         />
                     </div>
 
                     {/* Bottom Panel - Test Cases */}
-                   <div className="h-64 bg-black border-t border-gray-700 flex flex-col">
-                                           {/* Tab Navigation */}
-                                          
-                                           <div className="flex justify-between items-center border-b border-gray-700 px-4 py-2">
-                                               {/* Left Side: Tabs */}
-                                               <div className="flex space-x-2">
-                                                   <button
-                                                       onClick={() => setActiveTab('testcase')}
-                                                       className={`px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'testcase'
-                                                               ? 'text-white border-b-2 border-green-500 bg-gray-700'
-                                                               : 'text-gray-400 hover:text-white hover:bg-gray-700'
-                                                           }`}
-                                                   >
-                                                       Testcase
-                                                   </button>
-                                                   <button
-                                                       onClick={() => setActiveTab('result')}
-                                                       className={`px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'result'
-                                                               ? 'text-white border-b-2 border-green-500 bg-gray-700'
-                                                               : 'text-gray-400 hover:text-white hover:bg-gray-700'
-                                                           }`}
-                                                   >
-                                                       Test Result
-                                                       {(runCodeResults || submissionResults) && (
-                                                           <span className="ml-2 w-2 h-2 bg-green-500 rounded-full inline-block"></span>
-                                                       )}
-                                                   </button>
-                                               </div>
-                   
-                                               {/* Right Side: Buttons */}
-                                               <div className="flex space-x-3">
-                                                   <button
-                                                       onClick={runCode}
-                                                       disabled={isRunning || isSubmitting}
-                                                       className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded text-sm font-medium transition-colors"
-                                                   >
-                                                       <Play size={16} />
-                                                       <span>{isRunning ? 'Running...' : 'Run'}</span>
-                                                   </button>
-                                                   <button
-                                                       onClick={submitCode}
-                                                       disabled={isRunning || isSubmitting}
-                                                       className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded text-sm font-medium transition-colors"
-                                                   >
-                                                       <span>{isSubmitting ? 'Submitting...' : 'Submit'}</span>
-                                                   </button>
-                                               </div>
-                                           </div>
-                   
-                   
-                                           {/* Tab Content */}
-                                           <div className="flex-1 p-4 overflow-y-auto no-scrollbar">
-                                               {activeTab === 'testcase' && (
-                                                   <div className="space-y-4">
-                                                       <div className="flex space-x-2">
-                                                           {sampleTestCases.map((testCase, index) => {
-                                                               const status = getTestCaseStatus(testCase.id);
-                                                               return (
-                                                                   <button
-                                                                       key={index}
-                                                                       onClick={() => setActiveTestCase(index + 1)}
-                                                                       className={`px-3 py-1 text-sm rounded transition-colors flex items-center space-x-2 ${activeTestCase === index + 1
-                                                                           ? status === 'passed' ? 'bg-green-700 text-white border border-green-500'
-                                                                               : status === 'failed' ? 'bg-red-700 text-white border border-red-500'
-                                                                                   : 'bg-gray-700 text-white'
-                                                                           : status === 'passed' ? 'bg-green-900 text-green-300 hover:bg-green-800 border border-green-600'
-                                                                               : status === 'failed' ? 'bg-red-900 text-red-300 hover:bg-red-800 border border-red-600'
-                                                                                   : 'bg-gray-600 text-gray-300 hover:bg-gray-700'
-                                                                           }`}
-                                                                   >
-                                                                       <span>Case {index + 1}</span>
-                                                                       {status === 'passed' && <Check size={12} className="text-green-400" />}
-                                                                       {status === 'failed' && <X size={12} className="text-red-400" />}
-                                                                   </button>
-                   
-                                                               );
-                                                           })}
-                                                       </div>
-                   
-                                                       {sampleTestCases[activeTestCase - 1] && (
-                                                           <div className="space-y-4">
-                                                               {Object.entries(sampleTestCases[activeTestCase - 1].inputs).map(([key, value]) => (
-                                                                   <div key={key}>
-                                                                       <label className="block text-sm text-gray-400 mb-2 font-medium">{key} =</label>
-                                                                       <div className="bg-gray-900 p-3 rounded border text-green-400 font-mono text-sm">
-                                                                           {typeof value === 'string' ? value : JSON.stringify(value)}
-                                                                       </div>
-                                                                   </div>
-                                                               ))}
-                   
-                                                               <div>
-                                                                   <label className="block text-sm text-gray-400 mb-2 font-medium">Expected Output =</label>
-                                                                   <div className="bg-gray-900 p-3 rounded border text-green-400 font-mono text-sm">
-                                                                       {typeof sampleTestCases[activeTestCase - 1].expectedOutput === 'string'
-                                                                           ? sampleTestCases[activeTestCase - 1].expectedOutput
-                                                                           : JSON.stringify(sampleTestCases[activeTestCase - 1].expectedOutput)}
-                                                                   </div>
-                                                               </div>
-                                                           </div>
-                                                       )}
-                                                   </div>
-                                               )}
-                   
-                                               {activeTab === 'result' && (
-                                                   <div className="space-y-4">
-                                                       {isRunning || isSubmitting ? (
-                                                           <div className="flex items-center space-x-2 text-yellow-500">
-                                                               <div className="animate-spin w-4 h-4 border-2 border-yellow-500 border-t-transparent rounded-full"></div>
-                                                               <span className="text-sm">
-                                                                   {isRunning ? 'Running tests...' : 'Submitting solution...'}
-                                                               </span>
-                                                           </div>
-                                                       ) : submissionResults ? (
-                                                           <SubmissionResultDisplay result={submissionResults} />
-                                                       ) : runCodeResults ? (
-                                                           <RunCodeResultDisplay result={runCodeResults} />
-                                                       ) : (
-                                                           <div className="text-gray-400 text-sm">
-                                                               No test results yet. Click "Run" to test with sample cases or "Submit" for full evaluation.
-                                                           </div>
-                                                       )}
-                                                   </div>
-                                               )}
-                                           </div>
-                                       </div>
+                    <div className="h-64 bg-black border-t border-gray-700 flex flex-col">
+                        {/* Tab Navigation */}
 
-                 
+                        <div className="flex justify-between items-center border-b border-gray-700 px-4 py-2">
+                            {/* Left Side: Tabs */}
+                            <div className="flex space-x-2">
+                                <button
+                                    onClick={() => setActiveTab('testcase')}
+                                    className={`px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'testcase'
+                                        ? 'text-white border-b-2 border-green-500 bg-gray-700'
+                                        : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                                        }`}
+                                >
+                                    Testcase
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('result')}
+                                    className={`px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'result'
+                                        ? 'text-white border-b-2 border-green-500 bg-gray-700'
+                                        : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                                        }`}
+                                >
+                                    Test Result
+                                    {(runCodeResults || submissionResults) && (
+                                        <span className="ml-2 w-2 h-2 bg-green-500 rounded-full inline-block"></span>
+                                    )}
+                                </button>
+                            </div>
+
+                            {/* Right Side: Buttons */}
+                            <div className="flex space-x-3">
+                                <button
+                                    onClick={runCode}
+                                    disabled={isRunning || isSubmitting}
+                                    className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded text-sm font-medium transition-colors"
+                                >
+                                    <Play size={16} />
+                                    <span>{isRunning ? 'Running...' : 'Run'}</span>
+                                </button>
+                                <button
+                                    onClick={submitCode}
+                                    disabled={isRunning || isSubmitting}
+                                    className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded text-sm font-medium transition-colors"
+                                >
+                                    <span>{isSubmitting ? 'Submitting...' : 'Submit'}</span>
+                                </button>
+                            </div>
+                        </div>
+
+
+                        {/* Tab Content */}
+                        <div className="flex-1 p-4 overflow-y-auto no-scrollbar">
+                            {activeTab === 'testcase' && (
+                                <div className="space-y-4">
+                                    <div className="flex space-x-2">
+                                        {sampleTestCases.map((testCase, index) => {
+                                            const status = getTestCaseStatus(testCase.id);
+                                            return (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => setActiveTestCase(index + 1)}
+                                                    className={`px-3 py-1 text-sm rounded transition-colors flex items-center space-x-2 ${activeTestCase === index + 1
+                                                        ? status === 'passed' ? 'bg-green-700 text-white border border-green-500'
+                                                            : status === 'failed' ? 'bg-red-700 text-white border border-red-500'
+                                                                : 'bg-gray-700 text-white'
+                                                        : status === 'passed' ? 'bg-green-900 text-green-300 hover:bg-green-800 border border-green-600'
+                                                            : status === 'failed' ? 'bg-red-900 text-red-300 hover:bg-red-800 border border-red-600'
+                                                                : 'bg-gray-600 text-gray-300 hover:bg-gray-700'
+                                                        }`}
+                                                >
+                                                    <span>Case {index + 1}</span>
+                                                    {status === 'passed' && <Check size={12} className="text-green-400" />}
+                                                    {status === 'failed' && <X size={12} className="text-red-400" />}
+                                                </button>
+
+                                            );
+                                        })}
+                                    </div>
+
+                                    {sampleTestCases[activeTestCase - 1] && (
+                                        <div className="space-y-4">
+                                            {Object.entries(sampleTestCases[activeTestCase - 1].inputs).map(([key, value]) => (
+                                                <div key={key}>
+                                                    <label className="block text-sm text-gray-400 mb-2 font-medium">{key} =</label>
+                                                    <div className="bg-gray-900 p-3 rounded border text-green-400 font-mono text-sm">
+                                                        {typeof value === 'string' ? value : JSON.stringify(value)}
+                                                    </div>
+                                                </div>
+                                            ))}
+
+                                            <div>
+                                                <label className="block text-sm text-gray-400 mb-2 font-medium">Expected Output =</label>
+                                                <div className="bg-gray-900 p-3 rounded border text-green-400 font-mono text-sm">
+                                                    {typeof sampleTestCases[activeTestCase - 1].expectedOutput === 'string'
+                                                        ? sampleTestCases[activeTestCase - 1].expectedOutput
+                                                        : JSON.stringify(sampleTestCases[activeTestCase - 1].expectedOutput)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {activeTab === 'result' && (
+                                <div className="space-y-4">
+                                    {isRunning || isSubmitting ? (
+                                        <div className="flex items-center space-x-2 text-yellow-500">
+                                            <div className="animate-spin w-4 h-4 border-2 border-yellow-500 border-t-transparent rounded-full"></div>
+                                            <span className="text-sm">
+                                                {isRunning ? 'Running tests...' : 'Submitting solution...'}
+                                            </span>
+                                        </div>
+                                    ) : submissionResults ? (
+                                        <SubmissionResultDisplay result={submissionResults} />
+                                    ) : runCodeResults ? (
+                                        <RunCodeResultDisplay result={runCodeResults} />
+                                    ) : (
+                                        <div className="text-gray-400 text-sm">
+                                            No test results yet. Click "Run" to test with sample cases or "Submit" for full evaluation.
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
         </div>
     );
 };
 
-export default ProblemSolvingPage;
+export default ContestSolvingPage;

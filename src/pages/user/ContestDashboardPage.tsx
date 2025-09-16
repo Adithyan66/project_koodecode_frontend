@@ -1,14 +1,3 @@
-import {
-  mockActiveContest,
-  mockUpcomingContests,
-  mockPastContests,
-  mockLeaderboard,
-  mockApiResponses
-} from '../../../mock.ts'
-
-
-
-
 
 
 
@@ -319,12 +308,12 @@ const ContestDashboardPage: React.FC = () => {
                   {activeContest.slice(0, 2).map((contest) => (
                     <div
                       key={contest.id}
-                      onClick={() => navigate(`/contest/${contest.id}`)}
+                      onClick={() => navigate(`/contest/${contest.contestNumber}`)}
                       className={`bg-gray-900 border hover:cursor-pointer border-gray-800 rounded-lg overflow-hidden ${activeContest.length === 1 ? 'w-full max-w-xl' : 'w-full max-w-md'
                         }`}
                     >
                       <div className="relative"
-                        onClick={() => handleJoinContest(contest.id)}
+                      // onClick={() => handleJoinContest(contest.id)}
                       >
                         <img
                           src={getContestThumbnail(contest.thumbnail)}
@@ -413,7 +402,10 @@ const ContestDashboardPage: React.FC = () => {
                     ) : (
                       <div className="space-y-4">
                         {filteredUpcoming.map((contest) => (
-                          <div key={contest.id} className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-colors">
+                          <div
+                            key={contest.id}
+                            onClick={() => navigate(`/contest/${contest.contestNumber}`)}
+                            className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-colors">
                             <div className="flex space-x-4">
                               <img
                                 src={getContestThumbnail(contest.thumbnail)}
@@ -480,7 +472,10 @@ const ContestDashboardPage: React.FC = () => {
                         </div>
                       ) : (
                         pastContests.map((contest) => (
-                          <div key={contest.id} className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-colors">
+                          <div
+                            onClick={() => navigate(`/contest/${contest.contestNumber}`)}
+                            key={contest.id}
+                            className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-colors">
                             <div className="flex space-x-4">
                               <img
                                 src={getContestThumbnail(contest.thumbnail)}
