@@ -915,11 +915,12 @@ const getContestThumbnail = (thumbnailKey?: string) => {
   if (thumbnailKey) {
     return imageKitService.getProfileImageUrl(thumbnailKey, 400, 200, { radius: "8" });
   }
-  return '/default-contest-thumbnail.jpg'; // fallback image
+  return '/default-contest-thumbnail.jpg';
 };
 
 
 const formatTime = (minutes: number): string => {
+
   if (minutes < 60) return `${minutes}m`;
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
@@ -1683,7 +1684,7 @@ const ContestInfoPage: React.FC = () => {
         endTime: new Date(response.data.contest.endTime),
         registrationDeadline: new Date(response.data.contest.registrationDeadline)
       };
-      console.log("logggggggggggggggggggg", contestData);
+      // console.log("logggggggggggggggggggg", contestData);
 
       setContest(contestData);
     } catch (err) {
@@ -1696,8 +1697,9 @@ const ContestInfoPage: React.FC = () => {
     if (!contestNumber) return;
 
     try {
-      const response = getLeaderBoard();
-      console.log(response.data.leaderboard.rankings);
+      // const response = getLeaderBoard();
+      const response = await httpClient.get(`user/contests/${contestNumber}/leaderboard`)
+      console.log("leaderboardddddddddddddddddddddddd", response.data.leaderboard.rankings);
 
       const leaderboardData = new ContestLeaderboard({
         contestId: response.data.leaderboard.contestId,
@@ -1787,20 +1789,6 @@ const ContestInfoPage: React.FC = () => {
         <Navbar />
         <div className='bg-black w-full h-screen'></div>
       </>
-      // <div className=" mx-auto bg-black rounded-xl shadow-lg overflow-hidden p-6">
-      //   <div className="animate-pulse">
-      //     <div className="h-64 bg-gray-950 rounded-lg mb-6"></div>
-      //     <div className="space-y-4">
-      //       <div className="h-8 bg-gray-900 rounded w-3/4"></div>
-      //       <div className="h-4 bg-gray-900 rounded w-1/2"></div>
-      //       <div className="grid grid-cols-3 gap-4">
-      //         <div className="h-20 bg-gray-900 rounded"></div>
-      //         <div className="h-20 bg-gray-900 rounded"></div>
-      //         <div className="h-20 bg-gray-900 rounded"></div>
-      //       </div>
-      //     </div>
-      //   </div>
-      // </div>
     );
   }
 
@@ -1808,26 +1796,169 @@ const ContestInfoPage: React.FC = () => {
   const isContestNotStarted = contest.state === ContestState.UPCOMING || contest.state === ContestState.REGISTRATION_OPEN;
   const isContestEnded = contest.state === ContestState.ENDED || contest.state === ContestState.RESULTS_PUBLISHED;
 
+  // const renderActionButton = () => {
+  //   if (isContestEnded) {
+  //     return null;
+  //   }
+  //   if (isRegistering) {
+  //     return (
+  //       <button disabled className="w-full bg-gray-300 text-gray-500 py-3 px-6 rounded-lg font-semibold">
+  //         Registering...
+  //       </button>
+  //     );
+  //   }
+  //   switch (contest.state) {
+  //     case ContestState.REGISTRATION_OPEN:
+  //       return contest.isUserRegistered ? (
+  //         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+  //           <div className="flex items-center gap-2 text-green-800">
+  //             <CheckCircle className="w-5 h-5" />
+  //             <span className="font-semibold">You are registered!</span>
+  //           </div>
+  //           <p className="text-sm text-green-600 mt-1">
+  //             Contest starts {formatDate(contest.startTime)}
+  //           </p>
+  //         </div>
+  //       ) : (
+  //         <button
+  //           onClick={handleRegister}
+  //           className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
+  //         >
+  //           Register for Contest
+  //         </button>
+  //       );
+  //     case ContestState.ACTIVE:
+  //       return contest.isUserRegistered ? (
+  //         <button
+  //           onClick={handleEnterContest}
+  //           className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
+  //         >
+  //           Enter Contest
+  //         </button>
+  //       ) : (
+  //         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+  //           <div className="flex items-center gap-2 text-red-800">
+  //             <AlertCircle className="w-5 h-5" />
+  //             <span className="font-semibold">Registration Closed</span>
+  //           </div>
+  //           <p className="text-sm text-red-600 mt-1">
+  //             Contest is currently active
+  //           </p>
+  //         </div>
+  //       );
+  //     default:
+  //       return (
+  //         <button
+  //           disabled
+  //           className="w-full bg-gray-300 text-gray-500 py-3 px-6 rounded-lg font-semibold cursor-not-allowed"
+  //         >
+  //           Registration Opens Soon
+  //         </button>
+  //       );
+  //   }
+  // };
+
   const renderActionButton = () => {
-    if (isContestEnded) {
-      return null;
+    // If user has completed the contest (has userSubmission), show completion status
+    if (contest.userSubmission) {
+      const { status, testCasesPassed, totalTestCases, submittedAt } = contest.userSubmission;
+
+      return (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 text-green-800 mb-3">
+              <CheckCircle className="w-6 h-6" />
+              <span className="text-xl font-bold">Contest Completed!</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+              <div className="bg-white rounded-lg p-3 shadow-sm">
+                <div className="text-sm text-gray-600">Status</div>
+                <div className={`font-semibold capitalize ${status === 'accepted' ? 'text-green-600' :
+                  status === 'wrong_answer' ? 'text-red-600' :
+                    'text-yellow-600'
+                  }`}>
+                  {status.replace('_', ' ')}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg p-3 shadow-sm">
+                <div className="text-sm text-gray-600">Test Cases</div>
+                <div className="font-semibold text-blue-600">
+                  {testCasesPassed}/{totalTestCases}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg p-3 shadow-sm">
+                <div className="text-sm text-gray-600">Submitted</div>
+                <div className="font-semibold text-gray-800">
+                  {new Date(submittedAt).toLocaleDateString()}
+                </div>
+              </div>
+            </div>
+
+            <div className="text-sm text-green-600">
+              Thank you for participating! Check the leaderboard for your ranking.
+            </div>
+          </div>
+        </div>
+      );
     }
+
+    // If contest has ended and user hasn't completed it
+    if (isContestEnded) {
+      return (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <div className="flex items-center gap-2 text-gray-600 justify-center">
+            <Clock className="w-5 h-5" />
+            <span className="font-semibold">Contest Ended</span>
+          </div>
+          <p className="text-sm text-gray-500 mt-1 text-center">
+            This contest has concluded
+          </p>
+        </div>
+      );
+    }
+
+    // Loading state for registration
     if (isRegistering) {
       return (
-        <button disabled className="w-full bg-gray-300 text-gray-500 py-3 px-6 rounded-lg font-semibold">
+        <button disabled className="w-full bg-gray-300 text-gray-500 py-3 px-6 rounded-lg font-semibold flex items-center justify-center gap-2">
+          <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"></div>
           Registering...
         </button>
       );
     }
+
+    const now = new Date();
+    
     switch (contest.state) {
+      
       case ContestState.REGISTRATION_OPEN:
+
+      const registrationDeadlinePassed = now > contest.registrationDeadline;
+
+        if (registrationDeadlinePassed) {
+          return (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 text-red-800 justify-center">
+                <AlertCircle className="w-5 h-5" />
+                <span className="font-semibold">Registration Closed</span>
+              </div>
+              <p className="text-sm text-red-600 mt-1 text-center">
+                Registration deadline has passed
+              </p>
+            </div>
+          );
+        }
+
         return contest.isUserRegistered ? (
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 text-green-800">
+            <div className="flex items-center gap-2 text-green-800 justify-center">
               <CheckCircle className="w-5 h-5" />
               <span className="font-semibold">You are registered!</span>
             </div>
-            <p className="text-sm text-green-600 mt-1">
+            <p className="text-sm text-green-600 mt-1 text-center">
               Contest starts {formatDate(contest.startTime)}
             </p>
           </div>
@@ -1839,6 +1970,7 @@ const ContestInfoPage: React.FC = () => {
             Register for Contest
           </button>
         );
+
       case ContestState.ACTIVE:
         return contest.isUserRegistered ? (
           <button
@@ -1849,16 +1981,43 @@ const ContestInfoPage: React.FC = () => {
           </button>
         ) : (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 text-red-800">
+            <div className="flex items-center gap-2 text-red-800 justify-center">
               <AlertCircle className="w-5 h-5" />
               <span className="font-semibold">Registration Closed</span>
             </div>
-            <p className="text-sm text-red-600 mt-1">
+            <p className="text-sm text-red-600 mt-1 text-center">
               Contest is currently active
             </p>
           </div>
         );
-      default:
+
+      case ContestState.UPCOMING:
+
+        const registrationOpen = now >= contest.registrationDeadline;
+
+        if (registrationOpen && !contest.isUserRegistered) {
+          return (
+            <button
+              onClick={handleRegister}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
+            >
+              Register for Contest
+            </button>
+          );
+        } else if (contest.isUserRegistered) {
+          return (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 text-green-800 justify-center">
+                <CheckCircle className="w-5 h-5" />
+                <span className="font-semibold">You are registered!</span>
+              </div>
+              <p className="text-sm text-green-600 mt-1 text-center">
+                Contest starts {formatDate(contest.startTime)}
+              </p>
+            </div>
+          );
+        }
+
         return (
           <button
             disabled
@@ -1867,8 +2026,12 @@ const ContestInfoPage: React.FC = () => {
             Registration Opens Soon
           </button>
         );
+
+      default:
+        return null;
     }
   };
+
 
   return (
     <>
@@ -2059,7 +2222,7 @@ const ContestInfoPage: React.FC = () => {
                             <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
                               {entry.profileImage ? (
                                 <img
-                                  src={entry.profileImage}
+                                  src={imageKitService.getProfileImageUrl(entry.profileImage, 400, 200, { radius: "8" })}
                                   alt={entry.username}
                                   className="w-full h-full rounded-full object-cover"
                                 />
@@ -2068,9 +2231,9 @@ const ContestInfoPage: React.FC = () => {
                               )}
                             </div>
                             <div>
-                              <div className="font-medium">{entry.username}</div>
+                              <div className="font-medium text-black">{entry.username}</div>
                               <div className="text-xs text-gray-500">
-                                {entry.totalScore} pts • {formatTime(entry.timeTaken)}
+                                {entry.totalScore} pts • {entry.timeTaken}
                               </div>
                             </div>
                           </div>
