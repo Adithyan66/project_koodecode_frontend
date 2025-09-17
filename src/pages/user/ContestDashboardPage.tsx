@@ -82,7 +82,7 @@ const ContestDashboardPage: React.FC = () => {
   const navigate = useNavigate();
 
   // State management
-  const [activeContest, setActiveContest] = useState<Contest[] | null>(null);
+  const [activeContest, setActiveContest] = useState<Contest[] | []>([]);
   const [upcomingContests, setUpcomingContests] = useState<Contest[]>([]);
   const [pastContests, setPastContests] = useState<Contest[]>([]);
   const [leaderboard, setLeaderboard] = useState<ContestLeaderboard | null>(null);
@@ -93,7 +93,7 @@ const ContestDashboardPage: React.FC = () => {
   // Loading states
   const [loadingActive, setLoadingActive] = useState(true);
   const [loadingUpcoming, setLoadingUpcoming] = useState(true);
-  const [loadingLeaderboard, setLoadingLeaderboard] = useState(true);
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [loadingPast, setLoadingPast] = useState(false);
 
   // UI states
@@ -110,31 +110,31 @@ const ContestDashboardPage: React.FC = () => {
   }, []);
 
   // Setup WebSocket connection for real-time leaderboard updates
-  useEffect(() => {
-    if (activeContest) {
-      fetchLeaderboard(activeContest.id);
+  // useEffect(() => {
+  //   if (activeContest.length > 0) {
+  //     fetchLeaderboard(activeContest[0].contestNumber);
 
-      // Setup WebSocket connection (you'll need to implement this)
-      const ws = new WebSocket(`ws://localhost:3000/contests/${activeContest.id}/leaderboard`);
+  //     // Setup WebSocket connection (you'll need to implement this)
+  //     // const ws = new WebSocket(`ws://localhost:3000/contests/${activeContest.id}/leaderboard`);
 
-      ws.onmessage = (event) => {
-        const updatedLeaderboard = JSON.parse(event.data);
-        setLeaderboard(updatedLeaderboard);
-      };
+  //     // ws.onmessage = (event) => {
+  //     //   const updatedLeaderboard = JSON.parse(event.data);
+  //     //   setLeaderboard(updatedLeaderboard);
+  //     // };
 
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
+  //     // ws.onerror = (error) => {
+  //     //   console.error('WebSocket error:', error);
+  //     // };
 
-      return () => {
-        ws.close();
-      };
-    }
-  }, [activeContest]);
+  //     // return () => {
+  //     //   ws.close();
+  //     // };
+  //   }
+  // }, [activeContest]);
 
   // Timer for active contest
   useEffect(() => {
-    if (activeContest && activeContest.state === 'active') {
+    if (activeContest.length > 0 && activeContest.state === 'active') {
       const timer = setInterval(() => {
         const now = new Date().getTime();
         const endTime = new Date(activeContest.endTime).getTime();
@@ -175,7 +175,13 @@ const ContestDashboardPage: React.FC = () => {
   const fetchActiveContest = async () => {
     try {
       const response = await httpClient.get('/user/contests/state/active');
-      setActiveContest(response.data.data || null);
+      console.log("ummddddddddddddddddddddddddddddooooooooooo", response.data.data.length);
+   
+        setActiveContest(response.data.data);
+        console.log("thii is active contestssssssssssssss",activeContest);
+        
+        fetchLeaderboard(activeContest[0].contestNumber);
+    
     } catch (error) {
       console.error('Error fetching active contest:', error);
     } finally {
@@ -187,7 +193,6 @@ const ContestDashboardPage: React.FC = () => {
     try {
       const response = await httpClient.get('/user/contests/state/upcoming');
       // const response = mockApiResponses.getUpcomingContests()
-      console.log("ummddddddddddddddddddddddddddddooooooooooo", response.data.data);
 
       setUpcomingContests(response.data.data || []);
       setFilteredUpcoming(response.data.data || []);
@@ -198,13 +203,19 @@ const ContestDashboardPage: React.FC = () => {
     }
   };
 
-  const fetchLeaderboard = async (contestId: string) => {
+  const fetchLeaderboard = async (contestNumber: number) => {
     try {
-      //   const response = await httpClient.get(`/api/contests/${contestId}/leaderboard`);
-      const response = mockApiResponses.getLeaderboard("hih")
-      setLeaderboard(response.data.data);
+      setLoadingLeaderboard(true)
+      const response = await httpClient.get(`/user/contests/${contestNumber}/leaderboard`);
+
+      console.log("leaderboartd", response.data.leaderboard.rankings);
+
+      setLeaderboard(response.data.leaderboard);
+
     } catch (error) {
+
       console.error('Error fetching leaderboard:', error);
+
     } finally {
       setLoadingLeaderboard(false);
     }
@@ -226,7 +237,6 @@ const ContestDashboardPage: React.FC = () => {
     setLoadingPast(true);
     try {
       const response = await httpClient.get('/user/contests/state/past');
-      // const response = mockApiResponses.getPastContests()
       console.log("passssssssssssssssssssstttttttttttttt", response.data.data);
 
       setPastContests(response.data.data || []);
@@ -517,12 +527,12 @@ const ContestDashboardPage: React.FC = () => {
                 <div className="col-span-2">
                   <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 min-h-[600px]">
                     <div className="mb-4">
-                      <h3 className="text-lg font-bold text-green-400 flex items-center">
+                      <h3 className="text-lg font-bold text-green-400 flex items-center justify-center text-center">
                         <Trophy className="h-5 w-5 mr-2" />
                         Live Leaderboard
                       </h3>
-                      {activeContest && (
-                        <p className="text-gray-400 text-sm mt-1">{activeContest.title}</p>
+                      {activeContest.length > 0 && (
+                        <p className="text-white text-sm mt-1 text-center ">{activeContest[0].title}</p>
                       )}
                     </div>
                     {loadingLeaderboard ? (

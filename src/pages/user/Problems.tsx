@@ -8,6 +8,8 @@ import Navbar from '../../components/user/Navbar';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import httpClient from '../../services/axios/httpClient';
+import { useDebounce } from '../../utils/debounce';
+
 
 interface Problem {
     id: number;
@@ -30,6 +32,8 @@ const Problems: React.FC = () => {
     const [difficulty, setDifficulty] = useState<string>('');
     const [showDifficultyDropdown, setShowDifficultyDropdown] = useState(false);
 
+    const debouncedSearch = useDebounce(search, 500);
+
     // Pagination states
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -45,6 +49,8 @@ const Problems: React.FC = () => {
         { value: 'Hard', label: 'Hard' }
     ];
 
+
+
     const getDifficultyColor = (difficulty: string) => {
         switch (difficulty) {
             case 'Easy': return 'text-green-500';
@@ -56,7 +62,6 @@ const Problems: React.FC = () => {
 
     const navigate = useNavigate();
 
-    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -68,13 +73,12 @@ const Problems: React.FC = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Fetch problems from API
     const fetchProblems = async (pageNum: number = 1, isLoadMore: boolean = false) => {
         if (isLoadMore) {
             setLoadingMore(true);
         } else {
             setLoading(true);
-            setProblems([]); // Clear problems for new search/filter
+            setProblems([]);
         }
 
         try {
@@ -115,20 +119,19 @@ const Problems: React.FC = () => {
         }
     };
 
-    // Reset to first page when search or difficulty changes
+
     useEffect(() => {
         setPage(1);
         fetchProblems(1, false);
-    }, [search, difficulty]);
+    }, [debouncedSearch, difficulty]);
 
-    // Debounce search input
+
     useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            setPage(1);
-            fetchProblems(1, false);
-        }, 300);
-        return () => clearTimeout(timeoutId);
-    }, [search]);
+
+        setPage(1);
+        fetchProblems(1, false);
+
+    }, [debouncedSearch]);
 
     const handleDifficultySelect = (selectedDifficulty: string) => {
         setDifficulty(selectedDifficulty);
@@ -191,10 +194,10 @@ const Problems: React.FC = () => {
                                                         key={option.value}
                                                         onClick={() => handleDifficultySelect(option.value)}
                                                         className={`w-full px-4 py-2 text-left hover:bg-gray-700 transition-colors ${difficulty === option.value
-                                                                ? 'bg-gray-700 text-green-500'
-                                                                : option.value
-                                                                    ? getDifficultyColor(option.value)
-                                                                    : 'text-gray-300'
+                                                            ? 'bg-gray-700 text-green-500'
+                                                            : option.value
+                                                                ? getDifficultyColor(option.value)
+                                                                : 'text-gray-300'
                                                             }`}
                                                     >
                                                         {option.label}
