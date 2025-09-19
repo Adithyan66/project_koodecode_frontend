@@ -6,6 +6,7 @@ tree  -I 'node_modules' > structure.txt
 
 ├── eslint.config.js
 ├── index.html
+├── mock.ts
 ├── package.json
 ├── package-lock.json
 ├── README.md
@@ -22,19 +23,38 @@ tree  -I 'node_modules' > structure.txt
 │   │       ├── ChatGPT Image Aug 27, 2025, 01_25_59 PM.png
 │   │       ├── Homepage-BigHero-1200x500_2x.webp
 │   │       ├── Icon.svg
+│   │       ├── KoodeCode Contest.svg
 │   │       ├── login_student-removebg-preview.png
 │   │       ├── Screenshot from 2025-08-02 10-50-58 1.svg
-│   │       └── Screenshot from 2025-08-03 23-40-27.png
+│   │       ├── Screenshot from 2025-08-03 23-40-27.png
+│   │       └── trophy 1.png
 │   ├── components
 │   │   ├── admin
 │   │   │   ├── AdminPanel.tsx
+│   │   │   ├── contests
+│   │   │   │   ├── contestAdding
+│   │   │   │   └── contestListing
+│   │   │   │       └── ContestListing.tsx
 │   │   │   └── problems
-│   │   │       ├── AddProblem.tsx
+│   │   │       ├── addProblems
+│   │   │       │   ├── BasicInfoTab.tsx
+│   │   │       │   ├── ConstraintsTab.tsx
+│   │   │       │   ├── ExamplesTab.tsx
+│   │   │       │   ├── FunctionDefinitionTab.tsx
+│   │   │       │   ├── MetadataTab.tsx
+│   │   │       │   └── TestCasesTab.tsx
 │   │   │       └── ProblemListing.tsx
+│   │   ├── common
+│   │   │   └── Timer.tsx
 │   │   ├── protectedRoutes
 │   │   │   ├── AdminProtected.tsx
 │   │   │   └── UserProtected.tsx
 │   │   └── user
+│   │       ├── auth
+│   │       │   └── GitHubCallback.tsx
+│   │       ├── Avatar.tsx
+│   │       ├── buttons
+│   │       │   └── Auth0Buttons.tsx
 │   │       ├── codeEditor
 │   │       │   └── CodeEditor.tsx
 │   │       ├── Navbar.tsx
@@ -62,13 +82,17 @@ tree  -I 'node_modules' > structure.txt
 │   ├── pages
 │   │   ├── admin
 │   │   │   ├── AddProblemPage.tsx
+│   │   │   ├── ContestListingPage.tsx
+│   │   │   ├── CreateContestPage.tsx
 │   │   │   ├── DashboardPage.tsx
 │   │   │   └── ProblemListingPage.tsx
-│   │   ├── NotFoundPage.tsx
 │   │   └── user
+│   │       ├── ContestDashboardPage.tsx
+│   │       ├── ContestInfoPage.tsx
+│   │       ├── ContestSolvingPage.tsx
+│   │       ├── ForgotPasswordPage.tsx
 │   │       ├── LandingPage.tsx
 │   │       ├── LoginPage.tsx
-│   │       ├── OtpPage.tsx
 │   │       ├── ProblemSolvingPage.tsx
 │   │       ├── Problems.tsx
 │   │       ├── SettingsPage.tsx
@@ -83,10 +107,12 @@ tree  -I 'node_modules' > structure.txt
 │   │   │   └── user
 │   │   │       └── problem.ts
 │   │   ├── ImageKitService.ts
+│   │   ├── ImageUploadService.ts
 │   │   └── socketClient.ts
 │   ├── types
 │   │   └── profile.ts
 │   ├── utils
+│   │   ├── debounce.ts
 │   │   └── tokenManager.ts
 │   └── vite-env.d.ts
 ├── structure.txt
@@ -95,4 +121,4 @@ tree  -I 'node_modules' > structure.txt
 ├── tsconfig.node.json
 └── vite.config.ts
 
-25 directories, 66 files
+32 directories, 85 files
