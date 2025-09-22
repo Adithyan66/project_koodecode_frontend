@@ -14,6 +14,17 @@ tree  -I 'node_modules' > structure.txt
 │   ├── app
 │   │   ├── App.css
 │   │   ├── App.tsx
+│   │   ├── hooks
+│   │   │   ├── contest
+│   │   │   │   ├── useContestDashboard.ts
+│   │   │   │   ├── useContestInfo.ts
+│   │   │   │   ├── useContestSolving.ts
+│   │   │   │   ├── useContests.ts
+│   │   │   │   ├── useContestTimer.ts
+│   │   │   │   ├── useLeaderboardRefresh.ts
+│   │   │   │   └── useLeaderboard.ts
+│   │   │   └── problem
+│   │   │       └── useProblemSolving.ts
 │   │   ├── hooks.ts
 │   │   ├── router.tsx
 │   │   └── store.ts
@@ -45,7 +56,14 @@ tree  -I 'node_modules' > structure.txt
 │   │   │       │   └── TestCasesTab.tsx
 │   │   │       └── ProblemListing.tsx
 │   │   ├── common
+│   │   │   ├── ErrorDisplay.tsx
+│   │   │   ├── LoadingSpinner.tsx
 │   │   │   └── Timer.tsx
+│   │   ├── contests
+│   │   │   ├── ActiveContestCard.tsx
+│   │   │   ├── ContestListItem.tsx
+│   │   │   ├── LeaderboardEntry.tsx
+│   │   │   └── UserStatsCard.tsx
 │   │   ├── protectedRoutes
 │   │   │   ├── AdminProtected.tsx
 │   │   │   └── UserProtected.tsx
@@ -57,7 +75,23 @@ tree  -I 'node_modules' > structure.txt
 │   │       │   └── Auth0Buttons.tsx
 │   │       ├── codeEditor
 │   │       │   └── CodeEditor.tsx
+│   │       ├── contest
+│   │       │   ├── CoinRewards.tsx
+│   │       │   ├── ContestActionButton.tsx
+│   │       │   ├── ContestDetailsGrid.tsx
+│   │       │   ├── ContestHeader.tsx
+│   │       │   └── ContestRules.tsx
 │   │       ├── Navbar.tsx
+│   │       ├── problem-solving
+│   │       │   ├── BottomPanel.tsx
+│   │       │   ├── CodeEditorSection.tsx
+│   │       │   ├── DescriptionSection.tsx
+│   │       │   ├── EditorControls.tsx
+│   │       │   ├── ProblemHeader.tsx
+│   │       │   ├── RunCodeResultDisplay.tsx
+│   │       │   ├── SubmissionResultDisplay.tsx
+│   │       │   ├── SubmissionResultModal.tsx
+│   │       │   └── TestCaseDisplay.tsx
 │   │       ├── profile
 │   │       │   ├── BadgeShowcase.tsx
 │   │       │   ├── ProblemStatsChart.tsx
@@ -102,17 +136,26 @@ tree  -I 'node_modules' > structure.txt
 │   │   ├── axios
 │   │   │   ├── admin
 │   │   │   ├── auth
-│   │   │   │   └── authService.ts
+│   │   │   │   ├── authService.ts
+│   │   │   │   └── problem.ts
 │   │   │   ├── httpClient.ts
 │   │   │   └── user
+│   │   │       ├── contest-info.ts
+│   │   │       ├── contest-problem.ts
+│   │   │       ├── contest.ts
 │   │   │       └── problem.ts
 │   │   ├── ImageKitService.ts
 │   │   ├── ImageUploadService.ts
 │   │   └── socketClient.ts
 │   ├── types
+│   │   ├── contest-info.ts
+│   │   ├── contest-problems.ts
+│   │   ├── contest.ts
+│   │   ├── problem.ts
 │   │   └── profile.ts
 │   ├── utils
 │   │   ├── debounce.ts
+│   │   ├── format.ts
 │   │   └── tokenManager.ts
 │   └── vite-env.d.ts
 ├── structure.txt
@@ -121,4 +164,4 @@ tree  -I 'node_modules' > structure.txt
 ├── tsconfig.node.json
 └── vite.config.ts
 
-32 directories, 85 files
+38 directories, 122 files

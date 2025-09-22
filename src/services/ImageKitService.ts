@@ -39,8 +39,8 @@ class ImageKitService {
 
  getProfileImageUrl(
   s3Key: string,
-  width: number,
-  height: number,
+  width?: number,
+  height?: number,
   options?: {
     radius?: number | "max";   // corner roundness or full circle
     crop?: "maintain_ratio" | "force" | "at_least" | "at_max" | "extract";

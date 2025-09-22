@@ -2,14 +2,18 @@
 
 import React, { useState } from 'react';
 import { Save, Eye, EyeOff, Smartphone, Trash2, Shield } from 'lucide-react';
+import { authAPI } from '../../../services/axios/auth/authService';
+import { toast } from 'react-toastify';
 
 const SecurityPrivacy: React.FC = () => {
+
+
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
-  
+
   const [privacy, setPrivacy] = useState({
     profileVisibility: 'public' as 'public' | 'private',
     showEmail: false,
@@ -17,7 +21,7 @@ const SecurityPrivacy: React.FC = () => {
     showStats: true,
     allowDirectMessages: true
   });
-  
+
   const [twoFactor, setTwoFactor] = useState({
     enabled: false,
     backupCodes: [] as string[]
@@ -49,10 +53,13 @@ const SecurityPrivacy: React.FC = () => {
     setIsLoading(true);
     try {
       console.log('Updating password...');
-      // await updatePassword(passwordData);
+      let res = await authAPI.changePassword(passwordData.currentPassword, passwordData.newPassword)
+      toast.success(res.message)
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+
     } catch (error) {
       console.error('Failed to update password:', error);
+      toast.error(error.response.data.message)
     } finally {
       setIsLoading(false);
     }
@@ -84,7 +91,7 @@ const SecurityPrivacy: React.FC = () => {
       {/* Change Password */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Change Password</h2>
-        
+
         <div className="space-y-4 max-w-md">
           {/* Current Password */}
           <div>
@@ -169,7 +176,7 @@ const SecurityPrivacy: React.FC = () => {
       {/* Two-Factor Authentication */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Two-Factor Authentication</h2>
-        
+
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <Shield className="text-green-500" size={24} />
@@ -178,7 +185,7 @@ const SecurityPrivacy: React.FC = () => {
                 {twoFactor.enabled ? '2FA Enabled' : '2FA Disabled'}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {twoFactor.enabled 
+                {twoFactor.enabled
                   ? 'Your account is protected with two-factor authentication'
                   : 'Add an extra layer of security to your account'
                 }
@@ -187,11 +194,10 @@ const SecurityPrivacy: React.FC = () => {
           </div>
           <button
             onClick={enable2FA}
-            className={`px-4 py-2 rounded-md font-medium ${
-              twoFactor.enabled
-                ? 'bg-red-600 hover:bg-red-700 text-white'
-                : 'bg-green-600 hover:bg-green-700 text-white'
-            }`}
+            className={`px-4 py-2 rounded-md font-medium ${twoFactor.enabled
+              ? 'bg-red-600 hover:bg-red-700 text-white'
+              : 'bg-green-600 hover:bg-green-700 text-white'
+              }`}
           >
             {twoFactor.enabled ? 'Disable 2FA' : 'Enable 2FA'}
           </button>
@@ -213,7 +219,7 @@ const SecurityPrivacy: React.FC = () => {
       {/* Privacy Settings */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Privacy Settings</h2>
-        
+
         <div className="space-y-6">
           {/* Profile Visibility */}
           <div>
@@ -275,7 +281,7 @@ const SecurityPrivacy: React.FC = () => {
       {/* Active Sessions */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Active Sessions</h2>
-        
+
         <div className="space-y-3">
           {activeSessions.map(session => (
             <div key={session.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
