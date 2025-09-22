@@ -7,9 +7,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { authAPI } from '../../services/axios/auth/authService';
 import { forgotPassword } from '../../features/auth/userThunks';
-import { useDispatch } from 'react-redux';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import axios from 'axios';
 
 interface ForgotPasswordPageProps { }
 
@@ -23,7 +21,8 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [timeLeft, setTimeLeft] = useState(60);
     const [isLoading, setIsLoading] = useState(false);
-
+    const [enablePassword, setEnablePassword] = useState(true)
+    const [otpDisable, setOtpDisable] = useState(false)
     const dispatch = useAppDispatch()
 
     const { user, status } = useAppSelector(state => state.user);
@@ -65,13 +64,23 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = () => {
                     error = 'Please enter a valid email address';
                 }
                 break;
+            // case 'otp':
+            //     if (Array.isArray(value)) {
+            //         const otpString = value.join('');
+            //         if (otpString.length !== 5) {
+            //             error = 'Please enter the complete OTP';
+            //         } else if (!/^\d+$/.test(otpString)) {
+            //             error = 'OTP should contain only numbers';
+            //         }
+            //     }
+            //     break;
             case 'otp':
                 if (Array.isArray(value)) {
                     const otpString = value.join('');
                     if (otpString.length !== 5) {
-                        error = 'Please enter the complete OTP';
-                    } else if (!/^\d+$/.test(otpString)) {
-                        error = 'OTP should contain only numbers';
+                        error = 'Please enter the complete 5-digit OTP';
+                    } else if (!/^\d{5}$/.test(otpString)) {
+                        error = 'OTP should contain only 5 numbers';
                     }
                 }
                 break;
@@ -142,30 +151,52 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = () => {
         }
     };
 
-    // OTP handling functions
+
     const handleOtpChange = (index: number, value: string) => {
-        if (!/^\d*$/.test(value)) return; // Only allow digits
+        if (!/^\d*$/.test(value)) return;
 
         const newOtp = [...otp];
         newOtp[index] = value;
         setOtp(newOtp);
 
-        // Auto-focus next input
         if (value && index < 4) {
             const nextInput = document.getElementById(`otp-${index + 1}`);
             nextInput?.focus();
         }
 
-        // Clear OTP error when user starts typing
         if (errors.otp && value) {
             setErrors(prev => ({ ...prev, otp: '' }));
         }
 
-        // Auto-verify when all fields are filled
-        if (newOtp.every(digit => digit !== '') && newOtp.join('').length === 5) {
-            setTimeout(() => validateField('otp', newOtp), 100);
-        }
     };
+
+
+    const handleOtpVerify = async () => {
+        const otpString = otp.join("");
+        console.log("email, otp length:", email, otpString.length);
+
+        // Validate OTP length before API call
+        if (otpString.length !== 5 || !/^\d{5}$/.test(otpString)) {
+            setErrors(prev => ({
+                ...prev,
+                "otp": "Please enter a complete 5-digit OTP"
+            }));
+            return;
+        }
+
+        try {
+            let res = await authAPI.verifyOtp(email, +otpString);
+            setEnablePassword(false);
+            setOtpDisable(true);
+            toast.success("OTP verified");
+        } catch (error) {
+            setErrors(prev => ({
+                ...prev,
+                "otp": error?.response?.data?.message || "OTP verification failed"
+            }));
+        }
+    }
+
 
     const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Backspace' && !otp[index] && index > 0) {
@@ -261,6 +292,16 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = () => {
         try {
             await resendOtp(email);
             setOtp(['', '', '', '', '']);
+            setOtpDisable(false)
+            setConfirmPassword("")
+            setNewPassword("")
+            setEnablePassword(true)
+            setErrors({
+                email: '',
+                otp: '',
+                newPassword: '',
+                confirmPassword: ''
+            })
             setTimeLeft(60);
             toast.success('OTP resent successfully');
         } catch (error: any) {
@@ -275,11 +316,32 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = () => {
             if (isAdmin) {
                 navigate('/admin/dashboard');
             } else {
-                
+
                 navigate("/")
             }
         }
     }, [status, user, navigate]);
+
+
+    // Add this useEffect to watch OTP changes
+useEffect(() => {
+    const otpString = otp.join('');
+    const isComplete = otp.every(digit => digit !== '' && digit.length === 1);
+    
+    console.log('OTP State Changed:', {
+        otp,
+        otpString,
+        length: otpString.length,
+        isComplete
+    });
+
+    if (isComplete && otpString.length === 5 && /^\d{5}$/.test(otpString)) {
+        console.log("Auto-verifying OTP:", otpString);
+        handleOtpVerify();
+    }
+}, [otp]); // Watch for otp state changes
+
+
 
     const renderStepContent = () => {
         switch (currentStep) {
@@ -365,9 +427,10 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = () => {
                                         onChange={(e) => handleOtpChange(index, e.target.value)}
                                         onKeyDown={(e) => handleKeyDown(index, e)}
                                         className="w-12 h-12 bg-transparent border-2 border-gray-600 rounded-lg text-center text-white text-lg font-semibold focus:outline-none focus:border-green-500 transition-colors"
-                                        disabled={isLoading}
+                                        disabled={otpDisable || isLoading}
                                     />
                                 ))}
+                      
                             </div>
 
                             {errors.otp && (
@@ -406,8 +469,10 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = () => {
                                     className={`w-full bg-gray-800 border rounded-lg py-4 pl-12 pr-4 text-white placeholder-gray-400 focus:outline-none focus:ring-1 transition-colors ${errors.newPassword
                                         ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
                                         : 'border-gray-700 focus:border-green-500 focus:ring-green-500'
-                                        }`}
-                                    disabled={isSubmitting}
+                                        }
+                                        ${enablePassword ? 'cursor-not-allowed' : ''}
+                                        `}
+                                    disabled={enablePassword || isSubmitting}
                                 />
                                 {errors.newPassword && (
                                     <p className="text-red-400 text-sm mt-1 ml-1">{errors.newPassword}</p>
@@ -427,8 +492,10 @@ const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = () => {
                                     className={`w-full bg-gray-800 border rounded-lg py-4 pl-12 pr-4 text-white placeholder-gray-400 focus:outline-none focus:ring-1 transition-colors ${errors.confirmPassword
                                         ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
                                         : 'border-gray-700 focus:border-green-500 focus:ring-green-500'
-                                        }`}
-                                    disabled={isSubmitting}
+                                        }
+                                         ${enablePassword ? 'cursor-not-allowed' : ''}
+                                        `}
+                                    disabled={enablePassword || isSubmitting}
                                 />
                                 {errors.confirmPassword && (
                                     <p className="text-red-400 text-sm mt-1 ml-1">{errors.confirmPassword}</p>
