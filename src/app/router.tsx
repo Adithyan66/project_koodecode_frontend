@@ -24,6 +24,7 @@ import CreateContestPage from '../pages/admin/CreateContestPage'
 import ContestDashboardPage from '../pages/user/ContestDashboardPage'
 import ContestInfoPage from '../pages/user/ContestInfoPage'
 import ContestSolvingPage from '../pages/user/ContestSolvingPage'
+import RoomPage from '../pages/user/RoomPage'
 
 export default function Router() {
 
@@ -48,6 +49,8 @@ export default function Router() {
             <Route path="/contests" element={<UserProtected><ContestDashboardPage /></UserProtected>} />
             <Route path="/contest/:contestNumber" element={<UserProtected><ContestInfoPage /></UserProtected>} />
             <Route path="/contest/:contestNumber/participate" element={<UserProtected><ContestSolvingPage /></UserProtected>} />
+            <Route path="/room/:roomId" element={<UserProtected><RoomPage /></UserProtected>} />
+
 
             <Route path="/admin/dashboard" element={<AdminProtected> <DashboardPage /></AdminProtected>} />
             <Route path="/admin/problems" element={<AdminProtected> <ProblemListingPage /></AdminProtected>} />

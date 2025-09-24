@@ -9,9 +9,12 @@ import handShakeImg from "../../assets/images/ChatGPT_Image_Aug_2__2025__11_16_2
 
 
 import Navbar from '../../components/user/Navbar';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 
 const LandingPage: React.FC = () => {
+
+    const navigate = useNavigate()
 
 
     return (
@@ -33,17 +36,21 @@ const LandingPage: React.FC = () => {
                                 Practice, build to live sessions when learning new topics.
                             </p>
                             <div className="flex space-x-4">
-                                <button className="bg-green-500 hover:bg-green-600 px-6 py-3 rounded-lg font-semibold text-black transition-colors">
+                                <button
+                                    onClick={() => navigate('/room/id')}
+                                    className="bg-green-500 hover:bg-green-600 px-6 py-3 rounded-lg font-semibold text-black transition-colors">
                                     Create Room
                                 </button>
-                                <button className="border border-green-500 text-green-500 hover:bg-green-500 hover:text-black px-6 py-3 rounded-lg font-semibold transition-colors">
+                                <button 
+                                onClick={() => navigate('/room/68d424c7f5195b8b4177565c')}
+                                className="border border-green-500 text-green-500 hover:bg-green-500 hover:text-black px-6 py-3 rounded-lg font-semibold transition-colors">
                                     Join Room
                                 </button>
                             </div>
                         </div>
 
                         {/* <div className=""> */}
-                            <img src={handShakeImg} alt="" />
+                        <img src={handShakeImg} alt="" />
                         {/* </div> */}
                     </div>
                 </div>
