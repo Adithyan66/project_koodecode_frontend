@@ -6,6 +6,7 @@ import type { RootState } from '../../../app/store';
 import { roomService } from '../../../services/axios/user/room';
 import { roomSocketService } from '../../../services/roomSocketService';
 import type { Room } from '../../../types/room';
+import { useAppSelector } from '../../../app/hooks';
 
 interface RoomCreatorControlsProps {
   room: Room;
@@ -13,7 +14,8 @@ interface RoomCreatorControlsProps {
 }
 
 const RoomCreatorControls: React.FC<RoomCreatorControlsProps> = ({ room, onClose }) => {
-  const { user } = useSelector((state: RootState) => state.auth);
+  // const { user } = useSelector((state: RootState) => state.auth);
+  const user = useAppSelector(state => state.user.user);
   const [activeSection, setActiveSection] = useState<'participants' | 'permissions' | 'settings'>('participants');
   const [selectedUserId, setSelectedUserId] = useState<string>('');
   const [isUpdatingPermissions, setIsUpdatingPermissions] = useState(false);

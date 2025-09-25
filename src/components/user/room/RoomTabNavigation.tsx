@@ -16,7 +16,8 @@ const RoomTabNavigation: React.FC<RoomTabNavigationProps> = ({
     const tabs = [
         { id: 'problem', label: 'Problem', icon: '📋' },
         { id: 'video', label: 'Video Call', icon: '🎥', enabled: hasVideo },
-        { id: 'whiteboard', label: 'Whiteboard', icon: '📝', enabled: hasWhiteboard }
+        { id: 'whiteboard', label: 'Whiteboard', icon: '📝', enabled: hasWhiteboard },
+        { id: 'chat', label: 'Chat', icon: '📝'}
     ];
 
     return (

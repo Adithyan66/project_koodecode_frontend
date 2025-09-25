@@ -13,15 +13,16 @@ interface CodeEditorSectionProps {
     problemNumber?: number;
 }
 
-const CodeEditorSection: React.FC<CodeEditorSectionProps> = ({ 
-    selectedLanguage, 
-    code, 
-    setCode, 
+const CodeEditorSection: React.FC<CodeEditorSectionProps> = ({
+    selectedLanguage,
+    code,
+    setCode,
     handleEditorDidMount,
     readOnly = false,
     roomId,
     problemNumber
 }) => {
+
     const debouncedUpdateRef = useRef<((value: string) => void) | null>(null);
 
     useEffect(() => {
@@ -36,7 +37,7 @@ const CodeEditorSection: React.FC<CodeEditorSectionProps> = ({
     const handleCodeChange = (value: string | undefined) => {
         const newCode = value || '';
         setCode(newCode);
-        
+
         // Send to room if in room mode
         if (roomId && debouncedUpdateRef.current && !readOnly) {
             debouncedUpdateRef.current(newCode);
