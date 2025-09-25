@@ -1,4 +1,4 @@
-import type { ProblemData } from "./problem";
+import type { ProblemData, SampleTestCase } from "./problem";
 
 
 export interface Room {
@@ -14,6 +14,7 @@ export interface Room {
   scheduledTime?: Date;
   problemNumber?: number;
   problem?: ProblemData;
+  sampleTestCases?: SampleTestCase;
   status: 'waiting' | 'active' | 'inactive';
   participants: Participant[];
   userPermissions: UserPermissions;

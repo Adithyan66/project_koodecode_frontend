@@ -10,21 +10,22 @@ class RoomSocketService {
   private reconnectDelay = 1000;
 
   connect(token: string, events: Partial<SocketEvents>): Promise<void> {
+
     return new Promise((resolve, reject) => {
-      try {
-        this.socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
+      try {        
+        this.socket = io( 'http://localhost:3000', {
           auth: { token },
           transports: ['websocket'],
           autoConnect: false
         });
-
+        
         // Connection events
         this.socket.on('connect', () => {
           console.log('Socket connected');
           this.reconnectAttempts = 0;
           resolve();
         });
-
+        
         this.socket.on('disconnect', (reason) => {
           console.log('Socket disconnected:', reason);
           if (reason === 'io server disconnect') {

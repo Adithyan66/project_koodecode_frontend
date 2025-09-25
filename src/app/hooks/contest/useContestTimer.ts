@@ -83,7 +83,6 @@ export const useContestTimer = (contest) => {
 
     return () => clearInterval(timer);
   }, [contest]);
-console.log("timelefttttttttttttttt",timeLeft);
 
   return timeLeft;
 };

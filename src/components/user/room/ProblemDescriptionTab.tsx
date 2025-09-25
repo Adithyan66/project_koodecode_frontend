@@ -3,25 +3,27 @@ import { ChevronDown, RefreshCw } from 'lucide-react';
 import DescriptionSection from '../problem-solving/DescriptionSection';
 import { roomSocketService } from '../../../services/roomSocketService';
 import type { ProblemData } from '../../../types/problem';
+import { formatConstraints } from '../../../utils/formattedConstraints';
 
 interface ProblemDescriptionTabProps {
   problem?: ProblemData;
   canChangeProblem: boolean;
 }
 
-const ProblemDescriptionTab: React.FC<ProblemDescriptionTabProps> = ({
-  problem,
-  canChangeProblem
-}) => {
+const ProblemDescriptionTab: React.FC<ProblemDescriptionTabProps> = ({ problem, canChangeProblem }) => {
+
+
   const [showHints, setShowHints] = useState(false);
   const [showProblemSelector, setShowProblemSelector] = useState(false);
   const [selectedProblemNumber, setSelectedProblemNumber] = useState('');
   const [isChangingProblem, setIsChangingProblem] = useState(false);
-  console.log("problemmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",problem)
+  console.log("problemmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm", problem)
 
-  const formattedConstraints = problem?.constraints 
-    ? problem.constraints.split('\n').filter(constraint => constraint.trim())
-    : [];
+  // const formattedConstraints = problem?.constraints
+  //   ? problem.constraints.split('\n').filter(constraint => constraint.trim())
+  //   : [];
+
+  const formattedConstraints = formatConstraints(problem!.constraints);
 
   const handleChangeProblem = async () => {
     if (!selectedProblemNumber || !canChangeProblem) return;
@@ -49,7 +51,7 @@ const ProblemDescriptionTab: React.FC<ProblemDescriptionTabProps> = ({
           <p className="text-lg">No problem selected</p>
           <p className="text-sm">The room creator can select a problem to work on together.</p>
         </div>
-        
+
         {canChangeProblem && (
           <button
             onClick={() => setShowProblemSelector(true)}
@@ -72,11 +74,10 @@ const ProblemDescriptionTab: React.FC<ProblemDescriptionTabProps> = ({
               {problem.problemNumber}. {problem.title}
             </h1>
             <div className="flex items-center space-x-4">
-              <span className={`px-2 py-1 rounded text-xs font-medium ${
-                problem.difficulty === 'Easy' ? 'bg-green-100 text-green-800' :
+              <span className={`px-2 py-1 rounded text-xs font-medium ${problem.difficulty === 'Easy' ? 'bg-green-100 text-green-800' :
                 problem.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-red-100 text-red-800'
-              }`}>
+                  'bg-red-100 text-red-800'
+                }`}>
                 {problem.difficulty}
               </span>
               {problem.acceptanceRate && (
@@ -86,7 +87,7 @@ const ProblemDescriptionTab: React.FC<ProblemDescriptionTabProps> = ({
               )}
             </div>
           </div>
-          
+
           {canChangeProblem && (
             <div className="relative">
               <button
@@ -97,7 +98,7 @@ const ProblemDescriptionTab: React.FC<ProblemDescriptionTabProps> = ({
                 <span>Change Problem</span>
                 <ChevronDown size={14} />
               </button>
-              
+
               {showProblemSelector && (
                 <div className="absolute right-0 top-full mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-10 p-4 min-w-64">
                   <h3 className="text-white font-medium mb-3">Select New Problem</h3>

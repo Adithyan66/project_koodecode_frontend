@@ -18,11 +18,12 @@ import { leaveRoom, setSocketConnected, updateRoomProblem, updateUserPermissions
 import { roomSocketService } from '../../services/roomSocketService';
 import type { RootState } from '../../app/store';
 import { useAppDispatch } from '../../app/hooks';
+import ChatComponent from '../../components/user/room/ChatComponent';
 
 
 
 
-type RoomTab = 'problem' | 'video' | 'whiteboard';
+type RoomTab = 'problem' | 'video' | 'whiteboard' | 'chat';
 type BottomTab = 'testcase' | 'result';
 
 
@@ -33,14 +34,12 @@ const RoomPage: React.FC = () => {
 
     const { roomId } = useParams<{ roomId: string }>();
     const navigate = useNavigate();
-    // const dispatch = useDispatch();
 
-    // Redux state
     const { currentRoom, isJoining, error } = useSelector((state: RootState) => state.room);
     const { user } = useSelector((state: RootState) => state.user);
 
     // UI State
-    const [activeTab, setActiveTab] = useState<RoomTab>('problem');
+    const [activeTab, setActiveTab] = useState<RoomTab>('video');
     const [showCreatorControls, setShowCreatorControls] = useState(false);
     const [isVideoMinimized, setIsVideoMinimized] = useState(false);
 
@@ -70,10 +69,7 @@ const RoomPage: React.FC = () => {
 
     // Join room on component mount
     useEffect(() => {
-        console.log("curreeeeeeeeent ",currentRoom);
-        console.log("prrrrrrrr",currentRoom?.room.problem);
-        
-        
+
         if (roomId && !currentRoom) {
             handleJoinRoom();
         }
@@ -83,7 +79,7 @@ const RoomPage: React.FC = () => {
                 handleLeaveRoom();
             }
         };
-    }, [roomId, currentRoom, isJoining]);
+    }, [roomId, currentRoom]);
 
     // Initialize Socket.IO when room is joined
     useEffect(() => {
@@ -152,6 +148,7 @@ const RoomPage: React.FC = () => {
     };
 
     const initializeSocket = async () => {
+
         if (!currentRoom?.socketToken) return;
 
         try {
@@ -308,20 +305,20 @@ const RoomPage: React.FC = () => {
     }
 
     // Error state
-    if (error ) {
+    if (error) {
         return (
             <div className="h-screen bg-gray-900 text-white flex items-center justify-center">
                 <ErrorDisplay
                     message={error}
-                    // onRetry={() => handleJoinRoom()}
-                    // onBack={() => navigate('/')}
+                // onRetry={() => handleJoinRoom()}
+                // onBack={() => navigate('/')}
                 />
             </div>
         );
     }
 
     // Room not found
-    if (!currentRoom ) {
+    if (!currentRoom) {
         return (
             <div className="h-screen bg-gray-900 text-white flex items-center justify-center">
                 <div className="text-center">
@@ -338,8 +335,8 @@ const RoomPage: React.FC = () => {
         );
     }
 
-    const isCreator = currentRoom.createdBy === user?.id;
-    const sampleTestCases = currentRoom.problem?.sampleTestCases || [];
+    const isCreator = currentRoom.createdBy === user?.id;    
+    const sampleTestCases = currentRoom.sampleTestCases || [];
 
     return (
         <div className="h-screen bg-gray-900 text-white flex flex-col">
@@ -439,7 +436,8 @@ const RoomPage: React.FC = () => {
                                     code={code}
                                     setCode={setCode}
                                     handleEditorDidMount={handleEditorDidMount}
-                                    readOnly={!currentRoom.userPermissions?.canEditCode}
+                                    // readOnly={!currentRoom.userPermissions?.canEditCode}
+                                    readOnly={false}
                                     roomId={currentRoom.roomId}
                                     problemNumber={currentRoom.problemNumber}
                                 />
@@ -502,6 +500,12 @@ const RoomPage: React.FC = () => {
                                 <WhiteboardTab
                                     roomId={currentRoom.roomId}
                                     canDraw={currentRoom.userPermissions?.canDrawWhiteboard || false}
+                                />
+                            )}
+
+                            {activeTab === 'chat' && (
+                                <ChatComponent
+                                    roomId={currentRoom.roomId}
                                 />
                             )}
                         </div>

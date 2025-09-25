@@ -42,7 +42,7 @@ const LandingPage: React.FC = () => {
                                     Create Room
                                 </button>
                                 <button 
-                                onClick={() => navigate('/room/68d424c7f5195b8b4177565c')}
+                                onClick={() => navigate('/room/68d592757eb26930649f636c')}
                                 className="border border-green-500 text-green-500 hover:bg-green-500 hover:text-black px-6 py-3 rounded-lg font-semibold transition-colors">
                                     Join Room
                                 </button>
