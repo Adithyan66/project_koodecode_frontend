@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Navbar from '../../components/user/Navbar';
@@ -19,7 +19,8 @@ import { roomSocketService } from '../../services/roomSocketService';
 import type { RootState } from '../../app/store';
 import { useAppDispatch } from '../../app/hooks';
 import ChatComponent from '../../components/user/room/ChatComponent';
-
+import type { ProblemData, RunCodeResponse, SampleTestCase, SubmissionResponse } from '../../types/problem';
+import { getLanguageId, languageMap } from '../../utils/problem-related';
 
 
 
@@ -38,31 +39,64 @@ const RoomPage: React.FC = () => {
     const { currentRoom, isJoining, error } = useSelector((state: RootState) => state.room);
     const { user } = useSelector((state: RootState) => state.user);
 
+    const editorRef = useRef<any>(null);
+
     // UI State
     const [activeTab, setActiveTab] = useState<RoomTab>('video');
     const [showCreatorControls, setShowCreatorControls] = useState(false);
     const [isVideoMinimized, setIsVideoMinimized] = useState(false);
 
+
+    // Track which components have been mounted
+    const [mountedTabs, setMountedTabs] = useState<Set<RoomTab>>(new Set(['video'])); // Start with video
+
+    // Function to ensure tab is mounted
+    const ensureTabMounted = (tab: RoomTab) => {
+        setMountedTabs(prev => new Set([...prev, tab]));
+    };
+
+    // Handle tab change with lazy mounting
+    const handleTabChange = (tab: RoomTab) => {
+        ensureTabMounted(tab);
+        setActiveTab(tab);
+    };
+
     // Code Editor State
-    const [selectedLanguage, setSelectedLanguage] = useState('javascript');
-    const [code, setCode] = useState('');
-    const languages = [
-        { value: 'javascript', label: 'JavaScript' },
-        { value: 'python', label: 'Python' },
-        { value: 'java', label: 'Java' },
-        { value: 'cpp', label: 'C++' },
-        { value: 'go', label: 'Go' }
-    ];
+    // const [selectedLanguage, setSelectedLanguage] = useState('javascript');
+    // const [code, setCode] = useState('');
+    // const languages = [
+    //     { value: 'javascript', label: 'JavaScript' },
+    //     { value: 'python', label: 'Python' },
+    //     { value: 'java', label: 'Java' },
+    //     { value: 'cpp', label: 'C++' },
+    //     { value: 'go', label: 'Go' }
+    // ];
 
     // Bottom Panel State
     const [bottomActiveTab, setBottomActiveTab] = useState<BottomTab>('testcase');
-    const [activeTestCase, setActiveTestCase] = useState(0);
-    const [isRunning, setIsRunning] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [runCodeResults, setRunCodeResults] = useState(null);
-    const [submissionResults, setSubmissionResults] = useState(null);
+    // const [activeTestCase, setActiveTestCase] = useState(0);
+    // const [isRunning, setIsRunning] = useState(false);
+    // const [isSubmitting, setIsSubmitting] = useState(false);
+    // const [runCodeResults, setRunCodeResults] = useState(null);
+    // const [submissionResults, setSubmissionResults] = useState(null);
 
     const dispatch = useAppDispatch();
+
+
+    const [selectedLanguage, setSelectedLanguage] = useState('');
+    const [code, setCode] = useState('');
+    const [problemData, setProblemData] = useState<ProblemData | null>(null);
+    const [sampleTestCases, setSampleTestCases] = useState<SampleTestCase[]>([]);
+    const [loading, setLoading] = useState(true);
+    // const [error, setError] = useState<string | null>(null);
+    const [runCodeResults, setRunCodeResults] = useState<RunCodeResponse | null>(null);
+    const [submissionResults, setSubmissionResults] = useState<SubmissionResponse | null>(null);
+    // const [activeTab, setActiveTab] = useState('testcase');
+    const [activeTestCase, setActiveTestCase] = useState(1);
+    const [isRunning, setIsRunning] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showHints, setShowHints] = useState(false);
+    const [languages, setLanguages] = useState<{ value: string; label: string }[]>([]);
 
 
 
@@ -102,6 +136,31 @@ const RoomPage: React.FC = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // Add this useEffect to handle permission changes
+    useEffect(() => {
+        if (editorRef.current && currentRoom) {
+            const canEdit = currentRoom.userPermissions?.canEditCode || false;
+            editorRef.current.updateOptions({
+                readOnly: !canEdit,
+                domReadOnly: !canEdit
+            });
+        }
+    }, [currentRoom?.userPermissions?.canEditCode]);
+
+    // In your React component, add this to test
+    useEffect(() => {
+        if (currentRoom?.socketToken) {
+            initializeSocket();
+
+            // Test the connection after 2 seconds
+            setTimeout(() => {
+                console.log("Testing socket connection...");
+                roomSocketService.testConnection();
+            }, 2000);
+        }
+    }, [currentRoom]);
+
+
     const handleJoinRoom = async () => {
         try {
             let password: string | undefined;
@@ -119,7 +178,33 @@ const RoomPage: React.FC = () => {
             //     }
             // }
 
-            await dispatch(joinRoomThunk({ roomId: roomId!, password })).unwrap();
+            let data = await dispatch(joinRoomThunk({ roomId: roomId!, password })).unwrap();
+            console.log("find template from here", data);
+
+            if (data.room) {
+
+                setProblemData(data.room.problem!);
+
+                setSampleTestCases(data.room?.sampleTestCases || []);
+
+                const supported = data.room.problem?.supportedLanguages;
+
+                const availLanguages = supported
+                    .map(id => languageMap[id])
+                    .filter((l): l is { value: string; label: string } => l !== undefined);
+                setLanguages(availLanguages);
+
+                if (availLanguages.length > 0) {
+                    const firstLang = availLanguages[0].value;
+                    setSelectedLanguage(firstLang);
+                    const langId = getLanguageId(firstLang);
+                    const template = data.room?.problem.templates[langId!.toString()];
+                    if (template) {
+                        setCode(template.userFunctionSignature)
+                    }
+                }
+
+            }
 
         } catch (error: any) {
             console.error('Failed to join room:', error);
@@ -161,7 +246,10 @@ const RoomPage: React.FC = () => {
                 'user-left': handleUserLeft,
                 'user-kicked': handleUserKicked,
                 'kicked': handleKicked,
-                'error': handleSocketError
+                'error': handleSocketError,
+                'test-response': (data: any) => {
+                    console.log("✅ Test response received:", data);
+                },
             });
 
             dispatch(setSocketConnected(true));
@@ -170,6 +258,7 @@ const RoomPage: React.FC = () => {
             dispatch(setSocketConnected(false));
         }
     };
+
 
     // Socket Event Handlers
     const handleProblemChanged = (data: any) => {
@@ -191,6 +280,8 @@ const RoomPage: React.FC = () => {
 
     const handleCodeChanged = (data: any) => {
         if (data.changedBy !== user?.id) {
+            console.log("this is that data  ", data);
+
             setCode(data.code);
             setSelectedLanguage(data.language);
         }
@@ -201,17 +292,37 @@ const RoomPage: React.FC = () => {
         console.log('Whiteboard changed:', data);
     };
 
+    // const handlePermissionsUpdated = (data: any) => {
+    //     dispatch(updateUserPermissions({
+    //         userId: data.targetUserId,
+    //         permissions: data.permissions
+    //     }));
+
+    //     if (data.targetUserId === user?.id) {
+    //         // Show notification about permission change
+    //         console.log('Your permissions were updated:', data.permissions);
+    //     }
+    // };
+
     const handlePermissionsUpdated = (data: any) => {
         dispatch(updateUserPermissions({
             userId: data.targetUserId,
             permissions: data.permissions
         }));
 
-        if (data.targetUserId === user?.id) {
+        // If it's the current user, update editor permissions immediately
+        if (data.targetUserId === user?.id && editorRef.current) {
+            const canEdit = data.permissions.canEditCode || false;
+            editorRef.current.updateOptions({
+                readOnly: !canEdit,
+                domReadOnly: !canEdit
+            });
+
             // Show notification about permission change
             console.log('Your permissions were updated:', data.permissions);
         }
     };
+
 
     const handleUserJoined = (data: any) => {
         dispatch(addParticipant({
@@ -245,6 +356,11 @@ const RoomPage: React.FC = () => {
         if (!isCreator) return; // Only creator can change language
 
         setSelectedLanguage(language);
+        const langId = getLanguageId(language);
+        const template = currentRoom.problem.templates[langId!.toString()];
+        if (template) {
+            setCode(template.userFunctionSignature)
+        }
 
         // Broadcast language change would happen through code update
         if (currentRoom?.problemNumber) {
@@ -252,8 +368,22 @@ const RoomPage: React.FC = () => {
         }
     };
 
+
+
     const handleEditorDidMount = (editor: any) => {
-        // Setup editor
+        editorRef.current = editor;
+
+        // Set initial read-only state based on permissions
+        const canEdit = currentRoom.userPermissions?.canEditCode || false;
+        editor.updateOptions({
+            readOnly: !canEdit,
+            domReadOnly: !canEdit
+        });
+
+        // Focus editor if user can edit
+        if (canEdit) {
+            editor.focus();
+        }
     };
 
     const resetCode = () => {
@@ -335,49 +465,49 @@ const RoomPage: React.FC = () => {
         );
     }
 
-    const isCreator = currentRoom.createdBy === user?.id;    
-    const sampleTestCases = currentRoom.sampleTestCases || [];
+    const isCreator = currentRoom.createdBy === user?.id;
+    // const sampleTestCases = currentRoom.sampleTestCases || [];
 
     return (
-        <div className="h-screen bg-gray-900 text-white flex flex-col">
-            <Navbar />
+        <>
+            <div className="h-screen bg-black text-white flex flex-col">
+                <Navbar />
 
-            {/* Room Header */}
-            <div className="bg-gray-800 border-b border-gray-700 px-6 py-3 flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                    <h1 className="text-xl font-bold">{currentRoom.name}</h1>
-                    <span className="text-gray-400 text-sm">
-                        {currentRoom.participants?.filter(p => p.isOnline).length || 0} participants online
-                    </span>
-                    {currentRoom.problem && (
-                        <span className="bg-green-600 text-xs px-2 py-1 rounded">
-                            Problem #{currentRoom.problem.problemNumber}: {currentRoom.problem.title}
+                {/* Room Header */}
+                <div className="bg-black border-b border-gray-800 px-6 py-3 flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                        <h1 className="text-xl font-bold">{currentRoom.name}</h1>
+                        <span className="text-gray-400 text-sm">
+                            {currentRoom.participants?.filter(p => p.isOnline).length || 0} participants online
                         </span>
-                    )}
-                </div>
+                        {currentRoom.problem && (
+                            <span className="bg-green-600 text-xs px-2 py-1 rounded">
+                                Problem #{currentRoom.problem.problemNumber}: {currentRoom.problem.title}
+                            </span>
+                        )}
+                    </div>
 
-                <div className="flex items-center space-x-3">
-                    {isCreator && (
+                    <div className="flex items-center space-x-3">
+                        {isCreator && (
+                            <button
+                                onClick={() => setShowCreatorControls(!showCreatorControls)}
+                                className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm transition-colors"
+                            >
+                                Creator Controls
+                            </button>
+                        )}
                         <button
-                            onClick={() => setShowCreatorControls(!showCreatorControls)}
-                            className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm transition-colors"
+                            onClick={handleLeaveRoom}
+                            className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm transition-colors"
                         >
-                            Creator Controls
+                            Leave Room
                         </button>
-                    )}
-                    <button
-                        onClick={handleLeaveRoom}
-                        className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm transition-colors"
-                    >
-                        Leave Room
-                    </button>
+                    </div>
                 </div>
-            </div>
 
-            <div className="flex flex-1 overflow-hidden">
-                {/* Mobile Layout */}
-                <div className="md:hidden flex flex-col w-full">
-                    {/* Top Section - Tabs */}
+                <div className="flex flex-1 overflow-hidden">
+                    {/* Mobile Layout */}
+                    {/* <div className="md:hidden flex flex-col w-full">
                     <div className="h-1/2 bg-black border-b border-gray-700 overflow-hidden flex flex-col">
                         <RoomTabNavigation
                             activeTab={activeTab}
@@ -396,7 +526,7 @@ const RoomPage: React.FC = () => {
                         <div className="flex-1 overflow-hidden">
                             {activeTab === 'problem' && (
                                 <ProblemDescriptionTab
-                                    problem={currentRoom.problem}
+                                    problem={problemData}
                                     canChangeProblem={currentRoom.userPermissions?.canChangeProblem || false}
                                 />
                             )}
@@ -415,55 +545,121 @@ const RoomPage: React.FC = () => {
                                     canDraw={currentRoom.userPermissions?.canDrawWhiteboard || false}
                                 />
                             )}
+                          
                         </div>
-                    </div>
+                    </div> */}
 
-                    {/* Bottom Section - Code Editor */}
-                    <div className="h-1/2 flex flex-col">
-                        <EditorControls
-                            selectedLanguage={selectedLanguage}
-                            languages={languages}
-                            handleLanguageChange={handleLanguageChange}
-                            resetCode={resetCode}
-                            disabled={!currentRoom.userPermissions?.canEditCode}
-                            isCreator={isCreator}
-                        />
+                    {/* Mobile Layout */}
+                    <div className="md:hidden flex flex-col w-full">
+                        {/* Top Section - Tabs */}
+                        <div className="h-1/2 bg-black border-b border-gray-700 overflow-hidden flex flex-col">
+                            <RoomTabNavigation
+                                activeTab={activeTab}
+                                setActiveTab={setActiveTab}
+                                hasVideo={true}
+                                hasWhiteboard={true}
+                            />
 
-                        <div className="flex-1 flex flex-col">
-                            <div className="flex-1">
-                                <CodeEditorSection
-                                    selectedLanguage={selectedLanguage}
-                                    code={code}
-                                    setCode={setCode}
-                                    handleEditorDidMount={handleEditorDidMount}
-                                    // readOnly={!currentRoom.userPermissions?.canEditCode}
-                                    readOnly={false}
-                                    roomId={currentRoom.roomId}
-                                    problemNumber={currentRoom.problemNumber}
+                            {isCreator && showCreatorControls && (
+                                <RoomCreatorControls
+                                    room={currentRoom}
+                                    onClose={() => setShowCreatorControls(false)}
                                 />
+                            )}
+
+                            <div className="flex-1 overflow-hidden relative">
+                                {/* All components rendered but conditionally visible */}
+                                <div className={`absolute inset-0 ${activeTab === 'problem' ? 'block' : 'hidden'}`}>
+                                    <ProblemDescriptionTab
+                                        problem={problemData}
+                                        canChangeProblem={currentRoom.userPermissions?.canChangeProblem || false}
+                                    />
+                                </div>
+
+                                <div className={`absolute inset-0 ${activeTab === 'video' ? 'block' : 'hidden'}`}>
+                                    <VideoCallTab
+                                        roomId={currentRoom.roomId}
+                                        jitsiUrl={currentRoom.jitsiUrl}
+                                        participants={currentRoom.participants}
+                                    />
+                                </div>
+
+                                <div className={`absolute inset-0 ${activeTab === 'whiteboard' ? 'block' : 'hidden'}`}>
+                                    <WhiteboardTab
+                                        roomId={currentRoom.roomId}
+                                        canDraw={currentRoom.userPermissions?.canDrawWhiteboard || false}
+                                    />
+                                </div>
+
+                                <div className={`absolute inset-0 ${activeTab === 'chat' ? 'block' : 'hidden'}`}>
+                                    <ChatComponent
+                                        roomId={currentRoom.roomId}
+                                    />
+                                </div>
                             </div>
 
-                            <BottomPanel
-                                activeTab={bottomActiveTab}
-                                setActiveTab={setBottomActiveTab}
-                                activeTestCase={activeTestCase}
-                                setActiveTestCase={setActiveTestCase}
-                                sampleTestCases={sampleTestCases}
-                                getTestCaseStatus={getTestCaseStatus}
-                                isRunning={isRunning}
-                                isSubmitting={isSubmitting}
-                                runCode={runCode}
-                                submitCode={submitCode}
-                                runCodeResults={runCodeResults}
-                                submissionResults={submissionResults}
+                            {/* Minimized Video Overlay - always rendered if minimized */}
+                            {isVideoMinimized && activeTab !== 'video' && (
+                                <div className="absolute top-16 right-4 w-64 h-48 bg-black rounded-lg overflow-hidden shadow-lg z-10">
+                                    <VideoCallTab
+                                        roomId={currentRoom.roomId}
+                                        jitsiUrl={currentRoom.jitsiUrl}
+                                        participants={currentRoom.participants}
+                                        minimized={true}
+                                        onExpand={() => {
+                                            setActiveTab('video');
+                                            setIsVideoMinimized(false);
+                                        }}
+                                        onClose={() => setIsVideoMinimized(false)}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Bottom Section - Code Editor */}
+                        <div className="h-1/2 flex flex-col">
+                            <EditorControls
+                                selectedLanguage={selectedLanguage}
+                                languages={languages}
+                                handleLanguageChange={handleLanguageChange}
+                                resetCode={resetCode}
+                                disabled={!currentRoom.userPermissions?.canEditCode}
+                                isCreator={isCreator}
                             />
+
+                            <div className="flex-1 flex flex-col">
+                                <div className="flex-1">
+                                    <CodeEditorSection
+                                        selectedLanguage={selectedLanguage}
+                                        code={code}
+                                        setCode={setCode}
+                                        handleEditorDidMount={handleEditorDidMount}
+                                        readOnly={!currentRoom.userPermissions?.canEditCode}
+                                        roomId={currentRoom.roomId}
+                                        problemNumber={currentRoom.problemNumber}
+                                    />
+                                </div>
+
+                                <BottomPanel
+                                    activeTab={bottomActiveTab}
+                                    setActiveTab={setBottomActiveTab}
+                                    activeTestCase={activeTestCase}
+                                    setActiveTestCase={setActiveTestCase}
+                                    sampleTestCases={sampleTestCases}
+                                    getTestCaseStatus={getTestCaseStatus}
+                                    isRunning={isRunning}
+                                    isSubmitting={isSubmitting}
+                                    runCode={runCode}
+                                    submitCode={submitCode}
+                                    runCodeResults={runCodeResults}
+                                    submissionResults={submissionResults}
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Desktop Layout */}
-                <div className="hidden md:flex w-full">
-                    {/* Left Side - Tabbed Content */}
+                    {/* Desktop Layout */}
+                    {/*<div className="hidden md:flex w-full">
                     <div className="w-1/2 bg-black border-r border-gray-700 overflow-hidden flex flex-col relative">
                         <RoomTabNavigation
                             activeTab={activeTab}
@@ -482,7 +678,7 @@ const RoomPage: React.FC = () => {
                         <div className="flex-1 overflow-hidden">
                             {activeTab === 'problem' && (
                                 <ProblemDescriptionTab
-                                    problem={currentRoom.problem}
+                                    problem={problemData}
                                     canChangeProblem={currentRoom.userPermissions?.canChangeProblem || false}
                                 />
                             )}
@@ -510,7 +706,6 @@ const RoomPage: React.FC = () => {
                             )}
                         </div>
 
-                        {/* Minimized Video Overlay */}
                         {isVideoMinimized && activeTab !== 'video' && (
                             <div className="absolute top-16 right-4 w-64 h-48 bg-black rounded-lg overflow-hidden shadow-lg z-10">
                                 <VideoCallTab
@@ -526,47 +721,156 @@ const RoomPage: React.FC = () => {
                                 />
                             </div>
                         )}
-                    </div>
+                    </div>*/}
 
-                    {/* Right Side - Code Editor */}
-                    <div className="w-1/2 flex flex-col">
-                        <EditorControls
-                            selectedLanguage={selectedLanguage}
-                            languages={languages}
-                            handleLanguageChange={handleLanguageChange}
-                            resetCode={resetCode}
-                            disabled={!currentRoom.userPermissions?.canEditCode}
-                            isCreator={isCreator}
-                        />
+                    <div className="hidden md:flex w-full">
+                        <div className="w-1/2 bg-black border-r border-gray-700 overflow-hidden flex flex-col relative">
+                            <RoomTabNavigation
+                                activeTab={activeTab}
+                                setActiveTab={setActiveTab}
+                                hasVideo={true}
+                                hasWhiteboard={true}
+                            />
 
-                        <CodeEditorSection
-                            selectedLanguage={selectedLanguage}
-                            code={code}
-                            setCode={setCode}
-                            handleEditorDidMount={handleEditorDidMount}
-                            readOnly={!currentRoom.userPermissions?.canEditCode}
-                            roomId={currentRoom.roomId}
-                            problemNumber={currentRoom.problemNumber}
-                        />
+                            {isCreator && showCreatorControls && (
+                                <RoomCreatorControls
+                                    room={currentRoom}
+                                    onClose={() => setShowCreatorControls(false)}
+                                />
+                            )}
 
-                        <BottomPanel
-                            activeTab={bottomActiveTab}
-                            setActiveTab={setBottomActiveTab}
-                            activeTestCase={activeTestCase}
-                            setActiveTestCase={setActiveTestCase}
-                            sampleTestCases={sampleTestCases}
-                            getTestCaseStatus={getTestCaseStatus}
-                            isRunning={isRunning}
-                            isSubmitting={isSubmitting}
-                            runCode={runCode}
-                            submitCode={submitCode}
-                            runCodeResults={runCodeResults}
-                            submissionResults={submissionResults}
-                        />
+                            <div className="flex-1 overflow-hidden relative">
+                                {/* All components rendered but conditionally visible */}
+                                <div className={`absolute inset-0 ${activeTab === 'problem' ? 'block' : 'hidden'}`}>
+                                    <ProblemDescriptionTab
+                                        problem={problemData}
+                                        canChangeProblem={currentRoom.userPermissions?.canChangeProblem || false}
+                                    />
+                                </div>
+
+                                <div className={`absolute inset-0 ${activeTab === 'video' ? 'block' : 'hidden'}`}>
+                                    <VideoCallTab
+                                        roomId={currentRoom.roomId}
+                                        jitsiUrl={currentRoom.jitsiUrl}
+                                        participants={currentRoom.participants}
+                                        onMinimize={() => setIsVideoMinimized(true)}
+                                    />
+                                </div>
+
+                                <div className={`absolute inset-0 ${activeTab === 'whiteboard' ? 'block' : 'hidden'}`}>
+                                    <WhiteboardTab
+                                        roomId={currentRoom.roomId}
+                                        canDraw={currentRoom.userPermissions?.canDrawWhiteboard || false}
+                                    />
+                                </div>
+
+                                <div className={`absolute inset-0 ${activeTab === 'chat' ? 'block' : 'hidden'}`}>
+                                    <ChatComponent
+                                        roomId={currentRoom.roomId}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Minimized Video Overlay */}
+                            {isVideoMinimized && activeTab !== 'video' && (
+                                <div className="absolute top-16 right-4 w-64 h-48 bg-black rounded-lg overflow-hidden shadow-lg z-10">
+                                    <VideoCallTab
+                                        roomId={currentRoom.roomId}
+                                        jitsiUrl={currentRoom.jitsiUrl}
+                                        participants={currentRoom.participants}
+                                        minimized={true}
+                                        onExpand={() => {
+                                            setActiveTab('video');
+                                            setIsVideoMinimized(false);
+                                        }}
+                                        onClose={() => setIsVideoMinimized(false)}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Right Side - Code Editor */}
+                        <div className="w-1/2 flex flex-col">
+                            <EditorControls
+                                selectedLanguage={selectedLanguage}
+                                languages={languages}
+                                handleLanguageChange={handleLanguageChange}
+                                resetCode={resetCode}
+                                disabled={!currentRoom.userPermissions?.canEditCode}
+                                isCreator={isCreator}
+                            />
+
+                            <CodeEditorSection
+                                selectedLanguage={selectedLanguage}
+                                code={code}
+                                setCode={setCode}
+                                handleEditorDidMount={handleEditorDidMount}
+                                readOnly={!currentRoom.userPermissions?.canEditCode}
+                                roomId={currentRoom.roomId}
+                                problemNumber={currentRoom.problem.problemNumber}
+                            />
+
+                            <BottomPanel
+                                activeTab={bottomActiveTab}
+                                setActiveTab={setBottomActiveTab}
+                                activeTestCase={activeTestCase}
+                                setActiveTestCase={setActiveTestCase}
+                                sampleTestCases={sampleTestCases}
+                                getTestCaseStatus={getTestCaseStatus}
+                                isRunning={isRunning}
+                                isSubmitting={isSubmitting}
+                                runCode={runCode}
+                                submitCode={submitCode}
+                                runCodeResults={runCodeResults}
+                                submissionResults={submissionResults}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+
+
+            <div className="flex-1 overflow-hidden relative">
+                {/* Only render if mounted */}
+                {mountedTabs.has('problem') && (
+                    <div className={`absolute inset-0 ${activeTab === 'problem' ? 'block' : 'hidden'}`}>
+                        <ProblemDescriptionTab
+                            problem={problemData}
+                            canChangeProblem={currentRoom.userPermissions?.canChangeProblem || false}
+                        />
+                    </div>
+                )}
+
+                {mountedTabs.has('video') && (
+                    <div className={`absolute inset-0 ${activeTab === 'video' ? 'block' : 'hidden'}`}>
+                        <VideoCallTab
+                            roomId={currentRoom.roomId}
+                            jitsiUrl={currentRoom.jitsiUrl}
+                            participants={currentRoom.participants}
+                            onMinimize={() => setIsVideoMinimized(true)}
+                        />
+                    </div>
+                )}
+
+                {mountedTabs.has('whiteboard') && (
+                    <div className={`absolute inset-0 ${activeTab === 'whiteboard' ? 'block' : 'hidden'}`}>
+                        <WhiteboardTab
+                            roomId={currentRoom.roomId}
+                            canDraw={currentRoom.userPermissions?.canDrawWhiteboard || false}
+                        />
+                    </div>
+                )}
+
+                {mountedTabs.has('chat') && (
+                    <div className={`absolute inset-0 ${activeTab === 'chat' ? 'block' : 'hidden'}`}>
+                        <ChatComponent
+                            roomId={currentRoom.roomId}
+                        />
+                    </div>
+                )}
+            </div>
+        </>
+
     );
 };
 

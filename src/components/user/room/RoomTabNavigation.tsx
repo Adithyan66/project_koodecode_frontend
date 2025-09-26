@@ -21,7 +21,7 @@ const RoomTabNavigation: React.FC<RoomTabNavigationProps> = ({
     ];
 
     return (
-        <div className="bg-gray-800 border-b border-gray-700">
+        <div className="bg-black border-b border-gray-700">
             <div className="flex">
                 {tabs.map(tab => (
                     tab.enabled !== false && (

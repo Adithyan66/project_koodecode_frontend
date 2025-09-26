@@ -43,25 +43,6 @@ export const useProblemSolving = () => {
     const editorRef = useRef<any>(null);
     const { slug } = useParams();
 
-    const getFunctionSeparator = (language: string): string => {
-        switch (language) {
-            case 'python':
-                return ':';
-            default:
-                return '';
-        }
-    };
-
-    const getDefaultBody = (language: string, returnType: string): string => {
-        switch (language) {
-            case 'python':
-                return '        pass';
-            case 'c':
-                return returnType.includes('*') ? ' {\n    // Your code here\n    return NULL;\n}' : ' {\n    // Your code here\n    return 0;\n}';
-            default:
-                return ' {\n    // Your code here\n}';
-        }
-    };
 
     const getLanguageId = (language: string): number | undefined => {
         switch (language.toLowerCase()) {
@@ -92,12 +73,6 @@ export const useProblemSolving = () => {
             const langId = getLanguageId(newLanguage);
             const template = problemData.templates[langId!.toString()];
             if (template) {
-
-                // const separator = getFunctionSeparator(newLanguage);
-                // const defaultBody = getDefaultBody(newLanguage, problemData.returnType);
-                // const userCode = `${template.userFunctionSignature}${separator}\n${defaultBody}`;
-                // setCode(template.templateCode.replace(template.placeholder, userCode));
-
                 setCode(template.userFunctionSignature);
             }
         }
@@ -145,11 +120,6 @@ export const useProblemSolving = () => {
             const langId = getLanguageId(selectedLanguage);
             const template = problemData.templates[langId!.toString()];
             if (template) {
-                // const separator = getFunctionSeparator(selectedLanguage);
-                // const defaultBody = getDefaultBody(selectedLanguage, problemData.returnType);
-                // const userCode = `${template.userFunctionSignature}${separator}\n${defaultBody}`;
-                // setCode(template.templateCode.replace(template.placeholder, userCode));
-
                 setCode(template.userFunctionSignature)
             }
         }
@@ -181,10 +151,6 @@ export const useProblemSolving = () => {
                     const langId = getLanguageId(firstLang);
                     const template = data.problem.templates[langId!.toString()];
                     if (template) {
-                        // const separator = getFunctionSeparator(firstLang);
-                        // const defaultBody = getDefaultBody(firstLang, data.problem.returnType);
-                        // const userCode = `${template.userFunctionSignature}${separator}\n${defaultBody}`;
-                        // setCode(template.templateCode.replace(template.placeholder, userCode));
                         setCode(template.userFunctionSignature)
                     }
                 }

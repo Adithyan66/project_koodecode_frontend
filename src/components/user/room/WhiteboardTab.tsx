@@ -1,75 +1,189 @@
 
-import React, { useEffect, useRef, useState } from 'react';
-import { Excalidraw, exportToCanvas, exportToSvg } from '@excalidraw/excalidraw';
-// import { ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
-// import { AppState } from '@excalidraw/excalidraw/types/types';
-// import type { ExcalidrawElement, AppState } from "@excalidraw/excalidraw";
-import { Download, Share, Trash2, Lock, Unlock } from 'lucide-react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { Excalidraw } from '@excalidraw/excalidraw';
+import '@excalidraw/excalidraw/index.css';
+import { Download, Share, Trash2, Lock, Users } from 'lucide-react';
 import { roomSocketService } from '../../../services/roomSocketService';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../../../app/store';
 
-interface WhiteboardTabProps {
+interface ExcalidrawPageProps {
   roomId: string;
   canDraw: boolean;
 }
 
-const WhiteboardTab: React.FC<WhiteboardTabProps> = ({ roomId, canDraw }) => {
+interface WhiteboardUpdateData {
+  elements: any[];
+  appState: any;
+  files?: any;
+  timestamp: string | number;
+  changedBy?: string;
+  userId?: string;
+}
+
+const WhiteboardTab: React.FC<ExcalidrawPageProps> = ({ roomId, canDraw }) => {
+  const { user } = useSelector((state: RootState) => state.user);
+
   const [excalidrawAPI, setExcalidrawAPI] = useState<any>(null);
-  // const [elements, setElements] = useState<ExcalidrawElement[]>([]);
-  const [elements, setElements] = useState([]);
-  // const [appState, setAppState] = useState<Partial<AppState>>({});
-  const [appState, setAppState] = useState({});
-  const updateTimeoutRef = useRef<number | null>(null);
+  const [elementsCount, setElementsCount] = useState(0);
 
-  // Handle real-time updates from other users
-  useEffect(() => {
-    // TODO: Listen for whiteboard updates via Socket.IO
-    // roomSocketService.onWhiteboardUpdate((data) => {
-    //   if (data.elements) {
-    //     setElements(data.elements);
-    //   }
-    //   if (data.appState) {
-    //     setAppState(data.appState);
-    //   }
-    // });
-  }, [roomId]);
+  // Refs for debouncing and tracking internal state
+  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isReceivingUpdate = useRef<boolean>(false);
+  const lastBroadcastRef = useRef<number>(0);
+  const pendingUpdateRef = useRef<any>(null);
 
-  const handleChange = (elements: any, appState: any) => {
-    setElements(elements);
-    setAppState(appState);
+  // Store current state in refs
+  const currentElementsRef = useRef<any[]>([]);
+  const currentAppStateRef = useRef<any>({});
+  const currentFilesRef = useRef<any>({});
 
-    // Debounce updates to prevent too frequent Socket.IO emissions
-    if (canDraw && updateTimeoutRef.current) {
-      clearTimeout(updateTimeoutRef.current);
-    }
-
-    if (canDraw) {
+  // Throttled broadcast function
+  const throttledBroadcast = useCallback(() => {
+    const now = Date.now();
+    
+    if (now - lastBroadcastRef.current < 500) {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+      
       updateTimeoutRef.current = setTimeout(() => {
-        roomSocketService.updateWhiteboard({
-          elements,
-          appState: {
-            viewBackgroundColor: appState.viewBackgroundColor,
-            currentItemFontFamily: appState.currentItemFontFamily,
-            currentItemFontSize: appState.currentItemFontSize,
-            currentItemTextAlign: appState.currentItemTextAlign,
-            currentItemStrokeColor: appState.currentItemStrokeColor,
-            currentItemBackgroundColor: appState.currentItemBackgroundColor,
-            currentItemStrokeWidth: appState.currentItemStrokeWidth,
-            currentItemStrokeStyle: appState.currentItemStrokeStyle,
-            currentItemRoughness: appState.currentItemRoughness,
-            currentItemOpacity: appState.currentItemOpacity
-          }
-        });
-      }, 300);
+        if (pendingUpdateRef.current && canDraw) {
+          console.log('Broadcasting delayed whiteboard update');
+          roomSocketService.updateWhiteboard(pendingUpdateRef.current);
+          lastBroadcastRef.current = Date.now();
+          pendingUpdateRef.current = null;
+        }
+      }, 500);
+      return;
     }
-  };
 
-  const handleExportToPNG = async () => {
+    if (pendingUpdateRef.current && canDraw) {
+      console.log('Broadcasting immediate whiteboard update');
+      roomSocketService.updateWhiteboard(pendingUpdateRef.current);
+      lastBroadcastRef.current = now;
+      pendingUpdateRef.current = null;
+    }
+  }, [canDraw]);
+
+  // Initialize socket listeners
+  useEffect(() => {
+    if (!roomId) return;
+
+    console.log('Setting up whiteboard socket listeners for room:', roomId);
+
+    // Listen for whiteboard updates from other users
+    const handleWhiteboardUpdate = (data: WhiteboardUpdateData) => {
+      console.log('Received whiteboard update:', data);
+
+      const updateUserId = data.changedBy || data.userId;
+
+      if (updateUserId === user?.id) {
+        console.log('Ignoring own update');
+        return;
+      }
+
+      console.log('Applying remote update from user:', updateUserId);
+
+      isReceivingUpdate.current = true;
+
+      if (data.elements) {
+        currentElementsRef.current = [...data.elements];
+        setElementsCount(data.elements.length);
+      }
+
+      if (data.appState) {
+        currentAppStateRef.current = { ...currentAppStateRef.current, ...data.appState };
+      }
+
+      if (data.files) {
+        currentFilesRef.current = { ...data.files };
+      }
+
+      if (excalidrawAPI && data.elements) {
+        setTimeout(() => {
+          try {
+            console.log('Updating Excalidraw scene with', data.elements.length, 'elements');
+            excalidrawAPI.updateScene({
+              elements: data.elements,
+              appState: data.appState || {}
+            });
+          } catch (error) {
+            console.warn('Failed to update scene:', error);
+          }
+
+          setTimeout(() => {
+            isReceivingUpdate.current = false;
+          }, 100);
+        }, 50);
+      } else {
+        setTimeout(() => {
+          isReceivingUpdate.current = false;
+        }, 100);
+      }
+    };
+
+    // Register the listener using the correct method
+    roomSocketService.onWhiteboardUpdate(handleWhiteboardUpdate);
+
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+      // Clean up listener
+      roomSocketService.offWhiteboardUpdate(handleWhiteboardUpdate);
+    };
+  }, [roomId, user?.id, excalidrawAPI]);
+
+  // Handle Excalidraw changes with aggressive throttling
+  const handleChange = useCallback((newElements: any[], newAppState: any, newFiles: any) => {
+    if (isReceivingUpdate.current) {
+      return;
+    }
+
+    currentElementsRef.current = [...newElements];
+    currentAppStateRef.current = { ...newAppState };
+    currentFilesRef.current = { ...newFiles };
+    
+    setElementsCount(newElements.length);
+
+    if (!canDraw) {
+      return;
+    }
+
+    pendingUpdateRef.current = {
+      elements: newElements,
+      appState: {
+        viewBackgroundColor: newAppState.viewBackgroundColor,
+        currentItemFontFamily: newAppState.currentItemFontFamily,
+        currentItemFontSize: newAppState.currentItemFontSize,
+        currentItemTextAlign: newAppState.currentItemTextAlign,
+        currentItemStrokeColor: newAppState.currentItemStrokeColor,
+        currentItemBackgroundColor: newAppState.currentItemBackgroundColor,
+        currentItemStrokeWidth: newAppState.currentItemStrokeWidth,
+        currentItemStrokeStyle: newAppState.currentItemStrokeStyle,
+        currentItemRoughness: newAppState.currentItemRoughness,
+        currentItemOpacity: newAppState.currentItemOpacity,
+        zoom: newAppState.zoom,
+        scrollX: newAppState.scrollX,
+        scrollY: newAppState.scrollY
+      },
+      files: newFiles,
+      timestamp: new Date().toISOString()
+    };
+
+    throttledBroadcast();
+  }, [canDraw, throttledBroadcast]);
+
+  // Export functions (keeping them the same)
+  const handleExportToPNG = useCallback(async () => {
     if (!excalidrawAPI) return;
 
     try {
+      const { exportToCanvas } = await import('@excalidraw/excalidraw');
       const canvas = await exportToCanvas({
-        elements,
-        appState,
+        elements: currentElementsRef.current,
+        appState: currentAppStateRef.current,
         files: excalidrawAPI.getFiles(),
       });
 
@@ -80,15 +194,16 @@ const WhiteboardTab: React.FC<WhiteboardTabProps> = ({ roomId, canDraw }) => {
     } catch (error) {
       console.error('Failed to export to PNG:', error);
     }
-  };
+  }, [excalidrawAPI, roomId]);
 
-  const handleExportToSVG = async () => {
+  const handleExportToSVG = useCallback(async () => {
     if (!excalidrawAPI) return;
 
     try {
+      const { exportToSvg } = await import('@excalidraw/excalidraw');
       const svg = await exportToSvg({
-        elements,
-        appState,
+        elements: currentElementsRef.current,
+        appState: currentAppStateRef.current,
         files: excalidrawAPI.getFiles(),
       });
 
@@ -105,31 +220,37 @@ const WhiteboardTab: React.FC<WhiteboardTabProps> = ({ roomId, canDraw }) => {
     } catch (error) {
       console.error('Failed to export to SVG:', error);
     }
-  };
+  }, [excalidrawAPI, roomId]);
 
-  const handleClearCanvas = () => {
+  const handleClearCanvas = useCallback(() => {
     if (!canDraw) return;
 
-    if (confirm('Are you sure you want to clear the whiteboard? This action cannot be undone.')) {
-      setElements([]);
+    if (window.confirm('Are you sure you want to clear the whiteboard? This action cannot be undone.')) {
+      const emptyElements: any[] = [];
+      
+      currentElementsRef.current = emptyElements;
+      setElementsCount(0);
+
       if (excalidrawAPI) {
-        excalidrawAPI.updateScene({ elements: [] });
+        excalidrawAPI.updateScene({ elements: emptyElements });
       }
 
-      // Notify other users
       roomSocketService.updateWhiteboard({
-        elements: [],
-        appState
+        elements: emptyElements,
+        appState: currentAppStateRef.current,
+        files: currentFilesRef.current,
+        timestamp: new Date().toISOString()
       });
     }
-  };
+  }, [canDraw, excalidrawAPI]);
 
   return (
-    <div className="h-full flex flex-col bg-white">
-      {/* Whiteboard Header */}
-      <div className="bg-gray-800 px-4 py-2 flex items-center justify-between border-b border-gray-700">
-        <div className="flex items-center space-x-2">
+    <div className="h-full flex flex-col bg-white relative">
+      {/* Header */}
+      <div className="bg-gray-800 px-4 py-2 flex items-center justify-between border-b border-gray-700 z-10">
+        <div className="flex items-center space-x-4">
           <span className="text-white font-medium">Collaborative Whiteboard</span>
+          
           {!canDraw && (
             <div className="flex items-center space-x-1 text-yellow-400">
               <Lock size={14} />
@@ -169,50 +290,40 @@ const WhiteboardTab: React.FC<WhiteboardTabProps> = ({ roomId, canDraw }) => {
 
       {/* Permission Notice */}
       {!canDraw && (
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3">
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 z-10">
           <div className="flex items-center">
             <Lock size={16} className="text-yellow-400 mr-2" />
             <p className="text-sm text-yellow-800">
-              You have view-only access to this whiteboard. Ask the room creator for drawing permissions.
+              You have view-only access to this whiteboard. Drawing permissions are controlled by the room creator.
             </p>
           </div>
         </div>
       )}
 
       {/* Excalidraw Canvas */}
-      <div className="flex-1">
+      <div className="flex-1 relative">
         <Excalidraw
-          ref={(api) => setExcalidrawAPI(api)}
-          initialData={{
-            elements,
-            appState: {
-              ...appState,
-              viewBackgroundColor: '#ffffff',
-              currentItemFontFamily: 1,
-              currentItemFontSize: 16,
-              currentItemTextAlign: 'left',
-              currentItemStrokeColor: '#000000',
-              currentItemBackgroundColor: 'transparent',
-              currentItemStrokeWidth: 1,
-              currentItemStrokeStyle: 'solid',
-              currentItemRoughness: 1,
-              currentItemOpacity: 100,
-              currentItemLinearStrokeSharpness: 'round',
-              currentItemEndArrowhead: 'arrow',
-              currentItemStartArrowhead: null,
-            }
-          }}
+          excalidrawAPI={(api) => setExcalidrawAPI(api)}
           onChange={handleChange}
           viewModeEnabled={!canDraw}
           zenModeEnabled={false}
           gridModeEnabled={true}
+          UIOptions={{
+            canvasActions: {
+              saveToActiveFile: false,
+              loadScene: false,
+              export: false,
+              clearCanvas: false,
+              toggleTheme: false
+            }
+          }}
         />
       </div>
 
       {/* Footer Info */}
-      <div className="bg-gray-100 px-4 py-2 border-t border-gray-300">
+      <div className="bg-gray-100 px-4 py-2 border-t border-gray-300 z-10">
         <div className="flex items-center justify-between text-xs text-gray-600">
-          <span>{elements.length} elements on canvas</span>
+          <span>{elementsCount} elements on canvas</span>
           <span>Real-time collaboration active</span>
         </div>
       </div>

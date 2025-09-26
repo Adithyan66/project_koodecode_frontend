@@ -25,6 +25,7 @@ import ContestDashboardPage from '../pages/user/ContestDashboardPage'
 import ContestInfoPage from '../pages/user/ContestInfoPage'
 import ContestSolvingPage from '../pages/user/ContestSolvingPage'
 import RoomPage from '../pages/user/RoomPage'
+// import ExcalidrawPage from '../pages/user/ExcailDrawPAge'
 
 export default function Router() {
 
@@ -50,6 +51,7 @@ export default function Router() {
             <Route path="/contest/:contestNumber" element={<UserProtected><ContestInfoPage /></UserProtected>} />
             <Route path="/contest/:contestNumber/participate" element={<UserProtected><ContestSolvingPage /></UserProtected>} />
             <Route path="/room/:roomId" element={<UserProtected><RoomPage /></UserProtected>} />
+            {/* <Route path="/exc" element={<ExcalidrawPage />} /> */}
 
 
             <Route path="/admin/dashboard" element={<AdminProtected> <DashboardPage /></AdminProtected>} />

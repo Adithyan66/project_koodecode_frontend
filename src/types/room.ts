@@ -81,4 +81,5 @@ export interface SocketEvents {
   'user-kicked': (data: { targetUserId: string; reason?: string; kickedBy: string }) => void;
   'kicked': (data: { reason?: string }) => void;
   'error': (data: { message: string }) => void;
+  "test-response":any
 }

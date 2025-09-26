@@ -3,7 +3,7 @@ import { ChevronDown, RefreshCw } from 'lucide-react';
 import DescriptionSection from '../problem-solving/DescriptionSection';
 import { roomSocketService } from '../../../services/roomSocketService';
 import type { ProblemData } from '../../../types/problem';
-import { formatConstraints } from '../../../utils/formattedConstraints';
+import { formatConstraints } from '../../../utils/problem-related';
 
 interface ProblemDescriptionTabProps {
   problem?: ProblemData;
@@ -17,13 +17,12 @@ const ProblemDescriptionTab: React.FC<ProblemDescriptionTabProps> = ({ problem, 
   const [showProblemSelector, setShowProblemSelector] = useState(false);
   const [selectedProblemNumber, setSelectedProblemNumber] = useState('');
   const [isChangingProblem, setIsChangingProblem] = useState(false);
-  console.log("problemmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm", problem)
+  // console.log("problemmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm", problem)
 
   // const formattedConstraints = problem?.constraints
   //   ? problem.constraints.split('\n').filter(constraint => constraint.trim())
   //   : [];
 
-  const formattedConstraints = formatConstraints(problem!.constraints);
 
   const handleChangeProblem = async () => {
     if (!selectedProblemNumber || !canChangeProblem) return;
@@ -63,6 +62,9 @@ const ProblemDescriptionTab: React.FC<ProblemDescriptionTabProps> = ({ problem, 
       </div>
     );
   }
+
+  
+  const formattedConstraints = formatConstraints(problem!.constraints);
 
   return (
     <div className="h-full overflow-y-auto no-scrollbar">
