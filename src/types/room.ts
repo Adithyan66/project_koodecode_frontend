@@ -82,4 +82,6 @@ export interface SocketEvents {
   'kicked': (data: { reason?: string }) => void;
   'error': (data: { message: string }) => void;
   "test-response":any
+  "message-received":any
+  "user-typing":any
 }

@@ -142,6 +142,54 @@ class RoomSocketService {
     }
   }
 
+
+  // Chat message methods
+  sendMessage(content: string, type: 'text' | 'code', language?: string) {
+    console.log("=== FRONTEND sendMessage called ===");
+    console.log("Socket connected?", this.socket?.connected);
+    console.log("Message data:", {
+      contentLength: content.length,
+      type,
+      language
+    });
+
+    if (!this.socket?.connected) {
+      console.error("❌ Socket not connected");
+      return;
+    }
+
+    console.log("✅ Emitting send-message event...");
+    this.socket.emit('send-message', { content, type, language });
+    console.log("✅ Message sent successfully");
+  }
+
+  // Typing indicators
+  startTyping() {
+    this.socket?.emit('typing-start');
+  }
+
+  stopTyping() {
+    this.socket?.emit('typing-stop');
+  }
+
+  // Test chat connection
+  testChatConnection() {
+    console.log("=== CHAT CONNECTION TEST ===");
+    console.log("Socket exists:", !!this.socket);
+    console.log("Socket connected:", this.socket?.connected);
+
+    if (this.socket?.connected) {
+      console.log("Sending test message...");
+      this.sendMessage("Test message from frontend", "text");
+    }
+  }
+
+  // Add getter for socket access
+  get chatsocket() {
+    return this.socket;
+  }
+
+
   updatePermissions(targetUserId: string, permissions: any) {
     this.socket?.emit('update-permissions', { targetUserId, permissions });
   }
