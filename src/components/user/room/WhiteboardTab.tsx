@@ -38,15 +38,41 @@ const WhiteboardTab: React.FC<ExcalidrawPageProps> = ({ roomId, canDraw }) => {
   const currentAppStateRef = useRef<any>({});
   const currentFilesRef = useRef<any>({});
 
+
+
+  // Add this hook to detect tab visibility
+  const usePageVisibility = () => {
+    const [isVisible, setIsVisible] = useState(!document.hidden);
+
+    useEffect(() => {
+      const handleVisibilityChange = () => {
+        setIsVisible(!document.hidden);
+      };
+
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      };
+    }, []);
+
+    return isVisible;
+  };
+
+  const isTabVisible = usePageVisibility();
+
   // Throttled broadcast function
   const throttledBroadcast = useCallback(() => {
+
+    if (!isTabVisible || !canDraw) {
+      return;
+    }
     const now = Date.now();
-    
+
     if (now - lastBroadcastRef.current < 500) {
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
       }
-      
+
       updateTimeoutRef.current = setTimeout(() => {
         if (pendingUpdateRef.current && canDraw) {
           console.log('Broadcasting delayed whiteboard update');
@@ -64,7 +90,7 @@ const WhiteboardTab: React.FC<ExcalidrawPageProps> = ({ roomId, canDraw }) => {
       lastBroadcastRef.current = now;
       pendingUpdateRef.current = null;
     }
-  }, [canDraw]);
+  }, [canDraw, isTabVisible]);
 
   // Initialize socket listeners
   useEffect(() => {
@@ -130,6 +156,7 @@ const WhiteboardTab: React.FC<ExcalidrawPageProps> = ({ roomId, canDraw }) => {
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
       }
+      pendingUpdateRef.current = null;
       // Clean up listener
       roomSocketService.offWhiteboardUpdate(handleWhiteboardUpdate);
     };
@@ -141,13 +168,26 @@ const WhiteboardTab: React.FC<ExcalidrawPageProps> = ({ roomId, canDraw }) => {
       return;
     }
 
+    // Check if elements actually changed by comparing lengths and versions
+    const elementsChanged = newElements.length !== currentElementsRef.current.length ||
+      newElements.some((element, index) => {
+        const currentElement = currentElementsRef.current[index];
+        return !currentElement || element.versionNonce !== currentElement.versionNonce;
+      });
+
+    if (!elementsChanged) {
+      return; // No actual changes, skip processing
+    }
+
     currentElementsRef.current = [...newElements];
     currentAppStateRef.current = { ...newAppState };
     currentFilesRef.current = { ...newFiles };
-    
+
     setElementsCount(newElements.length);
 
-    if (!canDraw) {
+
+
+    if (!canDraw || !isTabVisible) {
       return;
     }
 
@@ -173,7 +213,7 @@ const WhiteboardTab: React.FC<ExcalidrawPageProps> = ({ roomId, canDraw }) => {
     };
 
     throttledBroadcast();
-  }, [canDraw, throttledBroadcast]);
+  }, [canDraw, isTabVisible, throttledBroadcast]);
 
   // Export functions (keeping them the same)
   const handleExportToPNG = useCallback(async () => {
@@ -227,7 +267,7 @@ const WhiteboardTab: React.FC<ExcalidrawPageProps> = ({ roomId, canDraw }) => {
 
     if (window.confirm('Are you sure you want to clear the whiteboard? This action cannot be undone.')) {
       const emptyElements: any[] = [];
-      
+
       currentElementsRef.current = emptyElements;
       setElementsCount(0);
 
@@ -250,7 +290,7 @@ const WhiteboardTab: React.FC<ExcalidrawPageProps> = ({ roomId, canDraw }) => {
       <div className="bg-gray-800 px-4 py-2 flex items-center justify-between border-b border-gray-700 z-10">
         <div className="flex items-center space-x-4">
           <span className="text-white font-medium">Collaborative Whiteboard</span>
-          
+
           {!canDraw && (
             <div className="flex items-center space-x-1 text-yellow-400">
               <Lock size={14} />

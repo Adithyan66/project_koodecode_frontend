@@ -61,24 +61,10 @@ const RoomPage: React.FC = () => {
         setActiveTab(tab);
     };
 
-    // Code Editor State
-    // const [selectedLanguage, setSelectedLanguage] = useState('javascript');
-    // const [code, setCode] = useState('');
-    // const languages = [
-    //     { value: 'javascript', label: 'JavaScript' },
-    //     { value: 'python', label: 'Python' },
-    //     { value: 'java', label: 'Java' },
-    //     { value: 'cpp', label: 'C++' },
-    //     { value: 'go', label: 'Go' }
-    // ];
 
     // Bottom Panel State
     const [bottomActiveTab, setBottomActiveTab] = useState<BottomTab>('testcase');
-    // const [activeTestCase, setActiveTestCase] = useState(0);
-    // const [isRunning, setIsRunning] = useState(false);
-    // const [isSubmitting, setIsSubmitting] = useState(false);
-    // const [runCodeResults, setRunCodeResults] = useState(null);
-    // const [submissionResults, setSubmissionResults] = useState(null);
+
 
     const dispatch = useAppDispatch();
 
@@ -87,15 +73,11 @@ const RoomPage: React.FC = () => {
     const [code, setCode] = useState('');
     const [problemData, setProblemData] = useState<ProblemData | null>(null);
     const [sampleTestCases, setSampleTestCases] = useState<SampleTestCase[]>([]);
-    const [loading, setLoading] = useState(true);
-    // const [error, setError] = useState<string | null>(null);
     const [runCodeResults, setRunCodeResults] = useState<RunCodeResponse | null>(null);
     const [submissionResults, setSubmissionResults] = useState<SubmissionResponse | null>(null);
-    // const [activeTab, setActiveTab] = useState('testcase');
     const [activeTestCase, setActiveTestCase] = useState(1);
     const [isRunning, setIsRunning] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [showHints, setShowHints] = useState(false);
     const [languages, setLanguages] = useState<{ value: string; label: string }[]>([]);
 
 
@@ -240,7 +222,7 @@ const RoomPage: React.FC = () => {
             await roomSocketService.connect(currentRoom.socketToken, {
                 'problem-changed': handleProblemChanged,
                 'code-changed': handleCodeChanged,
-                'whiteboard-changed': handleWhiteboardChanged,
+                // 'whiteboard-changed': handleWhiteboardChanged,
                 'permissions-updated': handlePermissionsUpdated,
                 'user-joined': handleUserJoined,
                 'user-left': handleUserLeft,
@@ -249,6 +231,12 @@ const RoomPage: React.FC = () => {
                 'error': handleSocketError,
                 'test-response': (data: any) => {
                     console.log("✅ Test response received:", data);
+                },
+                'message-received': (message: any) => {
+                    console.log('✅ Chat message received:', message);
+                },
+                'user-typing': (data: any) => {
+                    console.log('👀 User typing:', data);
                 },
             });
 
@@ -287,21 +275,9 @@ const RoomPage: React.FC = () => {
         }
     };
 
-    const handleWhiteboardChanged = (data: any) => {
-        // Whiteboard component will handle this
-        console.log('Whiteboard changed:', data);
-    };
-
-    // const handlePermissionsUpdated = (data: any) => {
-    //     dispatch(updateUserPermissions({
-    //         userId: data.targetUserId,
-    //         permissions: data.permissions
-    //     }));
-
-    //     if (data.targetUserId === user?.id) {
-    //         // Show notification about permission change
-    //         console.log('Your permissions were updated:', data.permissions);
-    //     }
+    // const handleWhiteboardChanged = (data: any) => {
+    //     // Whiteboard component will handle this
+    //     console.log('Whiteboard changed:', data);
     // };
 
     const handlePermissionsUpdated = (data: any) => {
@@ -506,48 +482,6 @@ const RoomPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-1 overflow-hidden">
-                    {/* Mobile Layout */}
-                    {/* <div className="md:hidden flex flex-col w-full">
-                    <div className="h-1/2 bg-black border-b border-gray-700 overflow-hidden flex flex-col">
-                        <RoomTabNavigation
-                            activeTab={activeTab}
-                            setActiveTab={setActiveTab}
-                            hasVideo={true}
-                            hasWhiteboard={true}
-                        />
-
-                        {isCreator && showCreatorControls && (
-                            <RoomCreatorControls
-                                room={currentRoom}
-                                onClose={() => setShowCreatorControls(false)}
-                            />
-                        )}
-
-                        <div className="flex-1 overflow-hidden">
-                            {activeTab === 'problem' && (
-                                <ProblemDescriptionTab
-                                    problem={problemData}
-                                    canChangeProblem={currentRoom.userPermissions?.canChangeProblem || false}
-                                />
-                            )}
-
-                            {activeTab === 'video' && (
-                                <VideoCallTab
-                                    roomId={currentRoom.roomId}
-                                    jitsiUrl={currentRoom.jitsiUrl}
-                                    participants={currentRoom.participants}
-                                />
-                            )}
-
-                            {activeTab === 'whiteboard' && (
-                                <WhiteboardTab
-                                    roomId={currentRoom.roomId}
-                                    canDraw={currentRoom.userPermissions?.canDrawWhiteboard || false}
-                                />
-                            )}
-                          
-                        </div>
-                    </div> */}
 
                     {/* Mobile Layout */}
                     <div className="md:hidden flex flex-col w-full">
@@ -657,71 +591,6 @@ const RoomPage: React.FC = () => {
                             </div>
                         </div>
                     </div>
-
-                    {/* Desktop Layout */}
-                    {/*<div className="hidden md:flex w-full">
-                    <div className="w-1/2 bg-black border-r border-gray-700 overflow-hidden flex flex-col relative">
-                        <RoomTabNavigation
-                            activeTab={activeTab}
-                            setActiveTab={setActiveTab}
-                            hasVideo={true}
-                            hasWhiteboard={true}
-                        />
-
-                        {isCreator && showCreatorControls && (
-                            <RoomCreatorControls
-                                room={currentRoom}
-                                onClose={() => setShowCreatorControls(false)}
-                            />
-                        )}
-
-                        <div className="flex-1 overflow-hidden">
-                            {activeTab === 'problem' && (
-                                <ProblemDescriptionTab
-                                    problem={problemData}
-                                    canChangeProblem={currentRoom.userPermissions?.canChangeProblem || false}
-                                />
-                            )}
-
-                            {activeTab === 'video' && (
-                                <VideoCallTab
-                                    roomId={currentRoom.roomId}
-                                    jitsiUrl={currentRoom.jitsiUrl}
-                                    participants={currentRoom.participants}
-                                    onMinimize={() => setIsVideoMinimized(true)}
-                                />
-                            )}
-
-                            {activeTab === 'whiteboard' && (
-                                <WhiteboardTab
-                                    roomId={currentRoom.roomId}
-                                    canDraw={currentRoom.userPermissions?.canDrawWhiteboard || false}
-                                />
-                            )}
-
-                            {activeTab === 'chat' && (
-                                <ChatComponent
-                                    roomId={currentRoom.roomId}
-                                />
-                            )}
-                        </div>
-
-                        {isVideoMinimized && activeTab !== 'video' && (
-                            <div className="absolute top-16 right-4 w-64 h-48 bg-black rounded-lg overflow-hidden shadow-lg z-10">
-                                <VideoCallTab
-                                    roomId={currentRoom.roomId}
-                                    jitsiUrl={currentRoom.jitsiUrl}
-                                    participants={currentRoom.participants}
-                                    minimized={true}
-                                    onExpand={() => {
-                                        setActiveTab('video');
-                                        setIsVideoMinimized(false);
-                                    }}
-                                    onClose={() => setIsVideoMinimized(false)}
-                                />
-                            </div>
-                        )}
-                    </div>*/}
 
                     <div className="hidden md:flex w-full">
                         <div className="w-1/2 bg-black border-r border-gray-700 overflow-hidden flex flex-col relative">
