@@ -1,8 +1,25 @@
 
 import httpClient from '../httpClient';
-import type { Room, RoomListItem, CreateRoomRequest, JoinRoomRequest, UpdatePermissionsRequest } from '../../../types/room';
+import type { Room, RoomListItem, CreateRoomRequest, JoinRoomRequest, UpdatePermissionsRequest, PublicRoomsResponse } from '../../../types/room';
+
+
 
 export const roomService = {
+
+
+  async getPublicRooms(params: { status?: 'active' | 'waiting'; page?: number; limit?: number; search?: string; }): Promise<PublicRoomsResponse | undefined> {
+
+    try {
+      console.log("paramsssssssssssssssssssssssss");
+      const response = await httpClient.get('/user/rooms/public', { params });
+      return response.data;
+    } catch (error: any) {
+      console.log(error)
+
+    }
+  },
+
+
   async createRoom(data: CreateRoomRequest): Promise<{ success: boolean; room?: Room; error?: string }> {
     try {
       const response = await httpClient.post('/rooms', data);
@@ -60,5 +77,22 @@ export const roomService = {
         error: error.response?.data?.error || 'Failed to kick user'
       };
     }
+  },
+
+  async getProblemNames(searchParams: any) {
+    try {
+      const response = await httpClient.get(`/user/problems/problem-names?${searchParams}`, {
+      });
+      return response.data;
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Failed to fetch problems'
+      };
+    }
   }
+
+
+
 };
+

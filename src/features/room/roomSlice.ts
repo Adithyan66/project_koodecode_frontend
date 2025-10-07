@@ -1,7 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Room, RoomListItem } from '../../types/room';
-import { createRoomThunk, joinRoomThunk, getPublicRoomsThunk } from './roomThunks';
+import { createRoomThunk, joinRoomThunk, getPublicRoomsThunk, fetchProblemsThunk } from './roomThunks';
+
+
+interface ProblemSummary {
+  problemNumber: number;
+  title: string;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+}
+
 
 interface RoomState {
   currentRoom: Room | null;
@@ -10,6 +18,14 @@ interface RoomState {
   isJoining: boolean;
   error: string | null;
   socketConnected: boolean;
+
+  problems: ProblemSummary[];
+  problemsLoading: boolean;
+  problemsError: string | null;
+  problemsHasMore: boolean;
+  problemsTotal: number;
+  currentProblemPage: number;
+  currentSearchQuery: string;
 }
 
 const initialState: RoomState = {
@@ -18,7 +34,15 @@ const initialState: RoomState = {
   isLoading: false,
   isJoining: false,
   error: null,
-  socketConnected: false
+  socketConnected: false,
+
+  problems: [],
+  problemsLoading: false,
+  problemsError: null,
+  problemsHasMore: true,
+  problemsTotal: 0,
+  currentProblemPage: 1,
+  currentSearchQuery: ''
 };
 
 const roomSlice = createSlice({
@@ -75,6 +99,27 @@ const roomSlice = createSlice({
           p => p.userId !== action.payload
         );
       }
+    },
+
+    clearProblemsError: (state) => {
+      state.problemsError = null;
+    },
+
+    resetProblems: (state) => {
+      state.problems = [];
+      state.currentProblemPage = 1;
+      state.problemsHasMore = true;
+      state.problemsError = null;
+    },
+
+    setProblemsSearchQuery: (state, action: PayloadAction<string>) => {
+      state.currentSearchQuery = action.payload;
+      // Reset problems when search query changes
+      if (action.payload !== state.currentSearchQuery) {
+        state.problems = [];
+        state.currentProblemPage = 1;
+        state.problemsHasMore = true;
+      }
     }
   },
 
@@ -97,16 +142,15 @@ const roomSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       });
-      
-      // Join Room
-      builder
+
+    // Join Room
+    builder
       .addCase(joinRoomThunk.pending, (state) => {
         state.isJoining = true;
         state.error = null;
       })
       .addCase(joinRoomThunk.fulfilled, (state, action) => {
         state.isJoining = false;
-        console.log("actionnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn payyyyyyyyy",action.payload.room)
         if (action.payload.success) {
           state.currentRoom = action.payload.room!;
         } else {
@@ -130,6 +174,41 @@ const roomSlice = createSlice({
       .addCase(getPublicRoomsThunk.rejected, (state) => {
         state.isLoading = false;
       });
+
+
+    builder
+      .addCase(fetchProblemsThunk.pending, (state, action) => {
+        state.problemsLoading = true;
+        state.problemsError = null;
+
+        // Reset problems list if it's a new search or first page
+        if (action.meta.arg?.page === 1 || action.meta.arg?.search !== state.currentSearchQuery) {
+          state.problems = [];
+          state.currentProblemPage = 1;
+        }
+      })
+      .addCase(fetchProblemsThunk.fulfilled, (state, action) => {
+        state.problemsLoading = false;
+
+        const { problems, hasMore, total, page, search } = action.payload;
+
+        // If it's a new search, replace the problems list
+        if (page === 1 || search !== state.currentSearchQuery) {
+          state.problems = problems;
+        } else {
+          // Otherwise, append to existing problems
+          state.problems = [...state.problems, ...problems];
+        }
+
+        state.problemsHasMore = hasMore;
+        state.problemsTotal = total;
+        state.currentProblemPage = page;
+        state.currentSearchQuery = search;
+      })
+      .addCase(fetchProblemsThunk.rejected, (state, action) => {
+        state.problemsLoading = false;
+        state.problemsError = action.payload as string;
+      });
   }
 });
 
@@ -140,7 +219,10 @@ export const {
   updateRoomProblem,
   updateUserPermissions,
   addParticipant,
-  removeParticipant
+  removeParticipant,
+  clearProblemsError,
+  resetProblems,
+  setProblemsSearchQuery
 } = roomSlice.actions;
 
 export default roomSlice.reducer;
