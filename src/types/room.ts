@@ -85,3 +85,35 @@ export interface SocketEvents {
   "message-received":any
   "user-typing":any
 }
+
+
+export interface RoomCreator {
+  id: string;
+  username: string;
+  avatar?: string;
+}
+
+export interface PublicRoom {
+  id: string;
+  roomId: string;
+  roomNumber: number;
+  name: string;
+  description: string;
+  thumbnail?: string;
+  participantCount: number;
+  status: 'active' | 'waiting';
+  scheduledTime?: string;
+  createdBy: RoomCreator;
+  createdAt: string;
+}
+
+export interface PublicRoomsResponse {
+  success: boolean;
+  rooms: PublicRoom[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    hasMore: boolean;
+  };
+}

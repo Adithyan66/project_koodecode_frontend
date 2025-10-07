@@ -19,9 +19,7 @@ const EditorControls: React.FC<EditorControlsProps> = ({
     timer,
     disabled = false,
     isCreator = true
-}) => {
-
-    
+}) => {    
     
     return (
         <div className="bg-black border-b border-gray-700 px-4 py-3 flex items-center justify-between" >
