@@ -1,18 +1,16 @@
 
 
-
-// src/components/user/rooms/CreateRoomModal.tsx
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  X, 
-  Upload, 
-  Calendar, 
-  Clock, 
-  Lock, 
-  Users, 
-  Code, 
-  PenTool, 
+import {
+  X,
+  Upload,
+  Calendar,
+  Clock,
+  Lock,
+  Users,
+  Code,
+  PenTool,
   Eye,
   EyeOff,
   Loader,
@@ -24,6 +22,7 @@ import {
 import httpClient from '../../../../services/axios/httpClient';
 import { ImageUploadService } from '../../../../services/ImageUploadService';
 import ProblemSelectorForModal from './ProblemSelectorForModal';
+import { toast } from 'react-toastify';
 
 interface CreateRoomModalProps {
   isOpen: boolean;
@@ -50,7 +49,7 @@ interface CreateRoomData {
 const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [formData, setFormData] = useState<CreateRoomData>({
     name: '',
     description: '',
@@ -68,6 +67,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string>('');
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Validation states
   const [errors, setErrors] = useState({
@@ -123,7 +123,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
 
   const handleInputChange = (field: keyof CreateRoomData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
+
     // Clear specific error when user starts typing
     if (errors[field as keyof typeof errors]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -159,11 +159,13 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
 
   const uploadThumbnail = async (): Promise<string | null> => {
     if (!thumbnailFile) return null;
-    
+
     setIsUploading(true);
     try {
-      const uploadService = new ImageUploadService();
-      const imageUrl = await uploadService.uploadImage(thumbnailFile, 'room-thumbnails');
+      // const uploadService = new ImageUploadService();
+      const imageUrl = await ImageUploadService.uploadRoomThumbnail(thumbnailFile, (progress) => {
+        setUploadProgress(progress);
+      });
       return imageUrl;
     } catch (error) {
       console.error('Failed to upload thumbnail:', error);
@@ -181,7 +183,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -214,19 +216,20 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
 
       // Create room
       const response = await httpClient.post('/user/rooms/create', roomData);
-      
+
       if (response.data.success) {
-        const { room } = response.data;
-        
+        const { result } = response.data;
         // Close modal and reset form
         handleClose();
-        
+        console.log("is isnstalntttttt", result);
+
         // Navigate based on room type
         if (formData.isInstant) {
-          navigate(`/room/${room.roomId}`);
+          navigate(`/room/${result.room.id}`);
         } else {
           // For scheduled rooms, show success message and stay on landing page
           console.log('Room scheduled successfully!');
+          toast.success('Room scheduled successfully!');
         }
       } else {
         setError(response.data.error || 'Failed to create room');
@@ -287,7 +290,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 "
       onClick={(e) => {
         if (e.target === e.currentTarget && !isSubmitting) {
@@ -295,7 +298,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
         }
       }}
     >
-      <div 
+      <div
         className="bg-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-700 shadow-2xl no-scrollbar"
         onClick={(e) => e.stopPropagation()}
       >
@@ -338,11 +341,10 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
                 type="button"
                 onClick={() => handleInputChange('isInstant', true)}
                 disabled={isSubmitting}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                  formData.isInstant
+                className={`p-4 rounded-xl border-2 transition-all duration-200 ${formData.isInstant
                     ? 'border-green-500 bg-green-500/10 text-green-400 shadow-lg'
                     : 'border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500 hover:bg-gray-700'
-                }`}
+                  }`}
               >
                 <div className="flex flex-col items-center space-y-2">
                   <Clock size={24} />
@@ -352,16 +354,15 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
                   </div>
                 </div>
               </button>
-              
+
               <button
                 type="button"
                 onClick={() => handleInputChange('isInstant', false)}
                 disabled={isSubmitting}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                  !formData.isInstant
+                className={`p-4 rounded-xl border-2 transition-all duration-200 ${!formData.isInstant
                     ? 'border-blue-500 bg-blue-500/10 text-blue-400 shadow-lg'
                     : 'border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500 hover:bg-gray-700'
-                }`}
+                  }`}
               >
                 <div className="flex flex-col items-center space-y-2">
                   <Calendar size={24} />
@@ -391,9 +392,8 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
                   }
                 }}
                 disabled={isSubmitting}
-                className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors disabled:opacity-50 ${
-                  errors.scheduledTime ? 'border-red-500' : 'border-gray-600'
-                }`}
+                className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors disabled:opacity-50 ${errors.scheduledTime ? 'border-red-500' : 'border-gray-600'
+                  }`}
               />
               {errors.scheduledTime && (
                 <p className="text-red-400 text-xs mt-1 flex items-center space-x-1">
@@ -415,9 +415,8 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
               onChange={(e) => handleInputChange('name', e.target.value)}
               placeholder="Enter an engaging room name..."
               disabled={isSubmitting}
-              className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors disabled:opacity-50 ${
-                errors.name ? 'border-red-500' : 'border-gray-600'
-              }`}
+              className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors disabled:opacity-50 ${errors.name ? 'border-red-500' : 'border-gray-600'
+                }`}
             />
             <div className="flex justify-between items-center">
               {errors.name && (
@@ -426,9 +425,8 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
                   <span>{errors.name}</span>
                 </p>
               )}
-              <p className={`text-xs ml-auto ${
-                formData.name.length > 50 ? 'text-red-400' : 'text-gray-500'
-              }`}>
+              <p className={`text-xs ml-auto ${formData.name.length > 50 ? 'text-red-400' : 'text-gray-500'
+                }`}>
                 {formData.name.length}/50
               </p>
             </div>
@@ -445,9 +443,8 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
               placeholder="Describe what you'll be working on, learning goals, or collaboration style..."
               rows={4}
               disabled={isSubmitting}
-              className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors resize-none disabled:opacity-50 ${
-                errors.description ? 'border-red-500' : 'border-gray-600'
-              }`}
+              className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors resize-none disabled:opacity-50 ${errors.description ? 'border-red-500' : 'border-gray-600'
+                }`}
             />
             <div className="flex justify-between items-center">
               {errors.description && (
@@ -456,9 +453,8 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
                   <span>{errors.description}</span>
                 </p>
               )}
-              <p className={`text-xs ml-auto ${
-                formData.description.length > 500 ? 'text-red-400' : 'text-gray-500'
-              }`}>
+              <p className={`text-xs ml-auto ${formData.description.length > 500 ? 'text-red-400' : 'text-gray-500'
+                }`}>
                 {formData.description.length}/500
               </p>
             </div>
@@ -474,8 +470,8 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
                     {formData.isPrivate ? 'Private Room' : 'Public Room'}
                   </p>
                   <p className="text-gray-400 text-sm">
-                    {formData.isPrivate 
-                      ? 'Requires password to join' 
+                    {formData.isPrivate
+                      ? 'Requires password to join'
                       : 'Anyone can discover and join'
                     }
                   </p>
@@ -506,9 +502,8 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
                     onChange={(e) => handleInputChange('password', e.target.value)}
                     placeholder="Set a password for your private room..."
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 pr-12 bg-gray-800 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors disabled:opacity-50 ${
-                      errors.password ? 'border-red-500' : 'border-gray-600'
-                    }`}
+                    className={`w-full px-4 py-3 pr-12 bg-gray-800 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors disabled:opacity-50 ${errors.password ? 'border-red-500' : 'border-gray-600'
+                      }`}
                   />
                   <button
                     type="button"
@@ -616,18 +611,17 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
               ) : (
                 <div
                   onClick={() => !isSubmitting && fileInputRef.current?.click()}
-                  className={`w-full h-40 border-2 border-dashed border-gray-600 rounded-xl flex flex-col items-center justify-center transition-colors ${
-                    isSubmitting 
-                      ? 'opacity-50 cursor-not-allowed' 
+                  className={`w-full h-40 border-2 border-dashed border-gray-600 rounded-xl flex flex-col items-center justify-center transition-colors ${isSubmitting
+                      ? 'opacity-50 cursor-not-allowed'
                       : 'cursor-pointer hover:border-gray-500 hover:bg-gray-800/30'
-                  }`}
+                    }`}
                 >
                   <Upload size={32} className="text-gray-400 mb-3" />
                   <p className="text-gray-400 text-sm mb-1 font-medium">Click to upload thumbnail</p>
                   <p className="text-gray-500 text-xs">PNG, JPG, WebP up to 5MB • Recommended: 1280x720px</p>
                 </div>
               )}
-              
+
               <input
                 ref={fileInputRef}
                 type="file"
@@ -637,6 +631,14 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
                 className="hidden"
               />
             </div>
+
+            {/* {isUploading && (
+              <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center rounded-full">
+                <div className="text-white text-xs font-semibold">
+                  {uploadProgress}%
+                </div>
+              </div>
+            )} */}
           </div>
 
           {/* Features Info */}
@@ -691,6 +693,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
               {isSubmitting ? (
                 <>
                   <Loader className="animate-spin" size={18} />
+                   {uploadProgress}%
                   <span>Creating Room...</span>
                 </>
               ) : (

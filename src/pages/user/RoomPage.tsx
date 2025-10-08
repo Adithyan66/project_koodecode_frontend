@@ -4,7 +4,7 @@
 
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate ,useLocation} from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Navbar from '../../components/user/Navbar';
 import RoomTabNavigation from '../../components/user/room/RoomTabNavigation';
@@ -35,10 +35,12 @@ type BottomTab = 'testcase' | 'result';
 const RoomPage: React.FC = () => {
     const { roomId } = useParams<{ roomId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
+
 
     const { currentRoom, isJoining, error } = useSelector((state: RootState) => state.room);
     const { user } = useSelector((state: RootState) => state.user);
-
+    const passwordFromState = location.state?.password;
     const editorRef = useRef<any>(null);
 
     // UI State
@@ -73,21 +75,13 @@ const RoomPage: React.FC = () => {
                 handleLeaveRoom();
             }
         };
-        // }, [roomId, currentRoom]);
     }, [roomId]);
 
-    // Initialize Socket.IO when room is joined
-    // useEffect(() => {
-    //     if (currentRoom?.socketToken) {
-    //         initializeSocket();
-    //     }
-    // }, [currentRoom]);
-    // Initialize Socket.IO when room is joined
     useEffect(() => {
         if (currentRoom?.socketToken && !roomSocketService.isConnected()) {
             initializeSocket();
         }
-    }, [currentRoom?.socketToken]); // ✅ Only reinitialize if token changes
+    }, [currentRoom?.socketToken]); 
 
     // Handle responsive layout
     useEffect(() => {
@@ -116,7 +110,10 @@ const RoomPage: React.FC = () => {
 
     const handleJoinRoom = async () => {
         try {
-            let password: string | undefined;
+            let password: string | undefined ;
+            if(passwordFromState){
+                password = passwordFromState
+            }
             let data = await dispatch(joinRoomThunk({ roomId: roomId!, password })).unwrap();
 
             if (data.room) {

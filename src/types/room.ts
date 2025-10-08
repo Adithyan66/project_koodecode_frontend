@@ -88,9 +88,11 @@ export interface SocketEvents {
 
 
 export interface RoomCreator {
+  fullName: string;
   id: string;
   username: string;
-  avatar?: string;
+  profilePicUrl?: string;
+  userName:string
 }
 
 export interface PublicRoom {

@@ -15,10 +15,10 @@ interface RoomsSectionProps {
   accentColor?: string;
 }
 
-const RoomsSection: React.FC<RoomsSectionProps> = ({ 
-  title, 
-  status, 
-  accentColor = 'green' 
+const RoomsSection: React.FC<RoomsSectionProps> = ({
+  title,
+  status,
+  accentColor = 'green'
 }) => {
   const navigate = useNavigate();
   const [rooms, setRooms] = useState<PublicRoom[]>([]);
@@ -34,17 +34,21 @@ const RoomsSection: React.FC<RoomsSectionProps> = ({
     setError('');
 
     try {
-    //   const response = await roomService.getPublicRooms({
-    //     status,
-    //     page,
-    //     limit: 9, // 3 rows × 3 cards
-    //     search: search.trim()
-    //   });
+      //   const response = await roomService.getPublicRooms({
+      //     status,
+      //     page,
+      //     limit: 9, // 3 rows × 3 cards
+      //     search: search.trim()
+      //   });
 
-      const response = await httpClient.get('/user/rooms/public', { status,
-        page,
-        limit: 9,
-        search: search.trim() });
+      const response = await httpClient.get('/user/rooms/public', {
+        params: {
+          status,
+          page,
+          limit: 9,
+          search: search.trim(),
+        },
+      });
 
       if (response.data.success) {
         setRooms(response.data.rooms);
@@ -86,13 +90,13 @@ const RoomsSection: React.FC<RoomsSectionProps> = ({
   const handleJoinRoom = async (roomId: string) => {
     setJoiningRoomId(roomId);
     try {
-      const response = await roomService.joinRoom(roomId);
-      if (response.success) {
+      // const response = await roomService.joinRoom(roomId);
+      // if (response.success) {
         // Navigate to the room
         navigate(`/room/${roomId}`);
-      } else {
-        alert(response.message || 'Failed to join room');
-      }
+      // } else {
+        // alert(response.message || 'Failed to join room');
+      // }
     } catch (error: any) {
       alert(error.response?.data?.message || 'Failed to join room');
     } finally {
@@ -116,7 +120,7 @@ const RoomsSection: React.FC<RoomsSectionProps> = ({
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <h2 className="text-4xl font-bold mb-4 md:mb-0">
-            {title.split(' ').map((word, index) => 
+            {title.split(' ').map((word, index) =>
               index === title.split(' ').length - 1 ? (
                 <span key={index} className={getAccentClasses()}>{word}</span>
               ) : (
@@ -178,7 +182,7 @@ const RoomsSection: React.FC<RoomsSectionProps> = ({
                 {searchQuery ? 'No rooms found' : `No ${status} rooms yet`}
               </h3>
               <p>
-                {searchQuery 
+                {searchQuery
                   ? 'Try adjusting your search terms'
                   : `${status === 'active' ? 'Active' : 'Scheduled'} rooms will appear here`
                 }
@@ -231,11 +235,10 @@ const RoomsSection: React.FC<RoomsSectionProps> = ({
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
                         disabled={loading}
-                        className={`w-10 h-10 rounded-lg font-semibold transition-colors ${
-                          pageNum === currentPage
+                        className={`w-10 h-10 rounded-lg font-semibold transition-colors ${pageNum === currentPage
                             ? 'bg-green-500 text-black'
                             : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                        }`}
+                          }`}
                       >
                         {pageNum}
                       </button>

@@ -83,7 +83,6 @@
 
 
 
-// src/services/ImageUploadService.ts
 import httpClient from './axios/httpClient';
 import axios from 'axios';
 

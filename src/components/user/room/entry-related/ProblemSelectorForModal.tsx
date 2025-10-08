@@ -1,6 +1,5 @@
 
 
-// src/components/user/rooms/ProblemSelectorForModal.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, AlertCircle, Loader, X } from 'lucide-react';
 import httpClient from '../../../../services/axios/httpClient';
@@ -35,7 +34,7 @@ const ProblemSelectorForModal: React.FC<ProblemSelectorForModalProps> = ({
     setError('');
     
     try {
-      const response = await httpClient.get('/user/problems', {
+      const response = await httpClient.get('/user/problems/problem-names', {
         params: {
           page: pageNum,
           limit: 20,
@@ -44,7 +43,7 @@ const ProblemSelectorForModal: React.FC<ProblemSelectorForModalProps> = ({
       });
 
       if (response.data.success) {
-        const newProblems = response.data.problems || [];
+        const newProblems = response.data.data.problems || [];
         
         if (pageNum === 1) {
           setProblems(newProblems);

@@ -3,7 +3,6 @@ tree  -I 'node_modules' > structure.txt
 
 
 
-
 ├── eslint.config.js
 ├── index.html
 ├── mock.ts
@@ -24,7 +23,9 @@ tree  -I 'node_modules' > structure.txt
 │   │   │   │   ├── useLeaderboardRefresh.ts
 │   │   │   │   └── useLeaderboard.ts
 │   │   │   └── problem
-│   │   │       └── useProblemSolving.ts
+│   │   │       ├── useInfiniteScroll.ts
+│   │   │       ├── useProblemSolving.ts
+│   │   │       └── useProblems.ts
 │   │   ├── hooks.ts
 │   │   ├── router.tsx
 │   │   └── store.ts
@@ -82,6 +83,15 @@ tree  -I 'node_modules' > structure.txt
 │   │       │   ├── ContestHeader.tsx
 │   │       │   └── ContestRules.tsx
 │   │       ├── Navbar.tsx
+│   │       ├── problem-list
+│   │       │   ├── ActiveFilters.tsx
+│   │       │   ├── CalendarWidget.tsx
+│   │       │   ├── PremiumWidget.tsx
+│   │       │   ├── ProblemItem.tsx
+│   │       │   ├── ProblemsList.tsx
+│   │       │   ├── RoomStatus.tsx
+│   │       │   ├── SearchFilter.tsx
+│   │       │   └── Sidebar.tsx
 │   │       ├── problem-solving
 │   │       │   ├── BottomPanel.tsx
 │   │       │   ├── CodeEditorSection.tsx
@@ -100,6 +110,23 @@ tree  -I 'node_modules' > structure.txt
 │   │       │   ├── SocialStats.tsx
 │   │       │   ├── StatsOverview.tsx
 │   │       │   └── StreakCalendar.tsx
+│   │       ├── room
+│   │       │   ├── ChatComponent.tsx
+│   │       │   ├── CodeEditorSection.tsx
+│   │       │   ├── EditorControls.tsx
+│   │       │   ├── entry-related
+│   │       │   │   ├── CreateRoomModal.tsx
+│   │       │   │   ├── JoinPrivateRoomModal.tsx
+│   │       │   │   ├── ProblemSelectorForModal.tsx
+│   │       │   │   ├── RoomCard.tsx
+│   │       │   │   └── RoomsSection.tsx
+│   │       │   ├── ProblemDescriptionTab.tsx
+│   │       │   ├── problem-related
+│   │       │   │   └── ProblemSelector.tsx
+│   │       │   ├── RoomCreatorControls.tsx
+│   │       │   ├── RoomTabNavigation.tsx
+│   │       │   ├── VideoCallTab.tsx
+│   │       │   └── WhiteboardTab.tsx
 │   │       └── settings
 │   │           ├── AccessibilitySettings.tsx
 │   │           ├── AccountData.tsx
@@ -108,9 +135,12 @@ tree  -I 'node_modules' > structure.txt
 │   │           ├── ProfileSettings.tsx
 │   │           └── SecurityPrivacy.tsx
 │   ├── features
-│   │   └── auth
-│   │       ├── userSlice.ts
-│   │       └── userThunks.ts
+│   │   ├── auth
+│   │   │   ├── userSlice.ts
+│   │   │   └── userThunks.ts
+│   │   └── room
+│   │       ├── roomSlice.ts
+│   │       └── roomThunks.ts
 │   ├── index.css
 │   ├── main.tsx
 │   ├── pages
@@ -121,6 +151,7 @@ tree  -I 'node_modules' > structure.txt
 │   │   │   ├── DashboardPage.tsx
 │   │   │   └── ProblemListingPage.tsx
 │   │   └── user
+│   │       ├── CollaborativeExcalidraw.tsx
 │   │       ├── ContestDashboardPage.tsx
 │   │       ├── ContestInfoPage.tsx
 │   │       ├── ContestSolvingPage.tsx
@@ -129,6 +160,7 @@ tree  -I 'node_modules' > structure.txt
 │   │       ├── LoginPage.tsx
 │   │       ├── ProblemSolvingPage.tsx
 │   │       ├── Problems.tsx
+│   │       ├── RoomPage.tsx
 │   │       ├── SettingsPage.tsx
 │   │       ├── SignupPage.tsx
 │   │       └── UserProfilePage.tsx
@@ -143,19 +175,25 @@ tree  -I 'node_modules' > structure.txt
 │   │   │       ├── contest-info.ts
 │   │   │       ├── contest-problem.ts
 │   │   │       ├── contest.ts
-│   │   │       └── problem.ts
+│   │   │       ├── problem-list.ts
+│   │   │       ├── problem.ts
+│   │   │       └── room.ts
 │   │   ├── ImageKitService.ts
 │   │   ├── ImageUploadService.ts
+│   │   ├── roomSocketService.ts
 │   │   └── socketClient.ts
 │   ├── types
 │   │   ├── contest-info.ts
 │   │   ├── contest-problems.ts
 │   │   ├── contest.ts
+│   │   ├── problem-list.ts
 │   │   ├── problem.ts
-│   │   └── profile.ts
+│   │   ├── profile.ts
+│   │   └── room.ts
 │   ├── utils
 │   │   ├── debounce.ts
 │   │   ├── format.ts
+│   │   ├── problem-related.ts
 │   │   └── tokenManager.ts
 │   └── vite-env.d.ts
 ├── structure.txt
@@ -164,4 +202,4 @@ tree  -I 'node_modules' > structure.txt
 ├── tsconfig.node.json
 └── vite.config.ts
 
-38 directories, 122 files
+43 directories, 156 files
