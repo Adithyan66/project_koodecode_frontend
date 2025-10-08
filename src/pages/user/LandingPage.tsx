@@ -1,20 +1,14 @@
 
 
 
-
-
-
-
-
-// // src/pages/user/LandingPage.tsx
-// import React, { useState, useRef, useEffect } from 'react';
-// import { Users, MessageSquare, Trophy, User, Settings, LogOut, HelpCircle } from 'lucide-react';
+// import React, { useState } from 'react';
 // import homeHero from "../../assets/images/Homepage-BigHero-1200x500_2x.webp"
 // import handShakeImg from "../../assets/images/ChatGPT_Image_Aug_2__2025__11_16_25_AM-removebg-preview 1.svg"
 
 // import Navbar from '../../components/user/Navbar';
 // import CreateRoomModal from '../../components/user/room/entry-related/CreateRoomModal';
-// import { Navigate, useNavigate } from 'react-router-dom';
+// import RoomsSection from '../../components/user/room/entry-related/RoomsSection';
+// import { useNavigate } from 'react-router-dom';
 
 // const LandingPage: React.FC = () => {
 //     const navigate = useNavigate();
@@ -54,7 +48,6 @@
 //                                         Create Room
 //                                     </button>
 //                                     <button 
-//                                         onClick={() => {/* Add join room logic */}}
 //                                         className="border border-green-500 text-green-500 hover:bg-green-500 hover:text-black px-6 py-3 rounded-lg font-semibold transition-colors">
 //                                         Join Room
 //                                     </button>
@@ -62,7 +55,6 @@
 //                             </div>
 
 //                             <img src={handShakeImg} alt="" />
-                
 //                         </div>
 //                     </div>
 
@@ -89,84 +81,19 @@
 //                     </div>
 //                 </section>
 
-//                 {/* Join Rooms Section */}
-//                 <section className="px-6 py-16 bg-black">
-//                     <div className="max-w-7xl mx-auto">
-//                         <h2 className="text-4xl font-bold mb-12">
-//                             Join <span className="text-green-400">Rooms</span> Now
-//                         </h2>
+//                 {/* Active Rooms Section */}
+//                 <RoomsSection 
+//                     title="Join Active Rooms" 
+//                     status="active" 
+//                     accentColor="green" 
+//                 />
 
-//                         <div className="grid md:grid-cols-3 gap-6">
-//                             {/* Room 1 */}
-//                             <div className="bg-gray-800 rounded-2xl overflow-hidden hover:transform hover:scale-105 transition-all duration-300">
-//                                 <div className="relative">
-//                                     <img
-//                                         src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=200&fit=crop&crop=face"
-//                                         alt="User"
-//                                         className="w-full h-48 object-cover"
-//                                     />
-//                                     <div className="absolute top-4 left-4 bg-black/60 px-3 py-1 rounded-full">
-//                                         <span className="text-sm">JavaScript</span>
-//                                     </div>
-//                                 </div>
-//                                 <div className="p-6">
-//                                     <div className="bg-green-500 text-black px-3 py-1 rounded-full text-sm font-semibold inline-block mb-3">
-//                                         Question No 276
-//                                     </div>
-//                                     <h3 className="text-xl font-bold mb-2">How to Solve this minimal Time complexity</h3>
-//                                     <div className="flex items-center space-x-2 text-gray-400">
-//                                         <Users size={16} />
-//                                         <span className="text-sm">5 participants</span>
-//                                     </div>
-//                                 </div>
-//                             </div>
-
-//                             {/* Room 2 */}
-//                             <div className="bg-gray-800 rounded-2xl overflow-hidden hover:transform hover:scale-105 transition-all duration-300">
-//                                 <div className="relative">
-//                                     <img
-//                                         src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=200&fit=crop&crop=face"
-//                                         alt="User"
-//                                         className="w-full h-48 object-cover"
-//                                     />
-//                                     <div className="absolute top-4 left-4 bg-black/60 px-3 py-1 rounded-full">
-//                                         <span className="text-sm">Algorithm</span>
-//                                     </div>
-//                                 </div>
-//                                 <div className="p-6">
-//                                     <div className="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-semibold inline-block mb-3">
-//                                         Solutions Discuss
-//                                     </div>
-//                                     <h3 className="text-xl font-bold mb-2">How to Solve this in minimal time complexity</h3>
-//                                     <div className="flex items-center space-x-2 text-gray-400">
-//                                         <MessageSquare size={16} />
-//                                         <span className="text-sm">12 solutions</span>
-//                                     </div>
-//                                 </div>
-//                             </div>
-
-//                             {/* Room 3 */}
-//                             <div className="bg-gray-800 rounded-2xl overflow-hidden hover:transform hover:scale-105 transition-all duration-300">
-//                                 <div className="relative bg-gray-700 h-48 flex items-center justify-center">
-//                                     <Trophy size={64} className="text-green-400" />
-//                                     <div className="absolute top-4 left-4 bg-black/60 px-3 py-1 rounded-full">
-//                                         <span className="text-sm">Contest</span>
-//                                     </div>
-//                                 </div>
-//                                 <div className="p-6">
-//                                     <div className="bg-green-500 text-black px-3 py-1 rounded-full text-sm font-semibold inline-block mb-3">
-//                                         Question No 276
-//                                     </div>
-//                                     <h3 className="text-xl font-bold mb-2">Looking for teams to group work collaboration</h3>
-//                                     <div className="flex items-center space-x-2 text-gray-400">
-//                                         <Users size={16} />
-//                                         <span className="text-sm">8 teams</span>
-//                                     </div>
-//                                 </div>
-//                             </div>
-//                         </div>
-//                     </div>
-//                 </section>
+//                 {/* Upcoming Rooms Section */}
+//                 <RoomsSection 
+//                     title="Upcoming Scheduled Rooms" 
+//                     status="waiting" 
+//                     accentColor="blue" 
+//                 />
 
 //                 {/* Footer */}
 //                 <footer className="px-6 py-8 bg-black border-t border-gray-700">
@@ -211,29 +138,35 @@
 
 
 
-
-
-// src/pages/user/LandingPage.tsx
 import React, { useState } from 'react';
-import { Users, MessageSquare, Trophy } from 'lucide-react';
 import homeHero from "../../assets/images/Homepage-BigHero-1200x500_2x.webp"
 import handShakeImg from "../../assets/images/ChatGPT_Image_Aug_2__2025__11_16_25_AM-removebg-preview 1.svg"
 
 import Navbar from '../../components/user/Navbar';
 import CreateRoomModal from '../../components/user/room/entry-related/CreateRoomModal';
+import JoinPrivateRoomModal from '../../components/user/room/entry-related/JoinPrivateRoomModal';
 import RoomsSection from '../../components/user/room/entry-related/RoomsSection';
 import { useNavigate } from 'react-router-dom';
 
 const LandingPage: React.FC = () => {
     const navigate = useNavigate();
     const [isCreateRoomModalOpen, setIsCreateRoomModalOpen] = useState(false);
+    const [isJoinRoomModalOpen, setIsJoinRoomModalOpen] = useState(false);
 
     const handleCreateRoom = () => {
         setIsCreateRoomModalOpen(true);
     };
 
-    const handleCloseModal = () => {
+    const handleJoinRoom = () => {
+        setIsJoinRoomModalOpen(true);
+    };
+
+    const handleCloseCreateModal = () => {
         setIsCreateRoomModalOpen(false);
+    };
+
+    const handleCloseJoinModal = () => {
+        setIsJoinRoomModalOpen(false);
     };
 
     return (
@@ -262,7 +195,7 @@ const LandingPage: React.FC = () => {
                                         Create Room
                                     </button>
                                     <button 
-                                        onClick={() => {/* Add join room logic */}}
+                                        onClick={handleJoinRoom}
                                         className="border border-green-500 text-green-500 hover:bg-green-500 hover:text-black px-6 py-3 rounded-lg font-semibold transition-colors">
                                         Join Room
                                     </button>
@@ -321,7 +254,13 @@ const LandingPage: React.FC = () => {
             {/* Create Room Modal */}
             <CreateRoomModal 
                 isOpen={isCreateRoomModalOpen}
-                onClose={handleCloseModal}
+                onClose={handleCloseCreateModal}
+            />
+
+            {/* Join Private Room Modal */}
+            <JoinPrivateRoomModal 
+                isOpen={isJoinRoomModalOpen}
+                onClose={handleCloseJoinModal}
             />
         </>
     );

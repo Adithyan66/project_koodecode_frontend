@@ -52,7 +52,7 @@ const Navbar: React.FC = () => {
                 <Link to="/" className="text-gray-300 hover:text-white transition-colors">Explore</Link>
                 <Link to="/problems" className="text-gray-300 hover:text-white transition-colors">Problems</Link>
                 <Link to="/contests" className="text-gray-300 hover:text-white transition-colors">Contest</Link>
-                <Link to="#" className="text-gray-300 hover:text-white transition-colors">Coins</Link>
+                <Link to="/store" className="text-gray-300 hover:text-white transition-colors">Store</Link>
             </div>
 
             <div className="relative">
