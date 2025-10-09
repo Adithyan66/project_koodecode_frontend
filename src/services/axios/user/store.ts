@@ -32,5 +32,10 @@ export const storeService = {
     getCoinTransactions: async (page: number = 1, limit: number = 10): Promise<CoinTransactionResponse> => {
         const response = await httpClient.get(`/user/coins/transactions?page=${page}&limit=${limit}`);
         return response.data.data;
+    },
+
+    getCoinBalance : async ()=>{
+        const response = await httpClient.get(`/user/coins/balance`)
+        return response.data.balance
     }
 };
