@@ -12,6 +12,8 @@ export interface Problem {
 }
 
 export interface ProblemsResponse {
+    hasNextPage: boolean;
+    data: ProblemsResponse;
     problems: Problem[];
     total: number;
     page: number;
@@ -24,8 +26,8 @@ export interface DifficultyOption {
 }
 
 export interface ProblemsFilters {
-    search: string;
-    difficulty: string;
+    search: string | undefined;
+    difficulty: string | undefined;
     page: number;
     limit: number;
 }

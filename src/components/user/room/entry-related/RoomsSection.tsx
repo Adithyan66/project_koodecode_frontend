@@ -34,12 +34,6 @@ const RoomsSection: React.FC<RoomsSectionProps> = ({
     setError('');
 
     try {
-      //   const response = await roomService.getPublicRooms({
-      //     status,
-      //     page,
-      //     limit: 9, // 3 rows × 3 cards
-      //     search: search.trim()
-      //   });
 
       const response = await httpClient.get('/user/rooms/public', {
         params: {
@@ -51,9 +45,9 @@ const RoomsSection: React.FC<RoomsSectionProps> = ({
       });
 
       if (response.data.success) {
-        setRooms(response.data.rooms);
-        setCurrentPage(response.data.pagination.currentPage);
-        setTotalPages(response.data.pagination.totalPages);
+        setRooms(response.data.data.rooms);
+        setCurrentPage(response.data.data.pagination.currentPage);
+        setTotalPages(response.data.data.pagination.totalPages);
       } else {
         setError('Failed to load rooms');
       }

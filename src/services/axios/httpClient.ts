@@ -58,7 +58,7 @@ httpClient.interceptors.response.use(
             try {
                 const { data } = await httpClient.get("auth/refresh-token", {});
 
-                localStorage.setItem("accessToken", data.accessToken);
+                localStorage.setItem("accessToken", data.data.accessToken);
 
                 return httpClient(originalRequest);
 

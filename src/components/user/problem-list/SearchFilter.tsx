@@ -22,9 +22,9 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
 
     const difficultyOptions: DifficultyOption[] = [
         { value: '', label: 'All Difficulties' },
-        { value: 'Easy', label: 'Easy' },
-        { value: 'Medium', label: 'Medium' },
-        { value: 'Hard', label: 'Hard' },
+        { value: 'easy', label: 'Easy' },
+        { value: 'medium', label: 'Medium' },
+        { value: 'hard', label: 'Hard' },
     ];
 
     const getDifficultyColor = (difficulty: string): string => {
