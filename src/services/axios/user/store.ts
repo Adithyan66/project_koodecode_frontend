@@ -36,6 +36,6 @@ export const storeService = {
 
     getCoinBalance : async ()=>{
         const response = await httpClient.get(`/user/coins/balance`)
-        return response.data.balance
+        return response.data.data.balance
     }
 };

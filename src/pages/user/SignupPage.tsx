@@ -142,12 +142,6 @@ const SignupPage: React.FC = () => {
 
         setIsLoading(true);
         try {
-            // const response = await axios.post("http://localhost:3000/api/auth/signup/request-otp", {
-            //     email,
-            //     userName: username,
-            //     fullName: name
-            // });
-
             const response = await authAPI.signUpOtp(email, username, name)
 
             if (response.data.success) {

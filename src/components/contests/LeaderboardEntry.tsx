@@ -1,6 +1,5 @@
 
 
-// src/components/user/contests/LeaderboardEntry.tsx
 import React from 'react';
 import { LeaderboardEntry as LeaderboardEntryType } from '../../types/contest';
 

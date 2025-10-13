@@ -4,8 +4,8 @@ import type  { PaymentOrder } from '../../../types/payment';
 
 export const paymentService = {
     createOrder: async (coins: number): Promise<PaymentOrder> => {
-        const response = await httpClient.post('/user/payments/create-order', { coins });
-        return response.data.data;
+        const response = await httpClient.post('/user/coins/create-order', { coins });
+        return response.data.data.order;
     },
 
     verifyPayment: async (paymentData: {
@@ -13,7 +13,7 @@ export const paymentService = {
         razorpay_payment_id: string;
         razorpay_signature: string;
     }): Promise<{ success: boolean; message: string }> => {
-        const response = await httpClient.post('/user/payments/complete', paymentData);
-        return response.data;
+        const response = await httpClient.post('/user/coins/complete', paymentData);
+        return response.data.data;
     }
 };

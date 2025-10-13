@@ -23,15 +23,15 @@ export const useContests = () => {
   const fetchActiveContest = async () => {
     setLoadingActive(true);
     const data = await ContestService.fetchActiveContest();
-    setActiveContest(data);
+    setActiveContest(data.contests);
     setLoadingActive(false);
   };
 
   const fetchUpcomingContests = async () => {
     setLoadingUpcoming(true);
     const data = await ContestService.fetchUpcomingContests();
-    setUpcomingContests(data);
-    setFilteredUpcoming(data);
+    setUpcomingContests(data.contests);
+    setFilteredUpcoming(data.contests);
     setLoadingUpcoming(false);
   };
 
@@ -39,7 +39,7 @@ export const useContests = () => {
     if (loadingPast) return;
     setLoadingPast(true);
     const data = await ContestService.fetchPastContests();
-    setPastContests(data);
+    setPastContests(data.contests);
     setLoadingPast(false);
   };
 

@@ -48,9 +48,9 @@ export const loginUser = createAsyncThunk<
 
             const response = await authAPI.login(credentials);
 
-            const { token, ...user } = response.data.user;
+            const { accessToken, ...user } = response.data.user;
 
-            tokenManager.setToken(token);
+            tokenManager.setToken(accessToken);
 
             return user as UserDetails
 
@@ -168,7 +168,6 @@ export const fetchUserProfile = createAsyncThunk(
 export const initializeAuth = createAsyncThunk(
     'user/initializeAuth',
     async (_, { }) => {
-        // async (_, { dispatch, rejectWithValue }) => {
 
         try {
             const token = tokenManager.getToken();
@@ -177,13 +176,11 @@ export const initializeAuth = createAsyncThunk(
                 return { isAuthenticated: false, user: null };
             }
 
-            const response = await authAPI.validateTokenAndGetUser(token);
-
-            console.log("res of val token", response);
+            const user = await authAPI.validateTokenAndGetUser(token);
 
             return {
                 isAuthenticated: true,
-                user: response.data.user
+                user
             };
 
         } catch (error: any) {

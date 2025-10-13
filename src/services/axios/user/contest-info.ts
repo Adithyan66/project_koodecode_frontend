@@ -79,14 +79,14 @@ class ContestService {
     try {
       const response = await httpClient.get(`/user/contests/${contestNumber}`);
       return {
-        ...response.data.contest,
-        startTime: new Date(response.data.contest.startTime),
-        endTime: new Date(response.data.contest.endTime),
-        registrationDeadline: new Date(response.data.contest.registrationDeadline),
-        userSubmission: response.data.contest.userSubmission
+        ...response.data.data.contest,
+        startTime: new Date(response.data.data.contest.startTime),
+        endTime: new Date(response.data.data.contest.endTime),
+        registrationDeadline: new Date(response.data.data.contest.registrationDeadline),
+        userSubmission: response.data.data.contest.userSubmission
           ? {
-              ...response.data.contest.userSubmission,
-              submittedAt: new Date(response.data.contest.userSubmission.submittedAt),
+              ...response.data.data.contest.userSubmission,
+              submittedAt: new Date(response.data.data.contest.userSubmission.submittedAt),
             }
           : null,
       };
