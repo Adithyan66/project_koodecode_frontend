@@ -47,6 +47,8 @@ interface CreateRoomData {
 }
 
 const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) => {
+
+
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -218,14 +220,14 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
       const response = await httpClient.post('/user/rooms/create', roomData);
 
       if (response.data.success) {
-        const { result } = response.data;
+        const { data } = response.data;
         // Close modal and reset form
         handleClose();
-        console.log("is isnstalntttttt", result);
+        console.log("is isnstalntttttt", data);
 
         // Navigate based on room type
         if (formData.isInstant) {
-          navigate(`/room/${result.room.id}`);
+          navigate(`/room/${data.id}`);
         } else {
           // For scheduled rooms, show success message and stay on landing page
           console.log('Room scheduled successfully!');
