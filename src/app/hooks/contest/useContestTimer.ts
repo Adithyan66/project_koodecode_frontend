@@ -36,8 +36,6 @@
 
 
 
-
-// src/app/hooks/contest/useContestTimer.ts
 import { useState, useEffect } from 'react';
 import { ContestState } from '../../../types/contest-info';
 
@@ -58,6 +56,8 @@ export const useContestTimer = (contest) => {
       setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       return;
     }
+    console.log((contest));
+    
 
     const targetDate =
       contest.state === ContestState.UPCOMING || contest.state === ContestState.REGISTRATION_OPEN

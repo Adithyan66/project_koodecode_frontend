@@ -35,7 +35,9 @@ export const joinRoomThunk = createAsyncThunk(
   async (data: JoinRoomRequest, { rejectWithValue }) => {
     try {
       const result = await roomService.joinRoom(data);
-      return result;
+      console.log("ressssssssssssssssssssssssssss", result);
+
+      return { success: true, room: result };
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to join room');
     }
@@ -75,12 +77,12 @@ export const fetchProblemsThunk = createAsyncThunk(
       const response = await roomService.getProblemNames(searchParams)
 
       if (!response.success) {
-        const errorData =  response
+        const errorData = response
         return rejectWithValue(errorData.message || 'Failed to fetch problems');
       }
 
       const { data } = response
-      
+
       return {
         problems: data.problems || [],
         hasMore: data.hasMore || false,

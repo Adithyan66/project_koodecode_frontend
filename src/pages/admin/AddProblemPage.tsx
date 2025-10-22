@@ -495,22 +495,7 @@ const AddProblemPage: React.FC = () => {
               />
             )}
 
-            {/* {currentTabIndex === 1 && (
-              <FunctionDefinitionTab
-                functionName={functionName}
-                setFunctionName={setFunctionName}
-                returnType={returnType}
-                setReturnType={setReturnType}
-                parameters={parameters}
-                setParameters={setParameters}
-                languages={languages}
-                selectedLanguageIds={selectedLanguageIds}
-                setSelectedLanguageIds={setSelectedLanguageIds}
-                isLoadingLanguages={isLoadingLanguages}
-                errors={errors}
-                setErrors={setErrors}
-              />
-            )} */}
+         
             {currentTabIndex === 1 && (
     <FunctionDefinitionTab
       functionName={functionName}

@@ -86,20 +86,20 @@ const JoinPrivateRoomModal: React.FC<JoinPrivateRoomModalProps> = ({ isOpen, onC
 
             if (data.success) {
 
-                navigate(`/room/${data.roomId}`, { state: { password: formData.password } });
+                navigate(`/room/${data.data}`, { state: { password: formData.password } });
                 handleClose();
             } else {
                 // Handle specific error cases
-                if (data.error.toLowerCase().includes('room not found') || data.error.toLowerCase().includes('room name')) {
+                if (data.data.error.toLowerCase().includes('room not found') || data.error.toLowerCase().includes('room name')) {
                     setErrors(prev => ({ ...prev, roomName: 'Room not found' }));
-                } else if (data.error.toLowerCase().includes('password') || data.error.toLowerCase().includes('invalid')) {
+                } else if (data.data.error.toLowerCase().includes('password') || data.error.toLowerCase().includes('invalid')) {
                     setErrors(prev => ({ ...prev, password: 'Invalid password' }));
                 } else {
                     setErrors(prev => ({ ...prev, general: data.error }));
                 }
             }
         } catch (error) {
-            let {data} = error.response
+            let {data} = error.response.data
             if (data.error.toLowerCase().includes('room not found') || data.error.toLowerCase().includes('room name')) {
                     setErrors(prev => ({ ...prev, roomName: 'Room not found' }));
                 } else if (data.error.toLowerCase().includes('password') || data.error.toLowerCase().includes('invalid')) {

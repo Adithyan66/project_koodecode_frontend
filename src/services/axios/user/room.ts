@@ -35,7 +35,7 @@ export const roomService = {
   async joinRoom(data: JoinRoomRequest): Promise<{ success: boolean; room?: Room; error?: string }> {
     try {
       const response = await httpClient.post(`/user/rooms/${data.roomId}/join`, { password: data.password });
-      return response.data;
+      return response.data.data;
     } catch (error: any) {
       return {
         success: false,
@@ -44,14 +44,14 @@ export const roomService = {
     }
   },
 
-  async getPublicRooms(limit = 20): Promise<{ success: boolean; rooms: RoomListItem[]; total: number }> {
-    try {
-      const response = await httpClient.get(`/rooms/public?limit=${limit}`);
-      return response.data;
-    } catch (error: any) {
-      return { success: false, rooms: [], total: 0 };
-    }
-  },
+  // async getPublicRooms(limit = 20): Promise<{ success: boolean; rooms: RoomListItem[]; total: number }> {
+  //   try {
+  //     const response = await httpClient.get(`/rooms/public?limit=${limit}`);
+  //     return response.data;
+  //   } catch (error: any) {
+  //     return { success: false, rooms: [], total: 0 };
+  //   }
+  // },
 
   async updatePermissions(roomId: string, data: UpdatePermissionsRequest): Promise<{ success: boolean; error?: string }> {
     try {
