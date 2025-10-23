@@ -302,38 +302,42 @@ const CreateContestPage: React.FC = () => {
   }, [selectedProblems]);
 
   // Rest of the component methods remain the same...
-  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
-      return;
-    }
+  //   if (!file.type.startsWith('image/')) {
+  //     toast.error('Please select an image file');
+  //     return;
+  //   }
 
-    setIsUploading(true);
-    setUploadProgress(0);
+  //   setIsUploading(true);
+  //   setUploadProgress(0);
 
-    try {
-      const imageKey = await ImageUploadService.uploadProfileImage(file, (progress) => {
-        setUploadProgress(progress);
-      });
+  //   try {
+  //     const imageKey = await ImageUploadService.uploadContestThumbnail(file, (progress) => {
+  //       setUploadProgress(progress);
+  //     });
 
-      const optimizedUrl = imageKitService.getProfileImageUrl(imageKey, 400, 200, { radius: "8" });
+  //     console.log("keyyyyyyyyyyyyyyyyyy",imageKey);
+      
 
-      setThumbnailImage(optimizedUrl);
-      setFormData((prev) => ({ ...prev, thumbnail: imageKey }));
+  //     const optimizedUrl = imageKitService.getProfileImageUrl(imageKey, 400, 200, { radius: "8" });
 
-      toast.success('Contest thumbnail uploaded successfully!');
-    } catch (error: any) {
-      console.error('Upload failed:', error);
-      toast.error(error.message || 'Failed to upload thumbnail');
-    } finally {
-      setIsUploading(false);
-      setUploadProgress(0);
-    }
-  };
+  //     setThumbnailImage(optimizedUrl);
+  //     setFormData((prev) => ({ ...prev, thumbnail: imageKey }));
 
+  //     toast.success('Contest thumbnail uploaded successfully!');
+  //   } catch (error: any) {
+  //     console.error('Upload failed:', error);
+  //     toast.error(error.message || 'Failed to upload thumbnail');
+  //   } finally {
+  //     setIsUploading(false);
+  //     setUploadProgress(0);
+  //   }
+  // };
+
+  
   const addCoinReward = () => {
     const newRank = coinRewards.length + 1;
     const newRewards = [...coinRewards, { rank: newRank, coins: 100 }];

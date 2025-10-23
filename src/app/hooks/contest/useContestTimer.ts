@@ -43,7 +43,7 @@ import { ContestState } from '../../../types/contest-info';
 
 
 
-export const useContestTimer = (contest) => {
+export const useContestTimer = (contest:any) => {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
