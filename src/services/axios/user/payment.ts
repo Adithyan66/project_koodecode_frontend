@@ -12,8 +12,10 @@ export const paymentService = {
         razorpay_order_id: string;
         razorpay_payment_id: string;
         razorpay_signature: string;
-    }): Promise<{ success: boolean; message: string }> => {
+    }): Promise<{
+        data: boolean; success: boolean; message: string 
+}> => {
         const response = await httpClient.post('/user/coins/complete', paymentData);
-        return response.data.data;
+        return response.data;
     }
 };

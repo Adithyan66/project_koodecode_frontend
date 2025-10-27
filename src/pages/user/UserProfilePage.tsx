@@ -42,6 +42,7 @@ const UserProfilePage: React.FC = () => {
             </div>
         );
     }
+    console.log('profile pro',profileData)
 
     return (
         <div className="min-h-screen bg-black text-white">
@@ -51,7 +52,7 @@ const UserProfilePage: React.FC = () => {
                 {/* Profile Header */}
                 <ProfileHeader
                     user={profileData.user}
-                    profile={profileData.profile}
+                    profile={profileData.UserProfile}
                 />
 
                 {/* Stats Overview */}
@@ -66,30 +67,30 @@ const UserProfilePage: React.FC = () => {
                     <div className="lg:col-span-2 space-y-8">
                         <ProblemStatsChart stats={profileData.stats} />
 
-                        <StreakCalendar
+                        {/* <StreakCalendar
                             activities={profileData.activities}
-                            currentStreak={profileData.stats.streak.current}
+                            currentStreak={profileData.stats.streak.currentCount}
                             maxStreak={profileData.stats.streak.max}
-                        />
+                        /> */}
                     </div>
 
                     {/* Right Column - Badges and Activity */}
                     <div className="space-y-8">
-                        <SocialStats
+                        {/* <SocialStats
                             followersCount={profileData.stats.followersCount}
                             followingCount={profileData.stats.followingCount}
-                        />
+                        /> */}
 
-                        <BadgeShowcase
+                        {/* <BadgeShowcase
                             badges={profileData.recentBadges}
                             totalBadges={profileData.stats.badges}
                             onBadgeClick={setSelectedBadge}
-                        />
+                        /> */}
 
-                        <RecentActivity
+                        {/* <RecentActivity
                             activities={profileData.activities}
                             recentBadges={profileData.recentBadges}
-                        />
+                        /> */}
                     </div>
                 </div>
 
