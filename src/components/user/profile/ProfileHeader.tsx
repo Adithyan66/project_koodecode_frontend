@@ -20,6 +20,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, profile }) =
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
+  console.log("profile", profile);
+  
+
 
   return (
     <div className="bg-gray-900 rounded-xl p-6 border border-gray-700">
@@ -36,14 +39,14 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, profile }) =
 
         {/* User Info */}
         <div className="flex-grow">
-          <div className="flex items-center gap-3 mb-2">
+          {/* <div className="flex items-center gap-3 mb-2">
             <h1 className="text-3xl font-bold text-white">{user.fullName}</h1>
             {profile.isPremium && (
               <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-2 py-1 rounded-full text-xs font-bold">
                 PREMIUM
               </span>
             )}
-          </div>
+          </div> */}
           
           <p className="text-xl text-gray-300 mb-3">@{user.userName}</p>
           

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { toast } from 'react-hot-toast'; // Assuming you're using react-hot-toast
+import { toast } from 'react-hot-toast'; 
 import type { RootState } from '../../app/store';
 import Navbar from '../../components/user/Navbar';
 import CoinBalance from '../../components/user/store/CoinBalance';
