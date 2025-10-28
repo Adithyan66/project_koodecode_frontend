@@ -51,9 +51,48 @@ export interface Badge {
 }
 
 export interface UserProfileData {
-  user: User;
-  profile: UserProfile;
-  stats: UserStats;
-  activities: Record<string, number>;
-  recentBadges: Badge[];
+  user: {
+    profileImage: string;
+    name: string;
+    username: string;
+    bio: string;
+    location: string;
+    githubUrl: string;
+    linkedinUrl: string;
+    languages: { name: string; count: number }[];
+  };
+  stats: {
+    easy: { solved: number; total: number };
+    medium: { solved: number; total: number };
+    hard: { solved: number; total: number };
+    attempting: number;
+  };
+  badges: {
+    total: number;
+    list: any[];
+    recent?: {
+      icon: string;
+      title: string;
+      year: number;
+      color: string;
+    };
+  };
+  heatmap: {
+    data: { date: string; count: number }[];
+    totalSubmissions: number;
+    activeDays: number;
+    maxStreak: number;
+    currentStreak: number;
+  };
+  recentSubmissions: {
+    id: string;
+    title: string;
+    timeAgo: string;
+  }[];
+}
+
+export interface ApiUserProfileResponse {
+  success: boolean;
+  data: UserProfileData;
+  message?: string;
 }
