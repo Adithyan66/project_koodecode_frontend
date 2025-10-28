@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import type { CalendarDay } from '../../../data/problemsMockData';
 
-interface LeetCodeCalendarProps {
+interface CodeCalendarProps {
   calendarData: CalendarDay[];
 }
 
-const LeetCodeCalendar: React.FC<LeetCodeCalendarProps> = ({ calendarData }) => {
+const CodeCalendar: React.FC<CodeCalendarProps> = ({ calendarData }) => {
   const [timeRemaining, setTimeRemaining] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
@@ -55,19 +55,32 @@ const LeetCodeCalendar: React.FC<LeetCodeCalendarProps> = ({ calendarData }) => 
     const isToday = day === currentDay;
 
     calendarDays.push(
-      <div
-        key={day}
-        className={`w-8 h-8 flex items-center justify-center text-sm rounded-full relative
-          ${isToday ? 'bg-green-500 text-white font-bold' : ''}
-          ${status === 'solved' && !isToday ? 'text-gray-300' : ''}
-          ${status === 'unsolved' && !isToday ? 'text-gray-500' : ''}
-        `}
-      >
-        {day}
-        {status === 'solved' && !isToday && (
-          <div className="absolute bottom-0 w-1 h-1 bg-green-500 rounded-full" />
-        )}
-      </div>
+     <div
+  key={day}
+  className={`w-8 h-8 flex items-center justify-center text-sm rounded-full relative
+    ${isToday ? 'bg-green-500 text-white font-bold' : ''}
+    ${status === 'solved' && !isToday ? 'text-gray-300' : ''}
+    ${status === 'unsolved' && !isToday ? 'text-gray-500' : ''}
+  `}
+>
+  {status === 'solved' && !isToday ? (
+    <svg 
+      className="w-6 h-6 text-blue-500" 
+      fill="none" 
+      stroke="currentColor" 
+      viewBox="0 0 24 24"
+    >
+      <path 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        strokeWidth={3} 
+        d="M5 13l4 4L19 7" 
+      />
+    </svg>
+  ) : (
+    day
+  )}
+</div>
     );
   }
 
@@ -136,5 +149,5 @@ const LeetCodeCalendar: React.FC<LeetCodeCalendarProps> = ({ calendarData }) => 
   );
 };
 
-export default LeetCodeCalendar;
+export default CodeCalendar;
 

@@ -1,12 +1,12 @@
 import React from 'react';
-import type { MockProblem } from '../../../data/problemsMockData';
+import type { Problem } from '../../../types/problem-list';
 
-interface LeetCodeProblemItemProps {
-  problem: MockProblem;
+interface CodeProblemItemProps {
+  problem: Problem;
   onClick?: () => void;
 }
 
-const LeetCodeProblemItem: React.FC<LeetCodeProblemItemProps> = ({ problem, onClick }) => {
+const CodeProblemItem: React.FC<CodeProblemItemProps> = ({ problem, onClick }) => {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy':
@@ -70,5 +70,5 @@ const LeetCodeProblemItem: React.FC<LeetCodeProblemItemProps> = ({ problem, onCl
   );
 };
 
-export default LeetCodeProblemItem;
+export default CodeProblemItem;
 

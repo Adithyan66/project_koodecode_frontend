@@ -1,10 +1,10 @@
 export interface BannerCard {
   id: number;
-  title: string;
-  subtitle: string;
-  buttonText: string;
-  bgGradient: string;
-  image?: string;
+  bannerurl: string;
+  title?: string;
+  subtitle?: string;
+  buttonText?: string;
+  bgGradient?: string;
 }
 
 export interface MockProblem {

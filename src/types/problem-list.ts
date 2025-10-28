@@ -1,23 +1,30 @@
 
 
 export interface Problem {
+    problemNumber: ReactNode;
+    category: any;
+    completed: any;
     id: number;
-    problemNumber: number;
+    number: number;
     title: string;
-    difficulty: 'Easy' | 'Medium' | 'Hard';
-    completed: boolean;
-    category?: string;
-    tags?: string[];
     slug: string;
+    acceptance: number;
+    difficulty: 'Easy' | 'Med.' | 'Hard';
+    status: 'solved' | 'attempted' | null;
+}
+
+export interface Pagination {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+    hasMore: boolean;
 }
 
 export interface ProblemsResponse {
-    hasNextPage: boolean;
-    data: ProblemsResponse;
-    problems: Problem[];
-    total: number;
-    page: number;
-    limit: number;
+    success: boolean;
+    data: Problem[];
+    pagination: Pagination;
 }
 
 export interface DifficultyOption {
@@ -26,8 +33,9 @@ export interface DifficultyOption {
 }
 
 export interface ProblemsFilters {
-    search: string | undefined;
-    difficulty: string | undefined;
+    search?: string;
+    difficulty?: string;
+    sortBy?: string;
     page: number;
     limit: number;
 }
