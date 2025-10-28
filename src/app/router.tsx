@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import LandingPage from '../pages/user/LandingPage'
 import LoginPage from '../pages/user/LoginPage'
 import SignupPage from '../pages/user/SignupPage'
-import Problems from '../pages/user/Problems'
+import ProblemsList from '../pages/user/ProblemsList'
 import ProblemSolvingPage from '../pages/user/ProblemSolvingPage'
 
 import { useAppSelector } from './hooks'
@@ -42,7 +42,7 @@ export default function Router() {
             <Route path="/auth/github/callback" element={<GitHubCallback />} />
 
 
-            <Route path="/problems" element={<UserProtected><Problems /></UserProtected>} />
+            <Route path="/problems" element={<UserProtected><ProblemsList /></UserProtected>} />
             <Route path="/problem/:slug" element={<UserProtected><ProblemSolvingPage /></UserProtected>} />
 
             <Route path="/profile" element={<UserProtected><UserProfilePage /></UserProtected>} />
