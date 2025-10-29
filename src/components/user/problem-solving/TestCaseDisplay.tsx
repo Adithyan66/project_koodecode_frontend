@@ -13,46 +13,72 @@ const TestCaseDisplay: React.FC<TestCaseDisplayProps> = ({ activeTestCase, setAc
 
     
     return (
-        <div className="space-y-4">
-            <div className="flex space-x-2">
+        <div className="space-y-6">
+            <div className="flex flex-wrap gap-2">
                 {sampleTestCases.map((testCase, index) => {
                     const status = getTestCaseStatus(testCase.id);
+                    const isActive = activeTestCase === index + 1;
                     return (
                         <button
                             key={index}
                             onClick={() => setActiveTestCase(index + 1)}
-                            className={`px-3 py-1 text-sm rounded transition-colors flex items-center space-x-2 ${activeTestCase === index + 1
-                                ? status === 'passed' ? 'bg-green-700 text-white border border-green-500'
-                                    : status === 'failed' ? 'bg-red-700 text-white border border-red-500'
-                                        : 'bg-gray-700 text-white'
-                                : status === 'passed' ? 'bg-green-900 text-green-300 hover:bg-green-800 border border-green-600'
-                                    : status === 'failed' ? 'bg-red-900 text-red-300 hover:bg-red-800 border border-red-600'
-                                        : 'bg-gray-600 text-gray-300 hover:bg-gray-700'
-                                }`}
+                            className={`relative px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 flex items-center space-x-2 group ${
+                                isActive
+                                    ? status === 'passed' 
+                                        ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg shadow-green-500/30 scale-105'
+                                        : status === 'failed' 
+                                            ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-500/30 scale-105'
+                                            : 'bg-gray-700 text-white shadow-lg shadow-gray-600/20 scale-105'
+                                    : status === 'passed' 
+                                        ? 'bg-green-900/30 text-green-300 hover:bg-green-800/40 border border-green-600/50 hover:border-green-500'
+                                        : status === 'failed' 
+                                            ? 'bg-red-900/30 text-red-300 hover:bg-red-800/40 border border-red-600/50 hover:border-red-500'
+                                            : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700 border border-gray-600/30 hover:border-gray-500'
+                            }`}
                         >
                             <span>Case {index + 1}</span>
-                            {status === 'passed' && <Check size={12} className="text-green-400" />}
-                            {status === 'failed' && <X size={12} className="text-red-400" />}
+                            {status === 'passed' && (
+                                <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center">
+                                    <Check size={14} className="text-green-400" />
+                                </div>
+                            )}
+                            {status === 'failed' && (
+                                <div className="w-5 h-5 rounded-full bg-red-500/20 flex items-center justify-center">
+                                    <X size={14} className="text-red-400" />
+                                </div>
+                            )}
+                            {isActive && (
+                                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-1 bg-white/80 rounded-full" />
+                            )}
                         </button>
                     );
                 })}
             </div>
             {sampleTestCases[activeTestCase - 1] && (
-                <div className="space-y-4">
+                <div className="space-y-5">
                     {Object.entries(sampleTestCases[activeTestCase - 1].inputs).map(([key, value]) => (
-                        <div key={key}>
-                            <label className="block text-sm text-gray-400 mb-2 font-medium">{key} =</label>
-                            <div className="bg-gray-900 p-3 rounded border text-green-400 font-mono text-sm">
-                                {typeof value === 'string' ? value : JSON.stringify(value)}
+                        <div key={key} className="group">
+                            <label className="block text-xs uppercase tracking-wider text-gray-500 mb-2 font-semibold">
+                                {key}
+                            </label>
+                            <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-4 rounded-lg border border-gray-700/50 shadow-inner group-hover:border-gray-600/70 transition-colors">
+                                <pre className="text-emerald-400 font-mono text-sm leading-relaxed whitespace-pre-wrap break-words">
+                                    {typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
+                                </pre>
                             </div>
                         </div>
                     ))}
-                    <div>
-                        <label className="block text-sm text-gray-400 mb-2 font-medium">Expected Output =</label>
-                        <div className="bg-gray-900 p-3 rounded border text-green-400 font-mono text-sm">
-                            {typeof sampleTestCases[activeTestCase - 1].expectedOutput === 'string'
-                                ? sampleTestCases[activeTestCase - 1].expectedOutput
-                                : JSON.stringify(sampleTestCases[activeTestCase - 1].expectedOutput)}
+                    <div className="group">
+                        <label className="block text-xs uppercase tracking-wider text-gray-500 mb-2 font-semibold flex items-center space-x-2">
+                            <span>Expected Output</span>
+                            <div className="flex-1 h-px bg-gradient-to-r from-gray-600 to-transparent" />
+                        </label>
+                        <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-4 rounded-lg border border-blue-500/30 shadow-inner group-hover:border-blue-500/50 transition-colors">
+                            <pre className="text-blue-400 font-mono text-sm leading-relaxed whitespace-pre-wrap break-words">
+                                {typeof sampleTestCases[activeTestCase - 1].expectedOutput === 'string'
+                                    ? sampleTestCases[activeTestCase - 1].expectedOutput
+                                    : JSON.stringify(sampleTestCases[activeTestCase - 1].expectedOutput, null, 2)}
+                            </pre>
                         </div>
                     </div>
                 </div>
