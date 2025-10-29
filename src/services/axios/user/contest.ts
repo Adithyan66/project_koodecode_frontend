@@ -25,13 +25,21 @@ class ContestService {
     }
   }
 
-  async fetchPastContests() {
+  async fetchPastContests(params?: { page?: number; limit?: number; search?: string }) {
     try {
-      const response = await httpClient.get('/user/contests/state/past');
-      return response.data.data || [];
+      const response = await httpClient.get('/user/contests/state/past', { params });
+      return (
+        response.data.data || {
+          contests: [],
+          total: 0,
+          page: params?.page || 1,
+          limit: params?.limit || 10,
+          totalPages: 1,
+        }
+      );
     } catch (error) {
       console.error('Error fetching past contests:', error);
-      return [];
+      return { contests: [], total: 0, page: 1, limit: params?.limit || 10, totalPages: 1 };
     }
   }
 

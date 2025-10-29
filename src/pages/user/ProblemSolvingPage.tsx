@@ -12,6 +12,7 @@ import EditorControls from '../../components/user/problem-solving/EditorControls
 import CodeEditorSection from '../../components/user/problem-solving/CodeEditorSection';
 import BottomPanel from '../../components/user/problem-solving/BottomPanel';
 import type { Constraint } from '../../types/problem';
+import Navbar from '../../components/user/Navbar';
 
 const STORAGE_KEYS = {
     LEFT_WIDTH: 'problemSolving_leftWidth',
@@ -179,7 +180,7 @@ const ProblemSolvingPage: React.FC = () => {
 
     return (
         <div className="h-screen bg-gray-900 text-white flex flex-col">
-            {/* <Navbar /> */}
+            <Navbar />
             <div ref={containerRef} className="flex flex-1 overflow-hidden relative p-1 ">
                 <div 
                     className="bg-black rounded-lg overflow-hidden flex flex-col"
