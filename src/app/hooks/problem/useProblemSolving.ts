@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import type { ProblemData, SampleTestCase, RunCodeResponse, SubmissionResponse, TestCaseResult } from '../../../types/problem';
+import type { ProblemData, SampleTestCase, RunCodeResponse, SubmissionResponse } from '../../../types/problem';
 import { fetchProblemDetail, runCodeApi, submitCodeApi } from '../../../services/axios/auth/problem';
 
 const languageMap: Record<number, { value: string; label: string }> = {
