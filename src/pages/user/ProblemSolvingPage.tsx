@@ -173,7 +173,7 @@ const ProblemSolvingPage: React.FC = () => {
 
     return (
         <div className="h-screen bg-gray-900 text-white flex flex-col">
-            <Navbar />
+            {/* <Navbar /> */}
             <div ref={containerRef} className="flex flex-1 overflow-hidden relative p-1 ">
                 <div 
                     className="bg-black rounded-lg overflow-hidden flex flex-col"
