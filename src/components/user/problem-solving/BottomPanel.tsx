@@ -34,28 +34,34 @@ const BottomPanel: React.FC<BottomPanelProps> = ({
     runCodeResults,
     submissionResults,
 }) => (
-    <div className="h-64 bg-black border-t border-gray-700 flex flex-col">
-        <div className="flex justify-between items-center border-b border-gray-700 px-4 py-2">
-            <div className="flex space-x-2">
+    <div className="h-full bg-gradient-to-b from-gray-900 to-black flex flex-col">
+        <div className="flex justify-between items-center bg-gray-800/50 backdrop-blur-sm px-6 py-3 border-b border-gray-700/50">
+            <div className="flex space-x-1">
                 <button
                     onClick={() => setActiveTab('testcase')}
-                    className={`px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'testcase'
-                        ? 'text-white border-b-2 border-green-500 bg-gray-700'
-                        : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                    className={`relative px-5 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg ${activeTab === 'testcase'
+                        ? 'text-white bg-gray-700 shadow-lg shadow-green-500/20'
+                        : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
                         }`}
                 >
+                    {activeTab === 'testcase' && (
+                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-gradient-to-r from-transparent via-green-500 to-transparent rounded-full" />
+                    )}
                     Testcase
                 </button>
                 <button
                     onClick={() => setActiveTab('result')}
-                    className={`px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'result'
-                        ? 'text-white border-b-2 border-green-500 bg-gray-700'
-                        : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                    className={`relative px-5 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg ${activeTab === 'result'
+                        ? 'text-white bg-gray-700 shadow-lg shadow-green-500/20'
+                        : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
                         }`}
                 >
-                    Test Result
+                    {activeTab === 'result' && (
+                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-gradient-to-r from-transparent via-green-500 to-transparent rounded-full" />
+                    )}
+                    <span>Test Result</span>
                     {(runCodeResults || submissionResults) && (
-                        <span className="ml-2 w-2 h-2 bg-green-500 rounded-full inline-block"></span>
+                        <span className="ml-2 w-1.5 h-1.5 bg-green-400 rounded-full inline-block animate-pulse shadow-lg shadow-green-400/50"></span>
                     )}
                 </button>
             </div>
@@ -63,21 +69,21 @@ const BottomPanel: React.FC<BottomPanelProps> = ({
                 <button
                     onClick={runCode}
                     disabled={isRunning || isSubmitting}
-                    className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded text-sm font-medium transition-colors"
+                    className="group flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-lg hover:shadow-gray-600/30 active:scale-95"
                 >
-                    <Play size={16} />
+                    <Play size={16} className={`${isRunning ? 'animate-pulse' : 'group-hover:scale-110 transition-transform'}`} />
                     <span>{isRunning ? 'Running...' : 'Run'}</span>
                 </button>
                 <button
                     onClick={submitCode}
                     disabled={isRunning || isSubmitting}
-                    className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded text-sm font-medium transition-colors"
+                    className="group flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-lg hover:shadow-green-600/40 active:scale-95"
                 >
-                    <span>{isSubmitting ? 'Submitting...' : 'Submit'}</span>
+                    <span className="font-semibold">{isSubmitting ? 'Submitting...' : 'Submit'}</span>
                 </button>
             </div>
         </div>
-        <div className="flex-1 p-4 overflow-y-auto no-scrollbar">
+        <div className="flex-1 p-6 overflow-y-auto no-scrollbar">
             {activeTab === 'testcase' && (
                 <TestCaseDisplay
                     activeTestCase={activeTestCase}
@@ -89,19 +95,35 @@ const BottomPanel: React.FC<BottomPanelProps> = ({
             {activeTab === 'result' && (
                 <div className="space-y-4">
                     {isRunning || isSubmitting ? (
-                        <div className="flex items-center space-x-2 text-yellow-500">
-                            <div className="animate-spin w-4 h-4 border-2 border-yellow-500 border-t-transparent rounded-full"></div>
-                            <span className="text-sm">
-                                {isRunning ? 'Running tests...' : 'Submitting solution...'}
-                            </span>
+                        <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                            <div className="relative">
+                                <div className="animate-spin w-12 h-12 border-4 border-yellow-500/30 border-t-yellow-500 rounded-full"></div>
+                                <div className="absolute inset-0 animate-ping w-12 h-12 border-4 border-yellow-500/20 rounded-full"></div>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-yellow-400 font-medium">
+                                    {isRunning ? 'Running tests...' : 'Submitting solution...'}
+                                </p>
+                                <p className="text-gray-500 text-sm mt-1">
+                                    {isRunning ? 'Testing your code against sample cases' : 'Evaluating against all test cases'}
+                                </p>
+                            </div>
                         </div>
                     ) : submissionResults ? (
                         <SubmissionResultDisplay result={submissionResults} />
                     ) : runCodeResults ? (
                         <RunCodeResultDisplay result={runCodeResults} />
                     ) : (
-                        <div className="text-gray-400 text-sm">
-                            No test results yet. Click "Run" to test with sample cases or "Submit" for full evaluation.
+                        <div className="flex flex-col items-center justify-center py-16 space-y-4">
+                            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center">
+                                <Play size={28} className="text-gray-600" />
+                            </div>
+                            <div className="text-center">
+                                <p className="text-gray-400 font-medium">No test results yet</p>
+                                <p className="text-gray-600 text-sm mt-2 max-w-md">
+                                    Click <span className="text-gray-400 font-semibold">"Run"</span> to test with sample cases or <span className="text-green-400 font-semibold">"Submit"</span> for full evaluation.
+                                </p>
+                            </div>
                         </div>
                     )}
                 </div>
