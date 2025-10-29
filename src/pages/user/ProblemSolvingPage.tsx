@@ -3,12 +3,11 @@
 
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import Navbar from '../../components/user/Navbar';
 import { useProblemSolving } from '../../app/hooks/problem/useProblemSolving';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorDisplay from '../../components/common/ErrorDisplay';
 import ProblemHeader from '../../components/user/problem-solving/ProblemHeader';
-import DescriptionSection from '../../components/user/problem-solving/DescriptionSection';
+import DescriptionSectionWithTabs from '../../components/user/problem-solving/DescriptionSectionWithTabs';
 import EditorControls from '../../components/user/problem-solving/EditorControls';
 import CodeEditorSection from '../../components/user/problem-solving/CodeEditorSection';
 import BottomPanel from '../../components/user/problem-solving/BottomPanel';
@@ -71,6 +70,7 @@ const ProblemSolvingPage: React.FC = () => {
 
     const [isResizingVertical, setIsResizingVertical] = useState(false);
     const [isResizingHorizontal, setIsResizingHorizontal] = useState(false);
+    const [activeDescriptionTab, setActiveDescriptionTab] = useState<'description' | 'submissions'>('description');
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -80,6 +80,12 @@ const ProblemSolvingPage: React.FC = () => {
     useEffect(() => {
         localStorage.setItem(STORAGE_KEYS.EDITOR_HEIGHT, editorHeight.toString());
     }, [editorHeight]);
+
+    useEffect(() => {
+        if (submissionResults && !isSubmitting) {
+            setActiveDescriptionTab('submissions');
+        }
+    }, [submissionResults, isSubmitting]);
 
     const handleVerticalMouseDown = useCallback(() => {
         setIsResizingVertical(true);
@@ -179,17 +185,24 @@ const ProblemSolvingPage: React.FC = () => {
                     className="bg-black rounded-lg overflow-hidden flex flex-col"
                     style={{ width: `${leftWidth}%` }}
                 >
-                    <div className="overflow-y-auto no-scrollbar flex-1 p-6">
-                        <ProblemHeader problemData={problemData} acceptanceRate={acceptanceRate} />
-                        <h1 className="text-2xl font-bold mb-2 text-white mb-6 mt-10">
-                            {problemData.problemNumber}. {problemData.title}
-                        </h1>
-                        <DescriptionSection
-                            problemData={problemData}
-                            formattedConstraints={formattedConstraints}
-                            showHints={showHints}
-                            setShowHints={setShowHints}
-                        />
+                    <div className="flex flex-col overflow-hidden">
+                        <div className="p-6 pb-4">
+                            <ProblemHeader problemData={problemData} acceptanceRate={acceptanceRate} />
+                            <h1 className="text-2xl font-bold mb-2 text-white mb-6 mt-10">
+                                {problemData.problemNumber}. {problemData.title}
+                            </h1>
+                        </div>
+                        <div className="flex-1 overflow-hidden px-6 pb-6">
+                            <DescriptionSectionWithTabs
+                                problemData={problemData}
+                                formattedConstraints={formattedConstraints}
+                                showHints={showHints}
+                                setShowHints={setShowHints}
+                                activeDescriptionTab={activeDescriptionTab}
+                                setActiveDescriptionTab={setActiveDescriptionTab}
+                                latestSubmission={submissionResults}
+                            />
+                        </div>
                     </div>
                 </div>
 
@@ -247,7 +260,6 @@ const ProblemSolvingPage: React.FC = () => {
                             runCode={runCode}
                             submitCode={submitCode}
                             runCodeResults={runCodeResults}
-                            submissionResults={submissionResults}
                         />
                     </div>
                 </div>

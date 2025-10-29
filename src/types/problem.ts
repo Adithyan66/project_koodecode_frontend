@@ -23,22 +23,48 @@ export interface RunCodeResponse {
     failedTestCases: number;
 }
 
+export interface RuntimeDistributionData {
+    runtime: number;
+    percentage: number;
+}
+
+export interface MemoryDistributionData {
+    memory: number;
+    percentage: number;
+}
+
+export interface RuntimeDistribution {
+    data: RuntimeDistributionData[];
+    userRuntime: number;
+    beats: number;
+}
+
+export interface MemoryDistribution {
+    data: MemoryDistributionData[];
+    userMemory: number;
+    beats: number;
+}
+
 export interface SubmissionResponse {
     id: string;
     language: {
         id: number;
         name: string;
     };
+    maxMemoryUsage: number;
     overallVerdict: string;
     problemId: string;
     score: number;
     status: string;
     submittedAt: string;
-    testCaseResults: TestCaseResult[];
+    testCaseResults?: TestCaseResult[];
     testCasesPassed: number;
     totalExecutionTime: number;
     totalTestCases: number;
     userId: string;
+    code?: string;
+    runtimeDistribution?: RuntimeDistribution;
+    memoryDistribution?: MemoryDistribution;
 }
 
 export interface Parameter {
@@ -76,6 +102,7 @@ export interface SampleTestCase {
 }
 
 export interface ProblemData {
+    isSolved: any;
     problemNumber: number;
     title: string;
     slug: string;
