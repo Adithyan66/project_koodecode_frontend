@@ -2,7 +2,7 @@
 
 import { HelpCircle, LogOut, Settings, User, LogIn, UserPlus } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import Logo from "../../assets/images/Screenshot from 2025-08-02 10-50-58 1.svg"
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
@@ -14,11 +14,19 @@ const Navbar: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const modalRef = useRef<HTMLDivElement>(null);
     const userIconRef = useRef<HTMLButtonElement>(null);
+    const location = useLocation();
 
     const profilePicUrl = useAppSelector(state => state.user.user?.profilePicUrl);
     const user = useAppSelector(state => state.user.user);
 
     const dispatch = useAppDispatch()
+
+    const isActive = (path: string) => {
+        if (path === '/') {
+            return location.pathname === '/';
+        }
+        return location.pathname.startsWith(path);
+    };
 
     // Close modal when clicking outside
     useEffect(() => {
@@ -43,16 +51,52 @@ const Navbar: React.FC = () => {
     };
 
     return (
-        <nav className="flex items-center justify-between px-6 bg-black relative">
+        <nav className="flex items-center justify-between px-6 py-2 bg-black relative h-14">
             <div className="flex items-center space-x-2">
-                <img src={Logo} alt="Logo" />
+                <img src={Logo} alt="Logo" className="h-8" />
             </div>
 
             <div className="hidden md:flex items-center space-x-8">
-                <Link to="/" className="text-gray-300 hover:text-white transition-colors">Explore</Link>
-                <Link to="/problems" className="text-gray-300 hover:text-white transition-colors">Problems</Link>
-                <Link to="/contests" className="text-gray-300 hover:text-white transition-colors">Contest</Link>
-                <Link to="/store" className="text-gray-300 hover:text-white transition-colors">Store</Link>
+                <Link 
+                    to="/" 
+                    className={`transition-colors ${
+                        isActive('/') 
+                            ? 'text-white font-semibold' 
+                            : 'text-gray-300 hover:text-white'
+                    }`}
+                >
+                    Explore
+                </Link>
+                <Link 
+                    to="/problems" 
+                    className={`transition-colors ${
+                        isActive('/problems') 
+                            ? 'text-white font-semibold' 
+                            : 'text-gray-300 hover:text-white'
+                    }`}
+                >
+                    Problems
+                </Link>
+                <Link 
+                    to="/contests" 
+                    className={`transition-colors ${
+                        isActive('/contests') 
+                            ? 'text-white font-semibold' 
+                            : 'text-gray-300 hover:text-white'
+                    }`}
+                >
+                    Contest
+                </Link>
+                <Link 
+                    to="/store" 
+                    className={`transition-colors ${
+                        isActive('/store') 
+                            ? 'text-white font-semibold' 
+                            : 'text-gray-300 hover:text-white'
+                    }`}
+                >
+                    Store
+                </Link>
             </div>
 
             <div className="relative">
@@ -65,10 +109,10 @@ const Navbar: React.FC = () => {
                         <img
                             src={profilePicUrl}
                             alt="profile"
-                            className="w-12 h-12 rounded-full object-cover bg-white p-0.5"
+                            className="w-8 h-8 rounded-full object-cover bg-white p-0.5"
                         />
                     ) : (
-                        <User size={45} className='p-2' />
+                        <User size={32} className='p-1.5' />
                     )}
                 </button>
 

@@ -1,6 +1,6 @@
 
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import ContestService from '../../../services/axios/user/contest';
 import { Contest } from '../../../types/contest';
 import { useDebounce } from '../../../utils/debounce';
@@ -13,6 +13,11 @@ export const useContests = () => {
   const [activeContest, setActiveContest] = useState<typeof Contest[]>([]);
   const [upcomingContests, setUpcomingContests] = useState([]);
   const [pastContests, setPastContests] = useState([]);
+  const [pastTotal, setPastTotal] = useState(0);
+  const [pastPage, setPastPage] = useState(1);
+  const [pastLimit, setPastLimit] = useState(5);
+  const [pastTotalPages, setPastTotalPages] = useState(1);
+  const [pastSearch, setPastSearch] = useState('');
   const [filteredUpcoming, setFilteredUpcoming] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loadingActive, setLoadingActive] = useState(true);
@@ -35,11 +40,15 @@ export const useContests = () => {
     setLoadingUpcoming(false);
   };
 
-  const fetchPastContests = async () => {
+  const fetchPastContests = async (page = pastPage, limit = pastLimit, search = pastSearch) => {
     if (loadingPast) return;
     setLoadingPast(true);
-    const data = await ContestService.fetchPastContests();
-    setPastContests(data.contests);
+    const data = await ContestService.fetchPastContests({ page, limit, search });
+    setPastContests(data.contests || []);
+    setPastTotal(data.total || 0);
+    setPastPage(data.page || page);
+    setPastLimit(data.limit || limit);
+    setPastTotalPages(data.totalPages || Math.max(1, Math.ceil((data.total || 0) / (data.limit || limit))));
     setLoadingPast(false);
   };
 
@@ -75,9 +84,14 @@ export const useContests = () => {
   useEffect(() => {
     fetchActiveContest();
     fetchUpcomingContests();
-    fetchPastContests();
+    fetchPastContests(1, pastLimit, '');
     // fetchUserStats();
   }, []);
+
+  useEffect(() => {
+    fetchPastContests(pastPage, pastLimit, pastSearch);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pastPage, pastLimit, pastSearch]);
 
   // useEffect(() => {
   //   filterContests(searchTerm);
@@ -88,13 +102,19 @@ export const useContests = () => {
     upcomingContests,
     pastContests,
     filteredUpcoming,
-    searchTerm,
-    setSearchTerm,
     loadingActive,
     loadingUpcoming,
     loadingPast,
     userStats,
     handleRegisterForContest,
     fetchPastContests,
+    pastPage,
+    setPastPage,
+    pastTotal,
+    pastTotalPages,
+    pastLimit,
+    setPastLimit,
+    pastSearch,
+    setPastSearch,
   };
 };
