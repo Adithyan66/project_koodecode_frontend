@@ -32,9 +32,11 @@ const getGridCols = (rewardsLength, isContestNotStarted) => {
   }
 };
 
-const CoinRewards = ({ contest }) => {
+const CoinRewards = ({ contest, compact = false }) => {
   const isContestNotStarted =
     contest.state === ContestState.UPCOMING || contest.state === ContestState.REGISTRATION_OPEN;
+  const rewardsLength = contest.coinRewards?.length || 0;
+  const isCompact = compact || rewardsLength > 3; // allow forcing compact visuals
 
   return (
     <div>
@@ -42,27 +44,30 @@ const CoinRewards = ({ contest }) => {
         <i className="fas fa-trophy w-6 h-6 text-yellow-500" />
         Coin Rewards & Positions
       </h3>
-      <div className={`grid ${getGridCols(contest.coinRewards.length, isContestNotStarted)} gap-3`}>
+      <div
+        className={`grid ${isCompact ? '' : getGridCols(rewardsLength, isContestNotStarted)} ${isCompact ? 'gap-2' : 'gap-3'}`}
+        style={isCompact ? { gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))' } : undefined}
+      >
         {contest.coinRewards.map((reward) => (
           <div
             key={reward.rank}
-            className={`${isContestNotStarted ? 'p-6' : 'p-4'} rounded-lg border-2 text-center ${getRewardCardColor(
+            className={`${isContestNotStarted ? (isCompact ? 'p-2' : 'p-6') : (isCompact ? 'p-2' : 'p-4')} rounded-lg ${isCompact ? 'border' : 'border-2'} text-center ${getRewardCardColor(
               reward.rank
             )}`}
           >
-            <div className={`${isContestNotStarted ? 'text-5xl' : 'text-3xl'} mb-2`}>
+            <div className={`${isContestNotStarted ? (isCompact ? 'text-2xl' : 'text-5xl') : (isCompact ? 'text-xl' : 'text-3xl')} mb-1`}>
               {getRewardIcon(reward.rank)}
             </div>
-            <div className={`${isContestNotStarted ? 'text-lg' : 'text-sm'} text-gray-600 mb-1`}>
+            <div className={`${isContestNotStarted ? (isCompact ? 'text-xs' : 'text-lg') : (isCompact ? 'text-[11px]' : 'text-sm')} text-gray-600 mb-0.5`}>
               Rank {reward.rank}
             </div>
             <div
-              className={`${isContestNotStarted ? 'text-xl' : 'text-lg'} font-bold text-blue-600 flex items-center justify-center gap-1`}
+              className={`${isContestNotStarted ? (isCompact ? 'text-base' : 'text-xl') : (isCompact ? 'text-sm' : 'text-lg')} font-bold text-blue-600 flex items-center justify-center gap-1`}
             >
-              <i className={`fas fa-star ${isContestNotStarted ? 'w-5 h-5' : 'w-4 h-4'} fill-current`} />
+              <i className={`fas fa-star ${isContestNotStarted ? (isCompact ? 'w-3.5 h-3.5' : 'w-5 h-5') : (isCompact ? 'w-3 h-3' : 'w-4 h-4')} fill-current`} />
               {reward.coins}
             </div>
-            <div className={`${isContestNotStarted ? 'text-sm' : 'text-xs'} text-gray-500 mt-1`}>coins</div>
+            <div className={`${isContestNotStarted ? (isCompact ? 'text-[10px]' : 'text-sm') : (isCompact ? 'text-[10px]' : 'text-xs')} text-gray-500 mt-0.5`}>coins</div>
           </div>
         ))}
       </div>

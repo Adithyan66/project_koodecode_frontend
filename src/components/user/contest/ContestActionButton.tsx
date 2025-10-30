@@ -6,6 +6,22 @@ import { ContestState } from '../../../types/contest-info';
 import { formatDate } from '../../../utils/format';
 
 const ContestActionButton = ({ contest, isRegistering, handleRegister, handleEnterContest }) => {
+  if (contest.isUserRegistered && contest.canContinue === false) {
+    return (
+      <div className="w-full bg-green-900/30 border border-green-700/50 text-green-300 py-3 px-6 rounded-lg font-semibold text-center">
+        <i className="fas fa-check-circle mr-2" /> Contest Completed
+      </div>
+    );
+  }
+
+  // Show completed state if participation is completed
+  if (contest.isParticipantCompleted) {
+    return (
+      <div className="w-full bg-green-900/30 border border-green-700/50 text-green-300 py-3 px-6 rounded-lg font-semibold text-center">
+        <i className="fas fa-check-circle mr-2" /> Completed
+      </div>
+    );
+  }
   if (contest.userSubmission) {
     const { status, testCasesPassed, totalTestCases, submittedAt } = contest.userSubmission;
     return (
@@ -75,6 +91,31 @@ const ContestActionButton = ({ contest, isRegistering, handleRegister, handleEnt
   }
 
   const now = new Date();
+  const timeAllowsEnter = contest.isUserRegistered && now >= new Date(contest.startTime) && !(contest.state === ContestState.ENDED || contest.state === ContestState.RESULTS_PUBLISHED);
+
+  // Prefer server-provided flags when available, but allow time-based optimistic enter
+  if (contest.canEnter || timeAllowsEnter) {
+    return (
+      <button
+        onClick={handleEnterContest}
+        className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
+      >
+        Enter Contest
+      </button>
+    );
+  }
+
+  if (contest.canRegister) {
+    return (
+      <button
+        onClick={handleRegister}
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
+      >
+        Register for Contest
+      </button>
+    );
+  }
+
   switch (contest.state) {
     case ContestState.REGISTRATION_OPEN:
       const registrationDeadlinePassed = now > contest.registrationDeadline;
@@ -127,7 +168,7 @@ const ContestActionButton = ({ contest, isRegistering, handleRegister, handleEnt
       );
 
     case ContestState.UPCOMING:
-      const registrationOpen = now >= contest.registrationDeadline;
+      const registrationOpen = now <= contest.registrationDeadline;
       if (registrationOpen && !contest.isUserRegistered) {
         return (
           <button

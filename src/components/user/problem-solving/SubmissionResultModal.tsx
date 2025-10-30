@@ -1,7 +1,9 @@
 
-import React from 'react';
-import { CheckCircle, X } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { X } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
 import type { ContestSubmissionData } from '../../../types/contest-problems';
+import SubmissionDetailedView from './SubmissionDetailedView';
 
 interface SubmissionModalProps {
     isOpen: boolean;
@@ -12,162 +14,89 @@ interface SubmissionModalProps {
 const SubmissionResultModal: React.FC<SubmissionModalProps> = ({ isOpen, onClose, submissionData }) => {
     if (!isOpen) return null;
 
-    const { result, attemptNumber, penaltyApplied, totalScore, message } = submissionData;
-    const isAccepted = result.overallVerdict === 'Accepted';
-    const remainingAttempts = message.match(/(\d+)\s+attempt\(s\)\s+remaining/)?.[1] || '0';
+    const navigate = useNavigate();
+    const { contestNumber } = useParams();
+    const { result, isCorrect, attemptNumber, penaltyApplied, totalScore, message, canContinue, rank, timeTaken } = submissionData as any;
+    const isAccepted = isCorrect === true || result?.overallVerdict === 'Accepted';
+    const remainingAttempts = useMemo(() => {
+        const match = String(message || '').match(/(\d+)\s+attempt\(s\)\s+remaining/);
+        return match ? match[1] : '0';
+    }, [message]);
+
+    const handleClose = () => {
+        onClose?.();
+        // Navigate only when cannot continue
+        if (!canContinue) {
+            if (contestNumber) {
+                navigate(`/contest/${contestNumber}`, { replace: true });
+            } else {
+                navigate('/', { replace: true });
+            }
+        }
+    };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-900 rounded-lg border border-gray-700 w-full max-w-4xl max-h-[90vh] overflow-hidden">
-                <div className={`p-6 border-b border-gray-700 ${isAccepted ? 'bg-gradient-to-r from-green-900 to-green-800' : 'bg-gradient-to-r from-red-900 to-red-800'}`}>
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                            {isAccepted ? (
-                                <CheckCircle size={32} className="text-green-400" />
-                            ) : (
-                                <X size={32} className="text-red-400" />
-                            )}
-                            <div>
-                                <h2 className="text-2xl font-bold text-white">{result.overallVerdict}</h2>
-                                <p className="text-gray-300">Submission #{result.id.slice(-8)}</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={onClose}
-                            className="text-gray-400 hover:text-white transition-colors p-2"
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-3">
+            {/* Success confetti overlay */}
+            {isAccepted && (
+                <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                    {Array.from({ length: 140 }).map((_, i) => (
+                        <span
+                            key={i}
+                            className={`absolute ${i % 3 === 0 ? 'text-2xl' : 'w-1.5 h-3 bg-yellow-400'} opacity-90 animate-[fall_1800ms_linear_infinite]`}
+                            style={{
+                                left: `${(i * 7) % 100}%`,
+                                top: `-${Math.random() * 120}px`,
+                                transform: `rotate(${Math.random() * 360}deg)`
+                            }}
                         >
-                            <X size={24} />
-                        </button>
-                    </div>
+                            {i % 3 === 0 ? (i % 2 === 0 ? '🎉' : '🏆') : ''}
+                        </span>
+                    ))}
+                    <style>
+                        {`@keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); } 100% { transform: translateY(110vh) rotate(360deg); } }`}
+                    </style>
                 </div>
-                <div className="overflow-y-auto max-h-[70vh] p-6 space-y-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-gray-800 p-4 rounded-lg text-center">
-                            <div className="text-2xl font-bold text-white mb-1">{result.testCasesPassed}/{result.totalTestCases}</div>
-                            <div className="text-sm text-gray-400">Test Cases</div>
-                        </div>
-                        <div className="bg-gray-800 p-4 rounded-lg text-center">
-                            <div className="text-2xl font-bold text-white mb-1">{result.score}</div>
-                            <div className="text-sm text-gray-400">Score</div>
-                        </div>
-                        <div className="bg-gray-800 p-4 rounded-lg text-center">
-                            <div className="text-2xl font-bold text-white mb-1">{attemptNumber}</div>
-                            <div className="text-sm text-gray-400">Attempt</div>
-                        </div>
-                        <div className="bg-gray-800 p-4 rounded-lg text-center">
-                            <div className={`text-2xl font-bold mb-1 ${totalScore >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                {totalScore >= 0 ? '+' : ''}{totalScore}
-                            </div>
-                            <div className="text-sm text-gray-400">Total Score</div>
-                        </div>
-                    </div>
-                    <div className="bg-gray-800 p-4 rounded-lg">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                            <div>
-                                <span className="text-gray-400">Language:</span>
-                                <div className="text-white font-medium capitalize">{result.language.name}</div>
-                            </div>
-                            <div>
-                                <span className="text-gray-400">Penalty Applied:</span>
-                                <div className="text-red-400 font-medium">-{penaltyApplied}</div>
-                            </div>
-                            <div>
-                                <span className="text-gray-400">Attempts Remaining:</span>
-                                <div className="text-yellow-400 font-medium">{remainingAttempts}</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-gray-800 p-4 rounded-lg">
-                        <h3 className="text-lg font-semibold text-white mb-3">Performance</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <span className="text-gray-400">Execution Time:</span>
-                                <div className="text-white font-medium">{result.totalExecutionTime}ms</div>
-                            </div>
-                            <div>
-                                <span className="text-gray-400">Memory Usage:</span>
-                                <div className="text-white font-medium">{Math.max(...result.testCaseResults.map(r => r.memoryUsage || 0))}KB</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className={`p-4 rounded-lg border-l-4 ${isAccepted ? 'bg-green-900 bg-opacity-30 border-green-500' : 'bg-red-900 bg-opacity-30 border-red-500'}`}>
-                        <p className={`font-medium ${isAccepted ? 'text-green-300' : 'text-red-300'}`}>{message}</p>
-                    </div>
-                    {!isAccepted && result.testCaseResults.some(tc => tc.status === 'error' || tc.status === 'failed') && (
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-semibold text-white">Failed Test Cases</h3>
-                            <div className="space-y-3">
-                                {result.testCaseResults
-                                    .filter(tc => tc.status === 'error' || tc.status === 'failed')
-                                    .slice(0, 3)
-                                    .map((testCase, index) => (
-                                        <div key={testCase.testCaseId} className="bg-gray-800 border border-red-500 border-opacity-30 p-4 rounded-lg">
-                                            <div className="flex items-center justify-between mb-3">
-                                                <div className="flex items-center space-x-2">
-                                                    <X size={16} className="text-red-500" />
-                                                    <span className="text-sm text-red-400 font-medium">Test Case {index + 1} Failed</span>
-                                                </div>
-                                                <div className="flex space-x-4 text-xs text-gray-400">
-                                                    <span>{testCase.executionTime}ms</span>
-                                                    <span>{testCase.memoryUsage}KB</span>
-                                                </div>
-                                            </div>
-                                            <div className="text-xs space-y-2 font-mono">
-                                                <div>
-                                                    <span className="text-gray-300">Input:</span>
-                                                    <div className="bg-gray-900 p-2 mt-1 rounded text-gray-300">{testCase.input}</div>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-300">Expected:</span>
-                                                    <div className="bg-gray-900 p-2 mt-1 rounded text-green-400">{testCase.expectedOutput}</div>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-300">Your Output:</span>
-                                                    <div className="bg-gray-900 p-2 mt-1 rounded text-red-400">{testCase.actualOutput || 'No output'}</div>
-                                                </div>
-                                                {testCase.errorMessage && (
-                                                    <div>
-                                                        <span className="text-red-400">Error:</span>
-                                                        <div className="bg-red-900 bg-opacity-20 p-2 mt-1 rounded text-red-300">{testCase.errorMessage}</div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
-                                {result.testCaseResults.filter(tc => tc.status === 'error' || tc.status === 'failed').length > 3 && (
-                                    <div className="text-center text-gray-400 text-sm">
-                                        ... and {result.testCaseResults.filter(tc => tc.status === 'error' || tc.status === 'failed').length - 3} more failed test cases
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                    {isAccepted && (
-                        <div className="bg-green-900 bg-opacity-30 border border-green-500 p-6 rounded-lg text-center">
-                            <div className="text-green-400 text-lg font-semibold mb-2">🎉 Congratulations!</div>
-                            <p className="text-green-300">Your solution passed all test cases successfully!</p>
-                        </div>
-                    )}
+            )}
+            <div className="bg-gray-900/90 backdrop-blur rounded-xl border border-gray-700 w-full max-w-4xl max-h-[88vh] overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 bg-gray-800/40">
+                    <h2 className="text-white font-semibold">Submission Details</h2>
+                    <button onClick={handleClose} className="text-gray-400 hover:text-white transition-colors p-2">
+                        <X size={20} />
+                    </button>
                 </div>
-                <div className="border-t border-gray-700 p-6 bg-gray-800">
-                    <div className="flex justify-between items-center">
-                        <div className="text-sm text-gray-400">Submitted: {new Date(result.submittedAt).toLocaleString()}</div>
-                        <div className="flex space-x-3">
-                            <button
-                                onClick={onClose}
-                                className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
-                            >
-                                Close
-                            </button>
-                            {!isAccepted && parseInt(remainingAttempts) > 0 && (
-                                <button
-                                    onClick={onClose}
-                                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
-                                >
-                                    Try Again
-                                </button>
-                            )}
+                <div className="p-4 overflow-y-auto no-scrollbar" style={{ maxHeight: '75vh' }}>
+                    <div className="grid grid-cols-2 md:grid-cols-6 gap-2 mb-3 text-xs">
+                        <div className="bg-gray-800/60 rounded-lg p-3 text-center">
+                            <div className="text-gray-400">Verdict</div>
+                            <div className={`font-bold ${isAccepted ? 'text-green-400' : 'text-red-400'}`}>{result.overallVerdict}</div>
                         </div>
+                        <div className="bg-gray-800/60 rounded-lg p-3 text-center">
+                            <div className="text-gray-400">Rank</div>
+                            <div className="font-bold text-yellow-400">{rank ?? '-'}</div>
+                        </div>
+                        <div className="bg-gray-800/60 rounded-lg p-3 text-center">
+                            <div className="text-gray-400">Attempts</div>
+                            <div className="font-bold text-white">{attemptNumber}</div>
+                        </div>
+                        <div className="bg-gray-800/60 rounded-lg p-3 text-center">
+                            <div className="text-gray-400">Penalty</div>
+                            <div className="font-bold text-red-400">{penaltyApplied}</div>
+                        </div>
+                        <div className="bg-gray-800/60 rounded-lg p-3 text-center">
+                            <div className="text-gray-400">Total Score</div>
+                            <div className={`font-bold ${totalScore >= 0 ? 'text-green-400' : 'text-red-400'}`}>{totalScore}</div>
+                        </div>
+                        <div className="bg-gray-800/60 rounded-lg p-3 text-center">
+                            <div className="text-gray-400">Time Taken</div>
+                            <div className="font-bold text-white">{typeof timeTaken === 'number' ? timeTaken.toFixed(3) : timeTaken}s</div>
+                        </div>
+                    </div>
+
+                    <SubmissionDetailedView submission={result} onBack={handleClose} />
+
+                    <div className={`mt-3 p-3 rounded-lg border ${isAccepted ? 'border-green-600 bg-green-900/20 text-green-300' : 'border-red-600 bg-red-900/20 text-red-300'}`}>
+                        {message}
                     </div>
                 </div>
             </div>

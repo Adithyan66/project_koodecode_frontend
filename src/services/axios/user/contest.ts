@@ -46,7 +46,10 @@ class ContestService {
   async fetchLeaderboard(contestNumber) {
     try {
       const response = await httpClient.get(`/user/contests/${contestNumber}/leaderboard`);
-      return response.data.leaderboard || null;
+      const payload = response.data;
+      // Support both { data: { leaderboard } } and { leaderboard }
+      const leaderboard = payload?.data?.leaderboard ?? payload?.leaderboard ?? null;
+      return leaderboard;
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
       return null;

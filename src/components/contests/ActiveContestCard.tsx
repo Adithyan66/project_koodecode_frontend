@@ -95,7 +95,7 @@ const ActiveContestCard = ({ contest }: any) => {
         </div>
 
         <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-2.5 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-green-900/50 group-hover:shadow-green-500/40">
-          <span>Join Contest</span>
+          <span>Show Contest</span>
           <span className="transform group-hover:translate-x-1 transition-transform">→</span>
         </button>
       </div>

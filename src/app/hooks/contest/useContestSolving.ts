@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import type { ProblemData, SampleTestCase, RunCodeResponse, SubmissionResponse, ContestSubmissionData } from '../../../types/contest-problems';
 import { fetchContestProblemDetail, runCodeApi, submitContestCodeApi } from '../../../services/axios/user/contest-problem';
+import { useAppSelector } from '../../hooks';
 
 const languageMap: Record<number, { value: string; label: string }> = {
     50: { value: 'c', label: 'C' },
@@ -46,6 +47,7 @@ export const useContestSolving = () => {
     const editorRef = useRef<any>(null);
     const { contestNumber } = useParams();
     const navigate = useNavigate();
+    const userId = useAppSelector(store=>store.user.user?.id)
 
     const getFunctionSeparator = (language: string): string => {
         switch (language) {
@@ -129,16 +131,63 @@ export const useContestSolving = () => {
         }
     };
 
-    const submitCode = async () => {
+    // const submitCode = async (autoSubmit?: boolean) => {
+    //     if (!problemData || !contestNumber) return;
+    //     setIsSubmitting(true);
+    //     setSubmissionResults(null);
+    //     setContestSubmissionData(null);
+    //     try {
+    //         const results = await submitContestCodeApi(contestNumber, code, getLanguageId(selectedLanguage), autoSubmit === true);
+    //         setSubmissionResults(results.result);
+    //         setContestSubmissionData(results);
+
+    //             setShowSubmissionModal(true);
+
+    //         if (results.result.overallVerdict === 'Accepted') {
+    //             toast.success(`✅ Accepted! ${results.result.testCasesPassed}/${results.result.totalTestCases} test cases passed`);
+    //         } else {
+    //             toast.error(`❌ ${results.result.overallVerdict} - ${results.result.testCasesPassed}/${results.result.totalTestCases} test cases passed`);
+    //         }
+    //         setActiveTab('result');
+    //     } catch (err) {
+    //         // Error already toasted in API
+    //     } finally {
+    //         setIsSubmitting(false);
+    //     }
+    // };
+
+    const submitCode = async (autoSubmit = false) => {
         if (!problemData || !contestNumber) return;
         setIsSubmitting(true);
         setSubmissionResults(null);
         setContestSubmissionData(null);
+        
+        if (autoSubmit) {
+            const payload = JSON.stringify({
+                contestNumber,
+                sourceCode:code,
+                languageId: getLanguageId(selectedLanguage),
+                autoSubmit: true,
+                userId
+            });
+            const blob = new Blob([payload], { type: 'application/json' });
+            navigator.sendBeacon('http://localhost:3000/api/user/contests/auto-submit-solution', blob);
+            return;
+        }
+        
+
+        
         try {
-            const results = await submitContestCodeApi(contestNumber, code, getLanguageId(selectedLanguage));
+            const results = await submitContestCodeApi(
+                contestNumber,
+                code,
+                getLanguageId(selectedLanguage),
+                false 
+            );
             setSubmissionResults(results.result);
             setContestSubmissionData(results);
             setShowSubmissionModal(true);
+
             if (results.result.overallVerdict === 'Accepted') {
                 toast.success(`✅ Accepted! ${results.result.testCasesPassed}/${results.result.totalTestCases} test cases passed`);
             } else {
@@ -236,6 +285,7 @@ export const useContestSolving = () => {
         handleLanguageChange,
         runCode,
         submitCode,
+        // expose to allow autoSubmit flag
         resetCode,
         getTestCaseStatus,
         handleTimeUp,

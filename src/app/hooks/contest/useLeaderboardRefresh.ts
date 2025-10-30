@@ -1,7 +1,5 @@
-// src/app/hooks/contest/useLeaderboardRefresh.ts
 import { useState, useEffect } from 'react';
 import ContestService from '../../../services/axios/user/contest';
-import { ContestLeaderboard } from '../../../types/contest';
 import { ContestState } from '../../../types/contest-info';
 
 export const useLeaderboardRefresh = (contest) => {

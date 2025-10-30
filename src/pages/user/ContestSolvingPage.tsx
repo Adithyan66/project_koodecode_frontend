@@ -1,7 +1,7 @@
 
 
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/user/Navbar';
 import Timer from '../../components/common/Timer';
 import { useContestSolving } from '../../app/hooks/contest/useContestSolving';
@@ -11,6 +11,7 @@ import DescriptionSection from '../../components/user/problem-solving/Descriptio
 import EditorControls from '../../components/user/problem-solving/EditorControls';
 import CodeEditorSection from '../../components/user/problem-solving/CodeEditorSection';
 import BottomPanel from '../../components/user/problem-solving/BottomPanel';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import SubmissionResultModal from '../../components/user/problem-solving/SubmissionResultModal';
 import type { Constraint } from '../../types/problem';
 
@@ -23,7 +24,6 @@ const ContestSolvingPage: React.FC = () => {
         loading,
         error,
         runCodeResults,
-        submissionResults,
         contestSubmissionData,
         activeTab,
         setActiveTab,
@@ -37,7 +37,6 @@ const ContestSolvingPage: React.FC = () => {
         remainingSeconds,
         showSubmissionModal,
         setShowSubmissionModal,
-        editorRef,
         handleEditorDidMount,
         handleLanguageChange,
         runCode,
@@ -47,6 +46,44 @@ const ContestSolvingPage: React.FC = () => {
         handleTimeUp,
         selectedLanguage,
     } = useContestSolving();
+    const { contestNumber } = useParams();
+    const navigate = useNavigate();
+
+    const [showAutoSubmitModal, setShowAutoSubmitModal] = useState(false);
+
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'hidden') {
+                submitCode(true);
+                setShowAutoSubmitModal(true);
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [submitCode, code, problemData, contestNumber, selectedLanguage]);
+
+
+
+    // Entry guard: only allow if navigated via Enter button
+    const location = useLocation();
+
+    useEffect(() => {
+        const fromEnter = (location.state as any)?.fromEnter === true;
+        let sessionAllowed = false;
+        try {
+            sessionAllowed = window.sessionStorage.getItem(`contest:${contestNumber}:entered`) === '1';
+        } catch { }
+        if (!fromEnter && !sessionAllowed) {
+            // Replace history to prevent back navigation into this page
+            if (contestNumber) {
+                navigate(`/contest/${contestNumber}`, { replace: true });
+            } else {
+                navigate('/', { replace: true });
+            }
+        }
+    }, [location.state, contestNumber, navigate]);
 
     if (loading) return <LoadingSpinner />;
     if (error) return <ErrorDisplay message={error} />;
@@ -88,43 +125,46 @@ const ContestSolvingPage: React.FC = () => {
                             Q, {problemData.title}
                         </h1>
                         <DescriptionSection
-                            problemData={problemData}
+                            problemData={problemData as any}
                             formattedConstraints={formattedConstraints}
                             showHints={showHints}
                             setShowHints={setShowHints}
                         />
                     </div>
                 </div>
-                <div className="w-1/2 flex flex-col">
-                    <EditorControls
-                        selectedLanguage={selectedLanguage}
-                        languages={languages}
-                        handleLanguageChange={handleLanguageChange}
-                        resetCode={resetCode}
-                        timer={remainingSeconds !== null ? (
-                            <Timer remainingTimeSeconds={remainingSeconds} onTimeUp={handleTimeUp} />
-                        ) : undefined}
-                    />
-                    <CodeEditorSection
-                        selectedLanguage={selectedLanguage}
-                        code={code}
-                        setCode={setCode}
-                        handleEditorDidMount={handleEditorDidMount}
-                    />
-                    <BottomPanel
-                        activeTab={activeTab}
-                        setActiveTab={setActiveTab}
-                        activeTestCase={activeTestCase}
-                        setActiveTestCase={setActiveTestCase}
-                        sampleTestCases={sampleTestCases}
-                        getTestCaseStatus={getTestCaseStatus}
-                        isRunning={isRunning}
-                        isSubmitting={isSubmitting}
-                        runCode={runCode}
-                        submitCode={submitCode}
-                        runCodeResults={runCodeResults}
-                        submissionResults={submissionResults}
-                    />
+                <div className="w-1/2 flex flex-col min-h-0">
+                    <div className="bg-black rounded-lg overflow-hidden flex flex-col flex-1 min-h-0">
+                        <EditorControls
+                            selectedLanguage={selectedLanguage}
+                            languages={languages}
+                            handleLanguageChange={handleLanguageChange}
+                            resetCode={resetCode}
+                            timer={remainingSeconds !== null ? (
+                                <Timer remainingTimeSeconds={remainingSeconds} onTimeUp={handleTimeUp} />
+                            ) : undefined}
+                        />
+                        <CodeEditorSection
+                            selectedLanguage={selectedLanguage}
+                            code={code}
+                            setCode={setCode}
+                            handleEditorDidMount={handleEditorDidMount}
+                        />
+                    </div>
+                    <div className="bg-black rounded-lg overflow-hidden flex-none" style={{ height: '38%' }}>
+                        <BottomPanel
+                            activeTab={activeTab}
+                            setActiveTab={setActiveTab}
+                            activeTestCase={activeTestCase}
+                            setActiveTestCase={setActiveTestCase}
+                            sampleTestCases={sampleTestCases}
+                            getTestCaseStatus={getTestCaseStatus}
+                            isRunning={isRunning}
+                            isSubmitting={isSubmitting}
+                            runCode={runCode}
+                            submitCode={submitCode}
+                            runCodeResults={runCodeResults}
+                        />
+                    </div>
                 </div>
             </div>
             {contestSubmissionData && (
@@ -133,6 +173,31 @@ const ContestSolvingPage: React.FC = () => {
                     onClose={() => setShowSubmissionModal(false)}
                     submissionData={contestSubmissionData}
                 />
+            )}
+
+            {showAutoSubmitModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/60" />
+                    <div className="relative bg-gray-900/95 backdrop-blur rounded-xl border border-gray-700 w-full max-w-md p-5">
+                        <h3 className="text-white text-lg font-semibold mb-2">Code auto-submitted</h3>
+                        <p className="text-gray-300 text-sm mb-4">
+                            Your code was auto-submitted because the contest tab was hidden (tab change/minimize/close).
+                        </p>
+                        <button
+                            className="w-full px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white"
+                            onClick={() => {
+                                setShowAutoSubmitModal(false);
+                                if (contestNumber) {
+                                    navigate(`/contest/${contestNumber}`, { replace: true });
+                                } else {
+                                    navigate('/', { replace: true });
+                                }
+                            }}
+                        >
+                            Go to Contest Info
+                        </button>
+                    </div>
+                </div>
             )}
         </div>
     );
