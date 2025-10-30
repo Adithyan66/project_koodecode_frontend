@@ -2,11 +2,12 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ContestService from '../../../services/axios/user/contest-info';
-import { ContestData } from '../../../types/contest-info';
+import { mapContestResponseToDTO } from '../../../utils/mappers/contestMapper';
+import type { ContestDTO } from '../../../types/contest.dto';
 
 export const useContestInfo = () => {
   const { contestNumber } = useParams();
-  const [contest, setContest] = useState(null);
+  const [contest, setContest] = useState<ContestDTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRegistering, setIsRegistering] = useState(false);
   const [error, setError] = useState(null);
@@ -16,8 +17,11 @@ export const useContestInfo = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await ContestService.fetchContestData(contestNumber);
-      setContest(data);
+      const resp = await ContestService.fetchContestData(contestNumber);
+      // Expecting resp.data.contest per provided API example
+      const apiContest = (resp?.data?.contest) ?? resp?.contest ?? resp;
+      const mapped = mapContestResponseToDTO(apiContest);
+      setContest(mapped);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -32,7 +36,12 @@ export const useContestInfo = () => {
       setError(null);
       const success = await ContestService.registerForContest(contest.id);
       if (success) {
-        setContest((prev) => (prev ? { ...prev, isUserRegistered: true } : null));
+        // setContest((prev) => (prev ? { ...prev, isUserRegistered: true, canRegister: false, canEnter: prev.state === 'active' } : null));
+        const resp = await ContestService.fetchContestData(contestNumber);
+        // Expecting resp.data.contest per provided API example
+        const apiContest = (resp?.data?.contest) ?? resp?.contest ?? resp;
+        const mapped = mapContestResponseToDTO(apiContest);
+        setContest(mapped);
       }
     } catch (error) {
       setError('Failed to register for contest');
@@ -47,5 +56,5 @@ export const useContestInfo = () => {
     }
   }, [contestNumber]);
 
-  return { contest, isLoading, isRegistering, error, handleRegister };
+  return { contest, isLoading, isRegistering, error, handleRegister, refetchContest: fetchContestData };
 };

@@ -70,13 +70,6 @@ const ContestHeader = ({ contest }) => {
         <div className="absolute inset-0  flex items-end">
           <div className="p-6 text-white">
             <div className="flex items-center gap-3 mb-2">
-              <span className="text-sm bg-black bg-opacity-20 px-2 py-1 rounded">
-                Contest #{contest.contestNumber}
-              </span>
-              <span className={`text-xs px-2 py-1 rounded border flex items-center gap-1 ${getStateColor(contest.state)}`}>
-                {getStateIcon(contest.state)}
-                {contest.state.replace('_', ' ').toUpperCase()}
-              </span>
             </div>
             <h1 className="text-3xl font-bold mb-2">{contest.title}</h1>
           </div>

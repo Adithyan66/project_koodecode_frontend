@@ -14,7 +14,7 @@ interface BottomPanelProps {
     isRunning: boolean;
     isSubmitting: boolean;
     runCode: () => void;
-    submitCode: () => void;
+    submitCode: (autoSubmit: boolean) => void;
     runCodeResults: RunCodeResponse | null;
 }
 
@@ -72,7 +72,7 @@ const BottomPanel: React.FC<BottomPanelProps> = ({
                     <span>{isRunning ? 'Running...' : 'Run'}</span>
                 </button>
                 <button
-                    onClick={submitCode}
+                    onClick={() => submitCode(false)}
                     disabled={isRunning || isSubmitting}
                     className="group flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-lg hover:shadow-green-600/40 active:scale-95"
                 >
@@ -89,47 +89,47 @@ const BottomPanel: React.FC<BottomPanelProps> = ({
                     getTestCaseStatus={getTestCaseStatus}
                 />
             )}
-                    {activeTab === 'result' && (
-                        <div className="space-y-4">
-                            {isRunning ? (
-                                <div className="flex flex-col items-center justify-center py-12 space-y-4">
-                                    <div className="relative">
-                                        <div className="animate-spin w-12 h-12 border-4 border-yellow-500/30 border-t-yellow-500 rounded-full"></div>
-                                        <div className="absolute inset-0 animate-ping w-12 h-12 border-4 border-yellow-500/20 rounded-full"></div>
-                                    </div>
-                                    <div className="text-center">
-                                        <p className="text-yellow-400 font-medium">Running tests...</p>
-                                        <p className="text-gray-500 text-sm mt-1">Testing your code against sample cases</p>
-                                    </div>
-                                </div>
-                            ) : isSubmitting ? (
-                                <div className="flex flex-col items-center justify-center py-12 space-y-4">
-                                    <div className="relative">
-                                        <div className="animate-spin w-12 h-12 border-4 border-green-500/30 border-t-green-500 rounded-full"></div>
-                                        <div className="absolute inset-0 animate-ping w-12 h-12 border-4 border-green-500/20 rounded-full"></div>
-                                    </div>
-                                    <div className="text-center">
-                                        <p className="text-green-400 font-medium">Submitting solution...</p>
-                                        <p className="text-gray-500 text-sm mt-1">Evaluating against all test cases</p>
-                                    </div>
-                                </div>
-                            ) : runCodeResults ? (
-                                <RunCodeResultDisplay result={runCodeResults} />
-                            ) : (
-                                <div className="flex flex-col items-center justify-center py-16 space-y-4">
-                                    <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center">
-                                        <Play size={28} className="text-gray-600" />
-                                    </div>
-                                    <div className="text-center">
-                                        <p className="text-gray-400 font-medium">No test results yet</p>
-                                        <p className="text-gray-600 text-sm mt-2 max-w-md">
-                                            Click <span className="text-gray-400 font-semibold">"Run"</span> to test with sample cases.
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
+            {activeTab === 'result' && (
+                <div className="space-y-4">
+                    {isRunning ? (
+                        <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                            <div className="relative">
+                                <div className="animate-spin w-12 h-12 border-4 border-yellow-500/30 border-t-yellow-500 rounded-full"></div>
+                                <div className="absolute inset-0 animate-ping w-12 h-12 border-4 border-yellow-500/20 rounded-full"></div>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-yellow-400 font-medium">Running tests...</p>
+                                <p className="text-gray-500 text-sm mt-1">Testing your code against sample cases</p>
+                            </div>
+                        </div>
+                    ) : isSubmitting ? (
+                        <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                            <div className="relative">
+                                <div className="animate-spin w-12 h-12 border-4 border-green-500/30 border-t-green-500 rounded-full"></div>
+                                <div className="absolute inset-0 animate-ping w-12 h-12 border-4 border-green-500/20 rounded-full"></div>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-green-400 font-medium">Submitting solution...</p>
+                                <p className="text-gray-500 text-sm mt-1">Evaluating against all test cases</p>
+                            </div>
+                        </div>
+                    ) : runCodeResults ? (
+                        <RunCodeResultDisplay result={runCodeResults} />
+                    ) : (
+                        <div className="flex flex-col items-center justify-center py-16 space-y-4">
+                            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center">
+                                <Play size={28} className="text-gray-600" />
+                            </div>
+                            <div className="text-center">
+                                <p className="text-gray-400 font-medium">No test results yet</p>
+                                <p className="text-gray-600 text-sm mt-2 max-w-md">
+                                    Click <span className="text-gray-400 font-semibold">"Run"</span> to test with sample cases.
+                                </p>
+                            </div>
                         </div>
                     )}
+                </div>
+            )}
         </div>
     </div>
 );

@@ -66,12 +66,13 @@ export const submitCodeApi = async (problemId: string, sourceCode: string, langu
     }
 };
 
-export const submitContestCodeApi = async (contestNumber: string, sourceCode: string, languageId: number | undefined): Promise<ContestSubmissionData> => {
+export const submitContestCodeApi = async (contestNumber: string, sourceCode: string, languageId: number | undefined, autoSubmit?: boolean): Promise<ContestSubmissionData> => {
     try {
         const response = await httpClient.post(`user/contests/submit-solution`, {
             contestNumber,
             sourceCode,
-            languageId
+            languageId,
+            ...(autoSubmit ? { autoSubmit: true } : {})
         });
         if (!response.data.success) {
             throw new Error('Contest submission failed');
