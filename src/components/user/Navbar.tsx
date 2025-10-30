@@ -7,10 +7,10 @@ import { Link, useLocation } from 'react-router-dom';
 import Logo from "../../assets/images/Screenshot from 2025-08-02 10-50-58 1.svg"
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 
-import {logoutUser} from "../../features/auth/userThunks"
+import { logoutUser } from "../../features/auth/userThunks"
 
 const Navbar: React.FC = () => {
-    
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const modalRef = useRef<HTMLDivElement>(null);
     const userIconRef = useRef<HTMLButtonElement>(null);
@@ -57,43 +57,39 @@ const Navbar: React.FC = () => {
             </div>
 
             <div className="hidden md:flex items-center space-x-8">
-                <Link 
-                    to="/" 
-                    className={`transition-colors ${
-                        isActive('/') 
-                            ? 'text-white font-semibold' 
+                <Link
+                    to="/"
+                    className={`transition-colors ${isActive('/')
+                            ? 'text-white font-semibold'
                             : 'text-gray-300 hover:text-white'
-                    }`}
+                        }`}
                 >
                     Explore
                 </Link>
-                <Link 
-                    to="/problems" 
-                    className={`transition-colors ${
-                        isActive('/problems') 
-                            ? 'text-white font-semibold' 
+                <Link
+                    to="/problems"
+                    className={`transition-colors ${isActive('/problems')
+                            ? 'text-white font-semibold'
                             : 'text-gray-300 hover:text-white'
-                    }`}
+                        }`}
                 >
                     Problems
                 </Link>
-                <Link 
-                    to="/contests" 
-                    className={`transition-colors ${
-                        isActive('/contests') 
-                            ? 'text-white font-semibold' 
+                <Link
+                    to="/contests"
+                    className={`transition-colors ${isActive('/contests')
+                            ? 'text-white font-semibold'
                             : 'text-gray-300 hover:text-white'
-                    }`}
+                        }`}
                 >
                     Contest
                 </Link>
-                <Link 
-                    to="/store" 
-                    className={`transition-colors ${
-                        isActive('/store') 
-                            ? 'text-white font-semibold' 
+                <Link
+                    to="/store"
+                    className={`transition-colors ${isActive('/store')
+                            ? 'text-white font-semibold'
                             : 'text-gray-300 hover:text-white'
-                    }`}
+                        }`}
                 >
                     Store
                 </Link>
@@ -148,24 +144,24 @@ const Navbar: React.FC = () => {
                                 </div>
 
                                 <div className="py-1">
-                                    <Link 
-                                        to="/profile" 
+                                    <Link
+                                        to="/profile"
                                         className="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
                                         onClick={() => setIsModalOpen(false)}
                                     >
                                         <User size={18} />
                                         <span>Profile</span>
                                     </Link>
-                                    <Link 
-                                        to="/settings" 
+                                    <Link
+                                        to="/settings"
                                         className="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
                                         onClick={() => setIsModalOpen(false)}
                                     >
                                         <Settings size={18} />
                                         <span>Settings</span>
                                     </Link>
-                                    <Link 
-                                        to="/support" 
+                                    <Link
+                                        to="/support"
                                         className="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
                                         onClick={() => setIsModalOpen(false)}
                                     >
@@ -175,7 +171,7 @@ const Navbar: React.FC = () => {
                                 </div>
 
                                 <div className="border-t border-gray-700 pt-1">
-                                    <button 
+                                    <button
                                         className="w-full flex items-center space-x-3 px-4 py-2 text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors"
                                         onClick={() => {
                                             dispatch(logoutUser())
@@ -191,16 +187,16 @@ const Navbar: React.FC = () => {
                             // Guest user modal
                             <>
                                 <div className="py-1">
-                                    <Link 
-                                        to="/login" 
+                                    <Link
+                                        to="/login"
                                         className="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
                                         onClick={() => setIsModalOpen(false)}
                                     >
                                         <LogIn size={18} />
                                         <span>Login</span>
                                     </Link>
-                                    <Link 
-                                        to="/signup" 
+                                    <Link
+                                        to="/signup"
                                         className="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
                                         onClick={() => setIsModalOpen(false)}
                                     >
@@ -210,16 +206,16 @@ const Navbar: React.FC = () => {
                                 </div>
 
                                 <div className="border-t border-gray-700 pt-1">
-                                    <Link 
-                                        to="/settings" 
+                                    <Link
+                                        to="/settings"
                                         className="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
                                         onClick={() => setIsModalOpen(false)}
                                     >
                                         <Settings size={18} />
                                         <span>Settings</span>
                                     </Link>
-                                    <Link 
-                                        to="/support" 
+                                    <Link
+                                        to="/support"
                                         className="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
                                         onClick={() => setIsModalOpen(false)}
                                     >
@@ -237,3 +233,16 @@ const Navbar: React.FC = () => {
 }
 
 export default Navbar
+
+
+
+
+
+
+
+
+
+
+
+
+  

@@ -14,6 +14,7 @@ import BottomPanel from '../../components/user/problem-solving/BottomPanel';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import SubmissionResultModal from '../../components/user/problem-solving/SubmissionResultModal';
 import type { Constraint } from '../../types/problem';
+import Logo from "../../assets/images/Screenshot from 2025-08-02 10-50-58 1.svg"
 
 const ContestSolvingPage: React.FC = () => {
     const {
@@ -117,7 +118,12 @@ const ContestSolvingPage: React.FC = () => {
 
     return (
         <div className="h-screen bg-gray-900 text-white flex flex-col">
-            <Navbar />
+            < nav className="flex items-center justify-between px-6 py-2 bg-black relative h-14" >
+                <div className="flex items-center space-x-2">
+                    <img src={Logo} alt="Logo" className="h-8" />
+                </div>
+
+            </nav >
             <div className="flex flex-1 overflow-hidden">
                 <div className="w-1/2 bg-black border-r border-gray-700 overflow-y-auto no-scrollbar">
                     <div className="p-6">
