@@ -262,43 +262,53 @@ const RoomCreatorControls: React.FC<RoomCreatorControlsProps> = ({ room, onClose
   );
 
   return (
-    <div className="bg-gray-800 border-b border-gray-700 p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-white font-bold">Creator Controls</h2>
-        <button
-          onClick={onClose}
-          className="text-gray-400 hover:text-white transition-colors"
-        >
-          <X size={20} />
-        </button>
-      </div>
-
-      {/* Section Tabs */}
-      <div className="flex space-x-1 mb-4">
-        {[
-          { id: 'participants', label: 'Participants', icon: Users },
-          { id: 'permissions', label: 'Permissions', icon: Shield },
-          { id: 'settings', label: 'Settings', icon: Settings }
-        ].map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            onClick={() => setActiveSection(id as any)}
-            className={`flex items-center space-x-1 px-3 py-2 rounded text-sm transition-colors ${activeSection === id
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-          >
-            <Icon size={14} />
-            <span>{label}</span>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="w-full max-w-lg bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden"
+        style={{
+          aspectRatio: '3 / 5',
+          minHeight: '420px'
+        }}
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
+          <h2 className="text-white font-semibold">Creator Controls</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
+            <X size={18} />
           </button>
-        ))}
-      </div>
+        </div>
 
-      {/* Section Content */}
-      <div className="max-h-64 overflow-y-auto no-scrollbar">
-        {activeSection === 'participants' && renderParticipants()}
-        {activeSection === 'permissions' && renderPermissions()}
-        {activeSection === 'settings' && renderSettings()}
+        <div className="px-5 py-4">
+          <div className="flex space-x-2 mb-4">
+            {[
+              { id: 'participants', label: 'Participants', icon: Users },
+              { id: 'permissions', label: 'Permissions', icon: Shield },
+              { id: 'settings', label: 'Settings', icon: Settings }
+            ].map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setActiveSection(id as any)}
+                className={`flex items-center space-x-2 px-3 py-2 rounded-full text-sm transition-all border ${activeSection === id
+                    ? 'bg-green-600 text-white border-green-500'
+                    : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
+                  }`}
+              >
+                <Icon size={14} />
+                <span>{label}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="max-h-[60vh] overflow-y-auto tiny-scrollbar pr-1">
+            {activeSection === 'participants' && renderParticipants()}
+            {activeSection === 'permissions' && renderPermissions()}
+            {activeSection === 'settings' && renderSettings()}
+          </div>
+        </div>
       </div>
     </div>
   );

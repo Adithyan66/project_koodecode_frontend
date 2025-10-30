@@ -3,7 +3,7 @@
 
 
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate ,useLocation} from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Navbar from '../../components/user/Navbar';
@@ -12,7 +12,7 @@ import RoomCreatorControls from '../../components/user/room/RoomCreatorControls'
 import ProblemDescriptionTab from '../../components/user/room/ProblemDescriptionTab';
 import VideoCallTab from '../../components/user/room/VideoCallTab';
 import WhiteboardTab from '../../components/user/room/WhiteboardTab';
-import EditorControls from '../../components/user/room/EditorControls';
+import EditorControls from '../../components/user/problem-solving/EditorControls';
 import CodeEditorSection from '../../components/user/room/CodeEditorSection';
 import BottomPanel from '../../components/user/problem-solving/BottomPanel';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -22,7 +22,7 @@ import { joinRoomThunk } from '../../features/room/roomThunks';
 import { leaveRoom, setSocketConnected, updateRoomProblem, updateUserPermissions, addParticipant, removeParticipant } from '../../features/room/roomSlice';
 import { roomSocketService } from '../../services/roomSocketService';
 import type { RootState } from '../../app/store';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { useAppDispatch } from '../../app/hooks';
 import ChatComponent from '../../components/user/room/ChatComponent';
 import type { ProblemData, RunCodeResponse, SampleTestCase, SubmissionResponse } from '../../types/problem';
 import { getLanguageId, languageMap } from '../../utils/problem-related';
@@ -63,6 +63,52 @@ const RoomPage: React.FC = () => {
     const [isRunning, setIsRunning] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [languages, setLanguages] = useState<{ value: string; label: string }[]>([]);
+    const selfViewVideoRef = useRef<HTMLVideoElement>(null);
+    const [selfViewStream, setSelfViewStream] = useState<MediaStream | null>(null);
+    const [isCameraOn, setIsCameraOn] = useState(false);
+    const [selfViewPos, setSelfViewPos] = useState<{ x: number; y: number }>(() => {
+        try {
+            const saved = localStorage.getItem('room_self_view_pos');
+            if (saved) return JSON.parse(saved);
+        } catch {}
+        return { x: 16, y: typeof window !== 'undefined' ? (window.innerHeight - 16 - 135) : 400 };
+    });
+    const [isDraggingSelfView, setIsDraggingSelfView] = useState(false);
+    const selfViewDidDragRef = useRef(false);
+
+    // Right pane vertical sizing (reuse approach from ProblemSolvingPage)
+    const rightPaneRef = useRef<HTMLDivElement>(null);
+    const [editorHeightPct, setEditorHeightPct] = useState<number>(60);
+    const [isResizingHorizontal, setIsResizingHorizontal] = useState(false);
+
+    const handleHorizontalMouseDown = useCallback(() => {
+        setIsResizingHorizontal(true);
+    }, []);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!rightPaneRef.current || !isResizingHorizontal) return;
+            const rect = rightPaneRef.current.getBoundingClientRect();
+            const relativeY = e.clientY - rect.top;
+            const newPct = (relativeY / rect.height) * 100;
+            if (newPct >= 20 && newPct <= 80) {
+                setEditorHeightPct(newPct);
+            }
+        };
+        const handleMouseUp = () => setIsResizingHorizontal(false);
+        if (isResizingHorizontal) {
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            document.body.style.cursor = 'row-resize';
+            document.body.style.userSelect = 'none';
+            return () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            };
+        }
+    }, [isResizingHorizontal]);
 
     // Join room on component mount
     useEffect(() => {
@@ -95,6 +141,71 @@ const RoomPage: React.FC = () => {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    useEffect(() => {
+        const ensureStream = async () => {
+            if (isCameraOn) {
+                if (!selfViewStream) {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                        setSelfViewStream(stream);
+                        if (selfViewVideoRef.current) {
+                            selfViewVideoRef.current.srcObject = stream as any;
+                            await selfViewVideoRef.current.play().catch(() => {});
+                        }
+                    } catch {
+                        // Ignore
+                    }
+                }
+            } else {
+                if (selfViewStream) {
+                    selfViewStream.getTracks().forEach(t => t.stop());
+                    setSelfViewStream(null);
+                }
+            }
+        };
+        ensureStream();
+        // no cleanup, we control stop above when flag changes
+    }, [isCameraOn]);
+
+    useEffect(() => {
+        if (selfViewVideoRef.current && selfViewStream) {
+            try {
+                selfViewVideoRef.current.srcObject = selfViewStream as any;
+                const p = selfViewVideoRef.current.play();
+                if (p && typeof p.then === 'function') p.catch(() => {});
+            } catch {}
+        }
+    }, [selfViewStream, activeTab]);
+
+    const onSelfViewPointerDown = (e: React.PointerEvent) => {
+        setIsDraggingSelfView(true);
+        selfViewDidDragRef.current = false;
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const init = { ...selfViewPos };
+        const onMove = (ev: PointerEvent) => {
+            const nx = init.x + (ev.clientX - startX);
+            const ny = init.y + (ev.clientY - startY);
+            setSelfViewPos({ x: nx, y: ny });
+            if (Math.abs(ev.clientX - startX) > 3 || Math.abs(ev.clientY - startY) > 3) {
+                selfViewDidDragRef.current = true;
+            }
+        };
+        const onUp = () => {
+            setIsDraggingSelfView(false);
+            try {
+                localStorage.setItem('room_self_view_pos', JSON.stringify(selfViewPos));
+            } catch {}
+            window.removeEventListener('pointermove', onMove);
+            window.removeEventListener('pointerup', onUp);
+            if (!selfViewDidDragRef.current) {
+                setActiveTab('video');
+            }
+        };
+        window.addEventListener('pointermove', onMove);
+        window.addEventListener('pointerup', onUp);
+    };
 
     // Add this useEffect to handle permission changes
     useEffect(() => {
@@ -303,17 +414,7 @@ const RoomPage: React.FC = () => {
         }
     };
 
-    // const runCode = async () => {
-    //     setIsRunning(true);
-    //     try {
-    //         console.log('Running code...');
-    //         await new Promise(resolve => setTimeout(resolve, 2000));
-    //         setRunCodeResults({ status: 'success', output: 'Mock output' } as any);
-    //         setBottomActiveTab('result');
-    //     } finally {
-    //         setIsRunning(false);
-    //     }
-    // };
+
 
     const runCode = async () => {
         if (!problemData) return;
@@ -405,23 +506,7 @@ const RoomPage: React.FC = () => {
                         </span>
                     )}
                 </div>
-
-                <div className="flex items-center space-x-3">
-                    {isCreator && (
-                        <button
-                            onClick={() => setShowCreatorControls(!showCreatorControls)}
-                            className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm transition-colors"
-                        >
-                            Creator Controls
-                        </button>
-                    )}
-                    <button
-                        onClick={handleLeaveRoom}
-                        className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm transition-colors"
-                    >
-                        Leave Room
-                    </button>
-                </div>
+                <div className="hidden" />
             </div>
 
             <div className="flex flex-1 overflow-hidden">
@@ -432,6 +517,10 @@ const RoomPage: React.FC = () => {
                         setActiveTab={setActiveTab}
                         hasVideo={true}
                         hasWhiteboard={true}
+                        showCreatorButton={isCreator}
+                        creatorControlsOpen={showCreatorControls}
+                        onToggleCreatorControls={() => setShowCreatorControls(!showCreatorControls)}
+                        onLeaveRoom={handleLeaveRoom}
                     />
 
                     {isCreator && showCreatorControls && (
@@ -457,11 +546,12 @@ const RoomPage: React.FC = () => {
                                 roomId={currentRoom.roomId}
                                 jitsiUrl={currentRoom.jitsiUrl}
                                 participants={currentRoom.participants}
-                                username={user?.username}
+                                username={user?.userName}
                                 minimized={isVideoMinimized}
                                 onMinimize={() => setIsVideoMinimized(true)}
                                 onExpand={() => setIsVideoMinimized(false)}
                                 onClose={() => setIsVideoMinimized(false)}
+                                onLocalVideoStatusChange={(on) => setIsCameraOn(on)}
                             />
                         </div>
 
@@ -499,40 +589,49 @@ const RoomPage: React.FC = () => {
                 </div>
 
                 {/* Right Side - Code Editor (Hidden on Mobile) */}
-                <div className="hidden md:flex md:w-1/2 flex-col">
-                    <EditorControls
-                        selectedLanguage={selectedLanguage}
-                        languages={languages}
-                        handleLanguageChange={handleLanguageChange}
-                        resetCode={resetCode}
-                        disabled={!currentRoom.userPermissions?.canEditCode}
-                        isCreator={isCreator}
-                    />
+                <div className="hidden md:flex md:w-1/2 flex-col overflow-hidden" ref={rightPaneRef}>
+                    <div className="bg-black rounded-lg overflow-hidden flex flex-col" style={{ height: `${editorHeightPct}%` }}>
+                        <EditorControls
+                            selectedLanguage={selectedLanguage}
+                            languages={languages}
+                            handleLanguageChange={handleLanguageChange}
+                            resetCode={resetCode}
+                        />
+                        <CodeEditorSection
+                            selectedLanguage={selectedLanguage}
+                            code={code}
+                            setCode={setCode}
+                            handleEditorDidMount={handleEditorDidMount}
+                            readOnly={!currentRoom.userPermissions?.canEditCode}
+                            roomId={currentRoom.roomId}
+                            problemNumber={currentRoom.problem?.problemNumber}
+                        />
+                    </div>
 
-                    <CodeEditorSection
-                        selectedLanguage={selectedLanguage}
-                        code={code}
-                        setCode={setCode}
-                        handleEditorDidMount={handleEditorDidMount}
-                        readOnly={!currentRoom.userPermissions?.canEditCode}
-                        roomId={currentRoom.roomId}
-                        problemNumber={currentRoom.problem.problemNumber}
-                    />
+                    <div
+                        className="relative flex items-center justify-center cursor-row-resize group"
+                        style={{ height: '8px' }}
+                        onMouseDown={handleHorizontalMouseDown}
+                    >
+                        <div className="h-1 w-12 bg-gray-600 rounded-full group-hover:bg-blue-500 transition-colors" />
+                    </div>
 
-                    <BottomPanel
-                        activeTab={bottomActiveTab}
-                        setActiveTab={setBottomActiveTab}
-                        activeTestCase={activeTestCase}
-                        setActiveTestCase={setActiveTestCase}
-                        sampleTestCases={sampleTestCases}
-                        getTestCaseStatus={getTestCaseStatus}
-                        isRunning={isRunning}
-                        isSubmitting={isSubmitting}
-                        runCode={runCode}
-                        submitCode={submitCode}
-                        runCodeResults={runCodeResults}
-                        submissionResults={submissionResults}
-                    />
+                    <div className="bg-black rounded-lg overflow-hidden" style={{ height: `calc(${100 - editorHeightPct}% - 8px)` }}>
+                        <BottomPanel
+                            activeTab={bottomActiveTab}
+                            setActiveTab={setBottomActiveTab}
+                            activeTestCase={activeTestCase}
+                            setActiveTestCase={setActiveTestCase}
+                            sampleTestCases={sampleTestCases}
+                            getTestCaseStatus={getTestCaseStatus}
+                            isRunning={isRunning}
+                            isSubmitting={isSubmitting}
+                            runCode={runCode}
+                            submitCode={submitCode}
+                            runCodeResults={runCodeResults}
+                            submissionResults={submissionResults}
+                        />
+                    </div>
                 </div>
 
                 {/* Mobile Code Editor (Shown Below on Mobile) */}
@@ -542,8 +641,6 @@ const RoomPage: React.FC = () => {
                         languages={languages}
                         handleLanguageChange={handleLanguageChange}
                         resetCode={resetCode}
-                        disabled={!currentRoom.userPermissions?.canEditCode}
-                        isCreator={isCreator}
                     />
 
                     <div className="flex-1 flex flex-col">
@@ -555,7 +652,7 @@ const RoomPage: React.FC = () => {
                                 handleEditorDidMount={handleEditorDidMount}
                                 readOnly={!currentRoom.userPermissions?.canEditCode}
                                 roomId={currentRoom.roomId}
-                                problemNumber={currentRoom.problemNumber}
+                                problemNumber={currentRoom.problem?.problemNumber}
                             />
                         </div>
 
@@ -575,6 +672,25 @@ const RoomPage: React.FC = () => {
                         />
                     </div>
                 </div>
+            {activeTab !== 'video' && isCameraOn && (
+                <div
+                    className="fixed z-40 cursor-move"
+                    style={{ left: `${selfViewPos.x}px`, top: `${selfViewPos.y}px` }}
+                    onPointerDown={onSelfViewPointerDown}
+                >
+                    <video
+                        ref={selfViewVideoRef}
+                        muted
+                        autoPlay
+                        playsInline
+                        onLoadedMetadata={() => {
+                            try { selfViewVideoRef.current?.play().catch(() => {}); } catch {}
+                        }}
+                        style={{ width: '240px', height: '135px', transform: 'scaleX(-1)' }}
+                        className="rounded-xl border-2 border-green-500 shadow-xl bg-black"
+                    />
+                </div>
+            )}
             </div>
         </div>
     );
