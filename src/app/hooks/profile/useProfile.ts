@@ -61,6 +61,30 @@ export const useProfile = () => {
     }));
   };
 
+  const transformLanguages = (languages: any): { name: string; count: number }[] => {
+    if (Array.isArray(languages)) {
+      return languages.map(lang => {
+        if (typeof lang === 'string') {
+          return { name: lang, count: 0 };
+        }
+        if (typeof lang === 'object' && lang !== null) {
+          return {
+            name: lang.name || lang.language || String(lang),
+            count: typeof lang.count === 'number' ? lang.count : 0,
+          };
+        }
+        return { name: String(lang), count: 0 };
+      });
+    }
+    if (typeof languages === 'object' && languages !== null) {
+      return Object.entries(languages).map(([name, count]) => ({
+        name,
+        count: typeof count === 'number' ? count : 0,
+      }));
+    }
+    return [];
+  };
+
   const fetchProfile = async () => {
     try {
       setLoading(true);
@@ -105,7 +129,7 @@ export const useProfile = () => {
             location: data.user?.location || 'Unknown',
             githubUrl: data.user?.githubUrl || '#',
             linkedinUrl: data.user?.linkedinUrl || '#',
-            languages: data.user?.languages || [],
+            languages: transformLanguages(data.user?.languages || data.user?.languagesUsed || data.languagesUsed || []),
           },
           stats: data.stats || {
             easy: { solved: 0, total: 3730 },
