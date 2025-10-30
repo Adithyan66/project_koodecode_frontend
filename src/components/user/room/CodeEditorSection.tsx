@@ -166,7 +166,7 @@ const CodeEditorSection: React.FC<CodeEditorSectionProps> = ({
     };
 
     return (
-        <div className="flex-1">
+        <div className="flex-1 bg-gradient-to-br from-gray-950 to-black overflow-hidden">
             <Editor
                 height="100%"
                 language={selectedLanguage}
@@ -176,16 +176,42 @@ const CodeEditorSection: React.FC<CodeEditorSectionProps> = ({
                 onMount={handleEditorDidMount}
                 options={{
                     minimap: { enabled: false },
-                    fontSize: 14,
-                    lineNumbers: 'off',
-                    roundedSelection: false,
+                    fontSize: 15,
+                    lineHeight: 24,
+                    fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', 'Monaco', monospace",
+                    fontLigatures: true,
+                    lineNumbers: 'on',
+                    lineNumbersMinChars: 3,
+                    renderLineHighlight: 'all',
+                    roundedSelection: true,
                     scrollBeyondLastLine: false,
                     automaticLayout: true,
                     tabSize: 4,
                     insertSpaces: true,
                     wordWrap: 'on',
-                    contextmenu: false,
-                    copyWithSyntaxHighlighting: false,
+                    contextmenu: true,
+                    copyWithSyntaxHighlighting: true,
+                    cursorBlinking: 'smooth',
+                    cursorSmoothCaretAnimation: 'on',
+                    smoothScrolling: true,
+                    folding: true,
+                    foldingHighlight: true,
+                    bracketPairColorization: { enabled: true },
+                    guides: {
+                        bracketPairs: true,
+                        indentation: true,
+                    },
+                    padding: { top: 16, bottom: 16 },
+                    scrollbar: {
+                        vertical: 'auto',
+                        horizontal: 'auto',
+                        verticalScrollbarSize: 10,
+                        horizontalScrollbarSize: 10,
+                    },
+                    suggest: {
+                        showKeywords: true,
+                        showSnippets: true,
+                    },
                     readOnly: readOnly,
                 }}
             />

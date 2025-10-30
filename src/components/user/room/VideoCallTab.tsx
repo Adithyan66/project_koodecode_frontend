@@ -505,6 +505,7 @@ interface VideoCallTabProps {
   onExpand?: () => void;
   onClose?: () => void;
   username?: string;
+  onLocalVideoStatusChange?: (on: boolean) => void;
 }
 
 declare global {
@@ -521,7 +522,8 @@ const VideoCallTab: React.FC<VideoCallTabProps> = ({
   onMinimize,
   onExpand,
   onClose,
-  username = "Adhi"
+  username = "Adhi",
+  onLocalVideoStatusChange
 }) => {
   const jitsiContainerRef = useRef<HTMLDivElement>(null);
   const jitsiApiRef = useRef<any>(null);
@@ -564,7 +566,7 @@ const VideoCallTab: React.FC<VideoCallTabProps> = ({
 
   // Initialize Jitsi only when needed
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: number;
 
     if (isJitsiLoaded && jitsiContainerRef.current && mountedRef.current) {
       // Only initialize if room has changed or no instance exists
@@ -579,7 +581,7 @@ const VideoCallTab: React.FC<VideoCallTabProps> = ({
 
     return () => {
       if (timeoutId) {
-        clearTimeout(timeoutId);
+        window.clearTimeout(timeoutId);
       }
     };
   }, [isJitsiLoaded, roomId]);
@@ -762,6 +764,14 @@ const VideoCallTab: React.FC<VideoCallTabProps> = ({
       console.log('Successfully joined video conference:', event);
       setIsJoined(true);
       injectMinimalCSS();
+      try {
+        const mutedMaybe = jitsiApiRef.current?.isVideoMuted?.();
+        if (typeof mutedMaybe === 'boolean') {
+          onLocalVideoStatusChange && onLocalVideoStatusChange(!mutedMaybe);
+        } else if (mutedMaybe && typeof mutedMaybe.then === 'function') {
+          mutedMaybe.then((m: boolean) => onLocalVideoStatusChange && onLocalVideoStatusChange(!m)).catch(() => {});
+        }
+      } catch {}
     });
 
     jitsiApiRef.current.addEventListener('videoConferenceLeft', (event: any) => {
@@ -772,6 +782,7 @@ const VideoCallTab: React.FC<VideoCallTabProps> = ({
       if (onClose) {
         onClose();
       }
+      try { onLocalVideoStatusChange && onLocalVideoStatusChange(false); } catch {}
     });
 
     jitsiApiRef.current.addEventListener('participantJoined', (event: any) => {
@@ -790,6 +801,7 @@ const VideoCallTab: React.FC<VideoCallTabProps> = ({
 
     jitsiApiRef.current.addEventListener('videoMuteStatusChanged', (event: any) => {
       setIsVideoMuted(event.muted);
+      try { onLocalVideoStatusChange && onLocalVideoStatusChange(!event.muted); } catch {}
     });
 
     jitsiApiRef.current.addEventListener('largeVideoChanged', (event: any) => {
@@ -872,7 +884,7 @@ const VideoCallTab: React.FC<VideoCallTabProps> = ({
   }, []);
 
   return (
-    <div className={`video-call-container ${minimized ? 'minimized' : ''}`}>
+    <div className={`video-call-container ${minimized ? 'minimized' : ''} relative h-full`}>
       {/* Header */}
       <div className="bg-black px-4 py-2 flex items-center justify-between">
         <div className="flex items-center space-x-2">
@@ -919,11 +931,8 @@ const VideoCallTab: React.FC<VideoCallTabProps> = ({
       {/* Jitsi Container */}
       <div
         ref={jitsiContainerRef}
-        className={`jitsi-container bg-black ${minimized ? 'h-48' : 'h-96'}`}
-        style={{
-          height: minimized ? '200px' : '400px',
-          minHeight: minimized ? '200px' : '400px'
-        }}
+        className="absolute inset-0 bg-black"
+        style={{ height: '100%', minHeight: '100%' }}
       />
 
       {/* Quick Controls for Minimized View */}

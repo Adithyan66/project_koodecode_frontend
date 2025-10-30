@@ -2,7 +2,7 @@
 
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Code, User } from 'lucide-react';
+import { Send, Code } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import { useAppSelector } from '../../../app/hooks';
 import { roomSocketService } from '../../../services/roomSocketService';
@@ -28,11 +28,13 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
   const [newMessage, setNewMessage] = useState('');
   const [messageType, setMessageType] = useState<'text' | 'code'>('text');
   const [codeLanguage, setCodeLanguage] = useState('javascript');
+  const [codeInputHeight, setCodeInputHeight] = useState<number>(100);
+  const [codeHeights, setCodeHeights] = useState<Record<string, number>>({});
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const [isSocketConnected, setIsSocketConnected] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<number | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -143,16 +145,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
   const loadInitialMessages = async () => {
     try {
       console.log('Loading initial messages for room:', roomId);
-      // If your roomSocketService has a method to get initial messages
-      if (roomSocketService.getInitialMessages) {
-        const initialMessages = await roomSocketService.getInitialMessages(roomId);
-        setMessages(initialMessages.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        })));
-      }
-      // Alternatively, you can emit an event to request initial messages
-      else if (roomSocketService.chatsocket && isSocketConnected) {
+      if (roomSocketService.chatsocket && isSocketConnected) {
         roomSocketService.chatsocket.emit('request-initial-messages', { roomId });
       }
     } catch (error) {
@@ -194,6 +187,26 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
     roomSocketService.stopTyping();
   };
 
+  const handleCodeEditorMount = (editor: any) => {
+    const updateHeight = () => {
+      const contentHeight = editor.getContentHeight();
+      const clamped = Math.max(80, Math.min(contentHeight + 16, 260));
+      setCodeInputHeight(clamped);
+    };
+    editor.onDidContentSizeChange(updateHeight);
+    updateHeight();
+  };
+
+  const getCodeViewerMount = (messageId: string) => (editor: any) => {
+    const updateHeight = () => {
+      const contentHeight = editor.getContentHeight();
+      const clamped = Math.max(80, Math.min(contentHeight + 12, 320));
+      setCodeHeights(prev => ({ ...prev, [messageId]: clamped }));
+    };
+    editor.onDidContentSizeChange(updateHeight);
+    updateHeight();
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -216,7 +229,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
         clearTimeout(typingTimeoutRef.current);
       }
 
-      typingTimeoutRef.current = setTimeout(() => {
+      typingTimeoutRef.current = window.setTimeout(() => {
         roomSocketService.stopTyping();
       }, 2000);
     } else {
@@ -272,15 +285,18 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
           </div>
         )}
 
-        <div className={`max-w-xs lg:max-w-md ${isOwn ? 'order-1' : 'order-2'}`}>
+        <div className={`${message.type === 'code' ? 'max-w-2xl w-full' : 'max-w-xs lg:max-w-md'} ${isOwn ? 'order-1' : 'order-2'}`}>
           {!isOwn && (
             <div className="text-xs text-gray-400 mb-1 ml-1">{message.username}</div>
           )}
 
           <div
-            className={`px-4 py-3 rounded-lg shadow-sm ${isOwn
-                ? 'bg-green-600 text-white rounded-br-sm'
-                : 'bg-gray-700 text-gray-100 rounded-bl-sm'
+            className={`${message.type === 'code'
+                ? 'p-0 bg-transparent shadow-none'
+                : `px-4 py-3 rounded-lg shadow-sm ${isOwn
+                    ? 'bg-green-600 text-white rounded-br-sm'
+                    : 'bg-gray-700 text-gray-100 rounded-bl-sm'
+                  }`
               }`}
           >
             {message.type === 'code' ? (
@@ -289,25 +305,27 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
                   <Code size={12} className="mr-1" />
                   <span className="font-medium">{message.language}</span>
                 </div>
-                <div className="bg-gray-900 rounded p-3 overflow-hidden">
+                <div className="bg-gray-900/80 rounded-lg p-2.5 overflow-hidden shadow-sm">
                   <Editor
-                    height="120px"
-                    width="400px"
+                    height={`${codeHeights[message.id] ?? 100}px`}
                     language={message.language}
                     value={message.content}
+                    onMount={getCodeViewerMount(message.id)}
                     theme="vs-dark"
                     options={{
                       readOnly: true,
+                      automaticLayout: true,
                       minimap: { enabled: false },
                       scrollBeyondLastLine: false,
-                      wordWrap: 'on',
+                      wordWrap: 'off',
                       fontSize: 12,
                       lineNumbers: 'off',
                       folding: false,
-                      scrollbar: {
-                        vertical: 'hidden',
-                        horizontal: 'hidden'
-                      }
+                      glyphMargin: false,
+                      renderLineHighlight: 'none',
+                      overviewRulerLanes: 0,
+                      scrollbar: { vertical: 'hidden', horizontal: 'auto', horizontalScrollbarSize: 6 },
+                      padding: { top: 6, bottom: 6 }
                     }}
                   />
                 </div>
@@ -326,33 +344,36 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-900">
-      {/* Header with connection status */}
-      <div className="bg-gray-800 px-4 py-3 border-b border-gray-700 flex-shrink-0">
+    <div className="flex flex-col h-full bg-[#0b0d12]">
+      <div className="px-4 py-3 border-b border-gray-800/80 flex-shrink-0 bg-black/40 backdrop-blur-sm">
         <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-white font-medium">Room Chat</h3>
-            <p className="text-gray-400 text-sm mt-1">{messages.length} messages</p>
+          <div className="flex items-center space-x-3">
+            <div className="h-7 w-1 bg-green-500 rounded-full" />
+            <div>
+              <h3 className="text-white font-semibold leading-tight">Room Chat</h3>
+              <p className="text-gray-400 text-xs mt-0.5">{messages.length} messages</p>
+            </div>
           </div>
-          <div className="flex items-center">
-            <div className={`w-2 h-2 rounded-full mr-2 ${isSocketConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-            <span className={`text-xs ${isSocketConnected ? 'text-green-400' : 'text-red-400'}`}>
-              {isSocketConnected ? 'Connected' : 'Disconnected'}
+          <div className="flex items-center px-2.5 py-1 rounded-full text-xs border border-gray-700/70 bg-gray-800/60">
+            <span className={`inline-block w-1.5 h-1.5 rounded-full mr-2 ${isSocketConnected ? 'bg-green-400' : 'bg-red-400'}`} />
+            <span className={`uppercase tracking-wide ${isSocketConnected ? 'text-green-400' : 'text-red-400'}`}>
+              {isSocketConnected ? 'Connected' : 'Offline'}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Messages container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 min-h-0">
+      <div className="flex-1 overflow-y-auto p-4 min-h-0 space-y-3 tiny-scrollbar">
         {messages.length === 0 ? (
-          <div className="text-center text-gray-400 text-sm py-8">
-            <div className="mb-4">💬</div>
-            <div>
-              {isSocketConnected 
-                ? 'No messages yet. Start the conversation!' 
-                : 'Connecting to chat...'
-              }
+          <div className="h-full w-full flex items-center justify-center">
+            <div className="text-center text-gray-400 text-sm py-8">
+              <div className="mb-4 text-2xl">💬</div>
+              <div className="text-gray-300">
+                {isSocketConnected 
+                  ? 'No messages yet. Start the conversation.' 
+                  : 'Connecting to chat...'
+                }
+              </div>
             </div>
           </div>
         ) : (
@@ -360,39 +381,37 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
         )}
 
         {typingUsers.length > 0 && (
-          <div className="flex items-center text-gray-400 text-sm px-4 py-2">
+          <div className="flex items-center text-gray-400 text-xs px-3 py-1.5 bg-gray-800/50 rounded-full w-fit">
             <div className="flex space-x-1 mr-2">
-              <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse"></div>
-              <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-              <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-pulse"></div>
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
             </div>
             {typingUsers.length === 1
               ? `${typingUsers[0]} is typing...`
-              : `${typingUsers.slice(0, 2).join(', ')}${typingUsers.length > 2 ? ` and ${typingUsers.length - 2} others` : ''} are typing...`
-            }
+              : `${typingUsers.slice(0, 2).join(', ')}${typingUsers.length > 2 ? ` and ${typingUsers.length - 2} others` : ''} are typing...`}
           </div>
         )}
 
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input area */}
-      <div className="px-4 py-3 border-t border-gray-700 flex-shrink-0 bg-gray-800">
-        <div className="flex space-x-2 mb-3">
+      <div className="px-4 py-3 border-t border-gray-800/80 flex-shrink-0 bg-black/40 backdrop-blur-sm">
+        <div className="flex items-center gap-2 mb-2">
           <button
             onClick={() => setMessageType('text')}
-            className={`px-3 py-1.5 text-xs rounded-md transition-colors font-medium ${messageType === 'text'
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            className={`px-3 py-1.5 text-xs rounded-full transition-all font-medium border ${messageType === 'text'
+                ? 'bg-green-600 text-white border-green-500'
+                : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
               }`}
           >
             💬 Text
           </button>
           <button
             onClick={() => setMessageType('code')}
-            className={`px-3 py-1.5 text-xs rounded-md transition-colors font-medium ${messageType === 'code'
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            className={`px-3 py-1.5 text-xs rounded-full transition-all font-medium border ${messageType === 'code'
+                ? 'bg-green-600 text-white border-green-500'
+                : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
               }`}
           >
             <Code size={12} className="mr-1 inline" />
@@ -403,7 +422,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
             <select
               value={codeLanguage}
               onChange={(e) => setCodeLanguage(e.target.value)}
-              className="bg-gray-700 text-white text-xs px-2 py-1.5 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="bg-gray-900 text-white text-xs px-2 py-1.5 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 ml-auto"
             >
               <option value="javascript">JavaScript</option>
               <option value="typescript">TypeScript</option>
@@ -417,21 +436,27 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
 
         {messageType === 'code' ? (
           <div className="space-y-3">
-            <div className="border border-gray-600 rounded-lg overflow-hidden">
+            <div className="rounded-xl overflow-hidden bg-gray-900 shadow-sm">
               <Editor
-                height="100px"
+                height={`${codeInputHeight}px`}
                 language={codeLanguage}
                 value={newMessage}
                 onChange={(value) => handleInputChange(value || '')}
-                onKeyDown={handleKeyPress}
+                onMount={handleCodeEditorMount}
                 theme="vs-dark"
                 options={{
+                  automaticLayout: true,
                   minimap: { enabled: false },
                   scrollBeyondLastLine: false,
                   wordWrap: 'on',
                   fontSize: 13,
                   lineNumbers: 'off',
                   folding: false,
+                  glyphMargin: false,
+                  renderLineHighlight: 'none',
+                  overviewRulerLanes: 0,
+                  scrollbar: { vertical: 'hidden', horizontal: 'hidden' },
+                  padding: { top: 8, bottom: 8 }
                 }}
               />
             </div>
@@ -450,27 +475,29 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
             </div>
           </div>
         ) : (
-          <div className="flex space-x-3">
+          <div className="flex items-end gap-3">
             <div className="flex-1 relative">
-              <textarea
-                ref={inputRef}
-                value={newMessage}
-                onChange={(e) => handleInputChange(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder={isSocketConnected ? "Type a message..." : "Connecting..."}
-                disabled={!isSocketConnected}
-                className="w-full bg-gray-700 text-white text-sm px-4 py-3 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none placeholder-gray-400 disabled:opacity-50"
-                rows={1}
-                style={{
-                  minHeight: '44px',
-                  maxHeight: '120px'
-                }}
-              />
+              <div className="flex items-center bg-gray-900 border border-gray-700 rounded-xl focus-within:ring-2 focus-within:ring-green-500">
+                <textarea
+                  ref={inputRef}
+                  value={newMessage}
+                  onChange={(e) => handleInputChange(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder={isSocketConnected ? "Type a message..." : "Connecting..."}
+                  disabled={!isSocketConnected}
+                  className="w-full bg-transparent text-white text-sm px-4 py-3 rounded-xl outline-none resize-none placeholder-gray-400 disabled:opacity-50"
+                  rows={1}
+                  style={{
+                    minHeight: '44px',
+                    maxHeight: '140px'
+                  }}
+                />
+              </div>
             </div>
             <button
               onClick={sendMessage}
               disabled={!newMessage.trim() || !isSocketConnected}
-              className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-3 rounded-lg transition-colors flex-shrink-0"
+              className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-3 rounded-xl transition-colors flex-shrink-0 shadow-sm"
               title="Send message"
             >
               <Send size={16} />

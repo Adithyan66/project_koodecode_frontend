@@ -10,14 +10,10 @@ import {
   Lock,
   Users,
   Code,
-  PenTool,
   Eye,
   EyeOff,
   Loader,
-  AlertCircle,
-  Video,
-  MessageCircle,
-  Edit3
+  AlertCircle
 } from 'lucide-react';
 import httpClient from '../../../../services/axios/httpClient';
 import { ImageUploadService } from '../../../../services/ImageUploadService';
@@ -69,7 +65,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string>('');
-  const [uploadProgress, setUploadProgress] = useState(0);
+  
 
   // Validation states
   const [errors, setErrors] = useState({
@@ -165,9 +161,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
     setIsUploading(true);
     try {
       // const uploadService = new ImageUploadService();
-      const imageUrl = await ImageUploadService.uploadRoomThumbnail(thumbnailFile, (progress) => {
-        setUploadProgress(progress);
-      });
+      const imageUrl = await ImageUploadService.uploadRoomThumbnail(thumbnailFile);
       return imageUrl;
     } catch (error) {
       console.error('Failed to upload thumbnail:', error);
@@ -301,239 +295,45 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
       }}
     >
       <div
-        className="bg-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-700 shadow-2xl no-scrollbar"
+        className="bg-gray-900 rounded-xl w-full max-w-lg border border-gray-700 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-gray-900 border-b border-gray-700 p-6 rounded-t-2xl z-10">
+        <div className="sticky top-0 bg-gray-900 border-b border-gray-700 p-3 rounded-t-xl z-10">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-white mb-2">Create Your Room</h2>
-              <p className="text-gray-400 text-sm">
-                Set up your collaborative coding space with real-time features
-              </p>
+              <h2 className="text-lg font-bold text-white">Create Your Room</h2>
             </div>
             <button
               onClick={handleClose}
               disabled={isSubmitting}
-              className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded-lg disabled:opacity-50"
+              className="text-gray-400 hover:text-white transition-colors p-1.5 hover:bg-gray-800 rounded-md disabled:opacity-50"
             >
-              <X size={24} />
+              <X size={18} />
             </button>
           </div>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-4 space-y-4">
           {/* Error Display */}
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
-              <div className="flex items-center space-x-2 text-red-400">
-                <AlertCircle size={18} />
-                <p className="text-sm font-medium">{error}</p>
+            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+              <div className="flex items-center space-x-2 text-red-400 text-sm">
+                <AlertCircle size={14} />
+                <p className="font-medium">{error}</p>
               </div>
             </div>
           )}
 
-          {/* Room Type Selection */}
-          <div className="space-y-3">
-            <label className="block text-sm font-semibold text-white">Room Type</label>
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => handleInputChange('isInstant', true)}
-                disabled={isSubmitting}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${formData.isInstant
-                    ? 'border-green-500 bg-green-500/10 text-green-400 shadow-lg'
-                    : 'border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500 hover:bg-gray-700'
-                  }`}
-              >
-                <div className="flex flex-col items-center space-y-2">
-                  <Clock size={24} />
-                  <div>
-                    <p className="font-semibold">Instant Room</p>
-                    <p className="text-xs opacity-75">Start coding immediately</p>
-                  </div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleInputChange('isInstant', false)}
-                disabled={isSubmitting}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${!formData.isInstant
-                    ? 'border-blue-500 bg-blue-500/10 text-blue-400 shadow-lg'
-                    : 'border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500 hover:bg-gray-700'
-                  }`}
-              >
-                <div className="flex flex-col items-center space-y-2">
-                  <Calendar size={24} />
-                  <div>
-                    <p className="font-semibold">Scheduled Room</p>
-                    <p className="text-xs opacity-75">Plan for later</p>
-                  </div>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          {/* Scheduled Time Input */}
-          {!formData.isInstant && (
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-white">
-                Scheduled Time *
-              </label>
-              <input
-                type="datetime-local"
-                min={getMinDateTime()}
-                value={scheduledDateTime}
-                onChange={(e) => {
-                  setScheduledDateTime(e.target.value);
-                  if (errors.scheduledTime) {
-                    setErrors(prev => ({ ...prev, scheduledTime: '' }));
-                  }
-                }}
-                disabled={isSubmitting}
-                className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors disabled:opacity-50 ${errors.scheduledTime ? 'border-red-500' : 'border-gray-600'
-                  }`}
-              />
-              {errors.scheduledTime && (
-                <p className="text-red-400 text-xs mt-1 flex items-center space-x-1">
-                  <AlertCircle size={12} />
-                  <span>{errors.scheduledTime}</span>
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Room Name */}
+          {/* Problem Selection (moved to top) */}
           <div className="space-y-2">
-            <label className="block text-sm font-semibold text-white">
-              Room Name *
-            </label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
-              placeholder="Enter an engaging room name..."
-              disabled={isSubmitting}
-              className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors disabled:opacity-50 ${errors.name ? 'border-red-500' : 'border-gray-600'
-                }`}
-            />
-            <div className="flex justify-between items-center">
-              {errors.name && (
-                <p className="text-red-400 text-xs flex items-center space-x-1">
-                  <AlertCircle size={12} />
-                  <span>{errors.name}</span>
-                </p>
-              )}
-              <p className={`text-xs ml-auto ${formData.name.length > 50 ? 'text-red-400' : 'text-gray-500'
-                }`}>
-                {formData.name.length}/50
-              </p>
-            </div>
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-white">
-              Description *
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Describe what you'll be working on, learning goals, or collaboration style..."
-              rows={4}
-              disabled={isSubmitting}
-              className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors resize-none disabled:opacity-50 ${errors.description ? 'border-red-500' : 'border-gray-600'
-                }`}
-            />
-            <div className="flex justify-between items-center">
-              {errors.description && (
-                <p className="text-red-400 text-xs flex items-center space-x-1">
-                  <AlertCircle size={12} />
-                  <span>{errors.description}</span>
-                </p>
-              )}
-              <p className={`text-xs ml-auto ${formData.description.length > 500 ? 'text-red-400' : 'text-gray-500'
-                }`}>
-                {formData.description.length}/500
-              </p>
-            </div>
-          </div>
-
-          {/* Privacy Settings */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-xl border border-gray-700">
-              <div className="flex items-center space-x-3">
-                {formData.isPrivate ? <Lock size={20} className="text-red-400" /> : <Users size={20} className="text-green-400" />}
-                <div>
-                  <p className="text-white font-semibold">
-                    {formData.isPrivate ? 'Private Room' : 'Public Room'}
-                  </p>
-                  <p className="text-gray-400 text-sm">
-                    {formData.isPrivate
-                      ? 'Requires password to join'
-                      : 'Anyone can discover and join'
-                    }
-                  </p>
-                </div>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.isPrivate}
-                  onChange={(e) => handleInputChange('isPrivate', e.target.checked)}
-                  disabled={isSubmitting}
-                  className="sr-only peer"
-                />
-                <div className="w-12 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500 peer-disabled:opacity-50"></div>
-              </label>
-            </div>
-
-            {/* Password Input */}
-            {formData.isPrivate && (
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-white">
-                  Room Password *
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
-                    placeholder="Set a password for your private room..."
-                    disabled={isSubmitting}
-                    className={`w-full px-4 py-3 pr-12 bg-gray-800 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors disabled:opacity-50 ${errors.password ? 'border-red-500' : 'border-gray-600'
-                      }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    disabled={isSubmitting}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors disabled:opacity-50"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-                {errors.password && (
-                  <p className="text-red-400 text-xs mt-1 flex items-center space-x-1">
-                    <AlertCircle size={12} />
-                    <span>{errors.password}</span>
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Problem Selection */}
-          <div className="space-y-3">
-            <label className="block text-sm font-semibold text-white">
+            <label className="block text-xs font-semibold text-white">
               Starter Problem (Optional)
             </label>
             <div className="relative">
               {selectedProblem ? (
-                <div className="p-4 bg-gray-800/50 border border-green-500/30 rounded-xl">
+                <div className="p-3 bg-gray-800/50 border border-green-500/30 rounded-lg">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
@@ -553,7 +353,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
                         disabled={isSubmitting}
                         className="text-gray-400 hover:text-red-400 transition-colors p-1 hover:bg-gray-700 rounded disabled:opacity-50"
                       >
-                        <X size={16} />
+                        <X size={14} />
                       </button>
                     </div>
                   </div>
@@ -563,9 +363,9 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
                   type="button"
                   onClick={() => setShowProblemSelector(!showProblemSelector)}
                   disabled={isSubmitting}
-                  className="w-full p-4 bg-gray-800 border border-gray-600 rounded-xl text-gray-400 hover:text-white hover:border-gray-500 hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50"
+                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-gray-400 hover:text-white hover:border-gray-500 hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50"
                 >
-                  <Code size={20} />
+                  <Code size={16} />
                   <span>Select a problem to work on</span>
                 </button>
               )}
@@ -579,9 +379,190 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
             </div>
           </div>
 
-          {/* Thumbnail Upload */}
+          {/* Room Type Selection */}
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold text-white">Room Type</label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => handleInputChange('isInstant', true)}
+                disabled={isSubmitting}
+                className={`p-3 rounded-lg border transition-all duration-200 ${formData.isInstant
+                    ? 'border-green-500 bg-green-500/10 text-green-400 shadow-lg'
+                    : 'border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500 hover:bg-gray-700'
+                  }`}
+              >
+                <div className="flex flex-col items-center space-y-1.5">
+                  <Clock size={18} />
+                  <div>
+                    <p className="text-sm font-semibold">Instant Room</p>
+                    <p className="text-[10px] opacity-75">Start coding immediately</p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleInputChange('isInstant', false)}
+                disabled={isSubmitting}
+                className={`p-3 rounded-lg border transition-all duration-200 ${!formData.isInstant
+                    ? 'border-blue-500 bg-blue-500/10 text-blue-400 shadow-lg'
+                    : 'border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500 hover:bg-gray-700'
+                  }`}
+              >
+                <div className="flex flex-col items-center space-y-1.5">
+                  <Calendar size={18} />
+                  <div>
+                    <p className="text-sm font-semibold">Scheduled Room</p>
+                    <p className="text-[10px] opacity-75">Plan for later</p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Scheduled Time Input */}
+          {!formData.isInstant && (
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-white">
+                Scheduled Time *
+              </label>
+              <input
+                type="datetime-local"
+                min={getMinDateTime()}
+                value={scheduledDateTime}
+                onChange={(e) => {
+                  setScheduledDateTime(e.target.value);
+                  if (errors.scheduledTime) {
+                    setErrors(prev => ({ ...prev, scheduledTime: '' }));
+                  }
+                }}
+                disabled={isSubmitting}
+                className={`w-full px-3 py-2 bg-gray-800 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors disabled:opacity-50 ${errors.scheduledTime ? 'border-red-500' : 'border-gray-600'
+                  }`}
+              />
+              {errors.scheduledTime && (
+                <p className="text-red-400 text-xs mt-0.5 flex items-center space-x-1">
+                  <AlertCircle size={10} />
+                  <span>{errors.scheduledTime}</span>
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Room Name */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-white">
+              Room Name *
+            </label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              placeholder="Enter an engaging room name..."
+              disabled={isSubmitting}
+              className={`w-full px-3 py-2 bg-gray-800 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors disabled:opacity-50 ${errors.name ? 'border-red-500' : 'border-gray-600'
+                }`}
+            />
+            {errors.name && (
+              <p className="text-red-400 text-xs flex items-center space-x-1">
+                <AlertCircle size={10} />
+                <span>{errors.name}</span>
+              </p>
+            )}
+          </div>
+
+          {/* Description */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-white">
+              Description *
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              placeholder="Describe what you'll be working on, learning goals, or collaboration style..."
+              rows={3}
+              disabled={isSubmitting}
+              className={`w-full px-3 py-2 bg-gray-800 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors resize-none disabled:opacity-50 ${errors.description ? 'border-red-500' : 'border-gray-600'
+                }`}
+            />
+            {errors.description && (
+              <p className="text-red-400 text-xs flex items-center space-x-1">
+                <AlertCircle size={10} />
+                <span>{errors.description}</span>
+              </p>
+            )}
+          </div>
+
+          {/* Privacy Settings */}
           <div className="space-y-3">
-            <label className="block text-sm font-semibold text-white">
+            <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+              <div className="flex items-center space-x-3">
+                {formData.isPrivate ? <Lock size={16} className="text-red-400" /> : <Users size={16} className="text-green-400" />}
+                <div>
+                  <p className="text-white text-sm font-semibold">
+                    {formData.isPrivate ? 'Private Room' : 'Public Room'}
+                  </p>
+                  <p className="text-gray-400 text-xs">
+                    {formData.isPrivate
+                      ? 'Requires password to join'
+                      : 'Anyone can discover and join'
+                    }
+                  </p>
+                </div>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.isPrivate}
+                  onChange={(e) => handleInputChange('isPrivate', e.target.checked)}
+                  disabled={isSubmitting}
+                  className="sr-only peer"
+                />
+                <div className="w-10 h-5 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-5 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-500 peer-disabled:opacity-50"></div>
+              </label>
+            </div>
+
+            {/* Password Input */}
+            {formData.isPrivate && (
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-white">
+                  Room Password *
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={formData.password}
+                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    placeholder="Set a password for your private room..."
+                    disabled={isSubmitting}
+                    className={`w-full px-3 py-2 pr-10 bg-gray-800 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors disabled:opacity-50 ${errors.password ? 'border-red-500' : 'border-gray-600'
+                      }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={isSubmitting}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors disabled:opacity-50"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="text-red-400 text-xs mt-0.5 flex items-center space-x-1">
+                    <AlertCircle size={10} />
+                    <span>{errors.password}</span>
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
+          
+
+          {/* Thumbnail Upload */}
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold text-white">
               Room Thumbnail (Optional)
             </label>
             <div className="space-y-3">
@@ -590,7 +571,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
                   <img
                     src={thumbnailPreview}
                     alt="Room thumbnail"
-                    className="w-full h-40 object-cover rounded-xl border border-gray-600"
+                    className="w-full h-24 object-cover rounded-lg border border-gray-600"
                   />
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
                     <button
@@ -603,9 +584,9 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
                         }
                       }}
                       disabled={isSubmitting}
-                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2 font-medium disabled:opacity-50"
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md transition-colors flex items-center space-x-2 text-sm font-medium disabled:opacity-50"
                     >
-                      <X size={16} />
+                      <X size={14} />
                       <span>Remove</span>
                     </button>
                   </div>
@@ -613,14 +594,14 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
               ) : (
                 <div
                   onClick={() => !isSubmitting && fileInputRef.current?.click()}
-                  className={`w-full h-40 border-2 border-dashed border-gray-600 rounded-xl flex flex-col items-center justify-center transition-colors ${isSubmitting
+                  className={`w-full h-24 border-2 border-dashed border-gray-600 rounded-lg flex flex-col items-center justify-center transition-colors ${isSubmitting
                       ? 'opacity-50 cursor-not-allowed'
                       : 'cursor-pointer hover:border-gray-500 hover:bg-gray-800/30'
                     }`}
                 >
-                  <Upload size={32} className="text-gray-400 mb-3" />
-                  <p className="text-gray-400 text-sm mb-1 font-medium">Click to upload thumbnail</p>
-                  <p className="text-gray-500 text-xs">PNG, JPG, WebP up to 5MB • Recommended: 1280x720px</p>
+                  <Upload size={20} className="text-gray-400 mb-2" />
+                  <p className="text-gray-400 text-xs mb-0.5 font-medium">Click to upload thumbnail</p>
+                  <p className="text-gray-500 text-[10px]">PNG, JPG, WebP up to 5MB</p>
                 </div>
               )}
 
@@ -634,69 +615,27 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose }) =>
               />
             </div>
 
-            {/* {isUploading && (
-              <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center rounded-full">
-                <div className="text-white text-xs font-semibold">
-                  {uploadProgress}%
-                </div>
-              </div>
-            )} */}
-          </div>
-
-          {/* Features Info */}
-          <div className="bg-gradient-to-r from-green-500/10 via-blue-500/10 to-purple-500/10 rounded-xl p-5 border border-green-500/20">
-            <h4 className="text-white font-semibold mb-4 flex items-center space-x-2">
-              <PenTool size={20} className="text-green-400" />
-              <span>Your room will include:</span>
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div className="flex items-center space-x-3 text-gray-300">
-                <div className="p-1 bg-green-500/20 rounded-full">
-                  <Edit3 size={14} className="text-green-400" />
-                </div>
-                <span>Real-time code collaboration</span>
-              </div>
-              <div className="flex items-center space-x-3 text-gray-300">
-                <div className="p-1 bg-blue-500/20 rounded-full">
-                  <PenTool size={14} className="text-blue-400" />
-                </div>
-                <span>Interactive whiteboard</span>
-              </div>
-              <div className="flex items-center space-x-3 text-gray-300">
-                <div className="p-1 bg-purple-500/20 rounded-full">
-                  <Video size={14} className="text-purple-400" />
-                </div>
-                <span>HD video & voice chat</span>
-              </div>
-              <div className="flex items-center space-x-3 text-gray-300">
-                <div className="p-1 bg-yellow-500/20 rounded-full">
-                  <Users size={14} className="text-yellow-400" />
-                </div>
-                <span>Member permissions control</span>
-              </div>
-            </div>
           </div>
 
           {/* Submit Buttons */}
-          <div className="flex space-x-4 pt-4">
+          <div className="flex space-x-3 pt-3">
             <button
               type="button"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl transition-colors font-semibold"
+              className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-sm font-semibold"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || isUploading}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-black rounded-xl transition-all font-semibold flex items-center justify-center space-x-2 shadow-lg"
+              className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-black rounded-lg transition-all text-sm font-semibold flex items-center justify-center space-x-2 shadow-lg"
             >
               {isSubmitting ? (
                 <>
-                  <Loader className="animate-spin" size={18} />
-                   {uploadProgress}%
-                  <span>Creating Room...</span>
+                  <Loader className="animate-spin" size={16} />
+                  <span>Creating...</span>
                 </>
               ) : (
                 <span>

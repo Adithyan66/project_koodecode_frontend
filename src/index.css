@@ -8,4 +8,24 @@
     -ms-overflow-style: none; /* IE/Edge */
     scrollbar-width: none; /* Firefox */
   }
+  .tiny-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #4b5563 transparent;
+  }
+  .tiny-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .tiny-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .tiny-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  .tiny-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: #6b7280;
+  }
 }
