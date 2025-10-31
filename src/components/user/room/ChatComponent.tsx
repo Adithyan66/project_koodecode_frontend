@@ -6,12 +6,14 @@ import { Send, Code } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import { useAppSelector } from '../../../app/hooks';
 import { roomSocketService } from '../../../services/roomSocketService';
+import { imageKitService } from '../../../services/ImageKitService';
 
 interface Message {
   id: string;
   userId: string;
   username: string;
   profilePicture?: string | null;
+  profilePicKey?: string;
   content: string;
   type: 'text' | 'code';
   language?: string;
@@ -82,7 +84,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
           console.log('Message already exists, skipping');
           return prev;
         }
-        
+
         return [...prev, {
           ...message,
           timestamp: new Date(message.timestamp)
@@ -135,7 +137,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
         roomSocketService.chatsocket.off('message-received', handleMessageReceived);
         roomSocketService.chatsocket.off('user-typing', handleUserTyping);
         roomSocketService.chatsocket.off('connect', handleConnect);
-        roomSocketService.chatsocket.off('disconnect', handleDisconnect);  
+        roomSocketService.chatsocket.off('disconnect', handleDisconnect);
         roomSocketService.chatsocket.off('reconnect', handleReconnect);
       }
     };
@@ -249,7 +251,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
     if (profilePicture) {
       return (
         <img
-          src={profilePicture}
+          src={imageKitService.getImageBySize(profilePicture, 'small')}
           alt={username}
           className="rounded-full object-cover"
           style={{ width: size, height: size }}
@@ -269,7 +271,8 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
 
   const renderMessage = (message: Message) => {
     const isOwn = message.userId === user?.id;
-    
+    console.log("messsgaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", message.profilePicture);
+
     return (
       <div
         key={message.id}
@@ -292,11 +295,11 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
 
           <div
             className={`${message.type === 'code'
-                ? 'p-0 bg-transparent shadow-none'
-                : `px-4 py-3 rounded-lg shadow-sm ${isOwn
-                    ? 'bg-green-600 text-white rounded-br-sm'
-                    : 'bg-gray-700 text-gray-100 rounded-bl-sm'
-                  }`
+              ? 'p-0 bg-transparent shadow-none'
+              : `px-4 py-3 rounded-lg shadow-sm ${isOwn
+                ? 'bg-green-600 text-white rounded-br-sm'
+                : 'bg-gray-700 text-gray-100 rounded-bl-sm'
+              }`
               }`}
           >
             {message.type === 'code' ? (
@@ -369,8 +372,8 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
             <div className="text-center text-gray-400 text-sm py-8">
               <div className="mb-4 text-2xl">💬</div>
               <div className="text-gray-300">
-                {isSocketConnected 
-                  ? 'No messages yet. Start the conversation.' 
+                {isSocketConnected
+                  ? 'No messages yet. Start the conversation.'
                   : 'Connecting to chat...'
                 }
               </div>
@@ -381,15 +384,17 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
         )}
 
         {typingUsers.length > 0 && (
-          <div className="flex items-center text-gray-400 text-xs px-3 py-1.5 bg-gray-800/50 rounded-full w-fit">
-            <div className="flex space-x-1 mr-2">
-              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-pulse"></div>
-              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+          <div className="flex items-center text-emerald-300 text-sm px-4 py-2 bg-gradient-to-r from-emerald-500/10 via-green-500/10 to-emerald-500/10 rounded-full w-fit backdrop-blur-sm border border-emerald-500/20 shadow-lg shadow-emerald-500/10">
+            <div className="flex space-x-1 mr-3">
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce shadow-sm shadow-emerald-400/50"></div>
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce shadow-sm shadow-green-400/50" style={{ animationDelay: '0.15s' }}></div>
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce shadow-sm shadow-emerald-400/50" style={{ animationDelay: '0.3s' }}></div>
             </div>
-            {typingUsers.length === 1
-              ? `${typingUsers[0]} is typing...`
-              : `${typingUsers.slice(0, 2).join(', ')}${typingUsers.length > 2 ? ` and ${typingUsers.length - 2} others` : ''} are typing...`}
+            <span className="font-medium">
+              {typingUsers.length === 1
+                ? `${typingUsers[0]} is typing...`
+                : `${typingUsers.slice(0, 2).join(', ')}${typingUsers.length > 2 ? ` and ${typingUsers.length - 2} others` : ''} are typing...`}
+            </span>
           </div>
         )}
 
@@ -401,8 +406,8 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
           <button
             onClick={() => setMessageType('text')}
             className={`px-3 py-1.5 text-xs rounded-full transition-all font-medium border ${messageType === 'text'
-                ? 'bg-green-600 text-white border-green-500'
-                : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
+              ? 'bg-green-600 text-white border-green-500'
+              : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
               }`}
           >
             💬 Text
@@ -410,8 +415,8 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
           <button
             onClick={() => setMessageType('code')}
             className={`px-3 py-1.5 text-xs rounded-full transition-all font-medium border ${messageType === 'code'
-                ? 'bg-green-600 text-white border-green-500'
-                : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
+              ? 'bg-green-600 text-white border-green-500'
+              : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
               }`}
           >
             <Code size={12} className="mr-1 inline" />

@@ -55,7 +55,7 @@ export const roomService = {
 
   async updatePermissions(roomId: string, data: UpdatePermissionsRequest): Promise<{ success: boolean; error?: string }> {
     try {
-      const response = await httpClient.put(`/rooms/${roomId}/permissions`, data);
+      const response = await httpClient.put(`/user/rooms/${roomId}/permissions`, data);
       return response.data;
     } catch (error: any) {
       return {

@@ -11,7 +11,7 @@ export interface Room {
   createdBy: string;
   creatorName: string;
   isPrivate: boolean;
-  scheduledTime?: Date;
+  scheduledTime?: string;
   problemNumber?: number;
   problem?: ProblemData;
   sampleTestCases?: SampleTestCase;
@@ -20,13 +20,16 @@ export interface Room {
   userPermissions: UserPermissions;
   jitsiUrl: string;
   socketToken: string;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export interface Participant {
   userId: string;
   username: string;
-  joinedAt: Date;
+  fullName: string;
+  email: string;
+  profilePicKey: string;
+  joinedAt: string;
   isOnline: boolean;
   permissions: UserPermissions;
 }
@@ -48,7 +51,7 @@ export interface RoomListItem {
   participantCount: number;
   isActive: boolean;
   problemTitle?: string;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export interface CreateRoomRequest {
@@ -81,9 +84,9 @@ export interface SocketEvents {
   'user-kicked': (data: { targetUserId: string; reason?: string; kickedBy: string }) => void;
   'kicked': (data: { reason?: string }) => void;
   'error': (data: { message: string }) => void;
-  "test-response":any
-  "message-received":any
-  "user-typing":any
+  "test-response": any
+  "message-received": any
+  "user-typing": any
 }
 
 
@@ -92,7 +95,7 @@ export interface RoomCreator {
   id: string;
   username: string;
   profilePicUrl?: string;
-  userName:string
+  userName: string
 }
 
 export interface PublicRoom {

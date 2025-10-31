@@ -4,7 +4,7 @@
 
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate ,useLocation} from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Navbar from '../../components/user/Navbar';
 import RoomTabNavigation from '../../components/user/room/RoomTabNavigation';
@@ -70,7 +70,7 @@ const RoomPage: React.FC = () => {
         try {
             const saved = localStorage.getItem('room_self_view_pos');
             if (saved) return JSON.parse(saved);
-        } catch {}
+        } catch { }
         return { x: 16, y: typeof window !== 'undefined' ? (window.innerHeight - 16 - 135) : 400 };
     });
     const [isDraggingSelfView, setIsDraggingSelfView] = useState(false);
@@ -127,7 +127,7 @@ const RoomPage: React.FC = () => {
         if (currentRoom?.socketToken && !roomSocketService.isConnected()) {
             initializeSocket();
         }
-    }, [currentRoom?.socketToken]); 
+    }, [currentRoom?.socketToken]);
 
     // Handle responsive layout
     useEffect(() => {
@@ -151,7 +151,7 @@ const RoomPage: React.FC = () => {
                         setSelfViewStream(stream);
                         if (selfViewVideoRef.current) {
                             selfViewVideoRef.current.srcObject = stream as any;
-                            await selfViewVideoRef.current.play().catch(() => {});
+                            await selfViewVideoRef.current.play().catch(() => { });
                         }
                     } catch {
                         // Ignore
@@ -173,8 +173,8 @@ const RoomPage: React.FC = () => {
             try {
                 selfViewVideoRef.current.srcObject = selfViewStream as any;
                 const p = selfViewVideoRef.current.play();
-                if (p && typeof p.then === 'function') p.catch(() => {});
-            } catch {}
+                if (p && typeof p.then === 'function') p.catch(() => { });
+            } catch { }
         }
     }, [selfViewStream, activeTab]);
 
@@ -196,7 +196,7 @@ const RoomPage: React.FC = () => {
             setIsDraggingSelfView(false);
             try {
                 localStorage.setItem('room_self_view_pos', JSON.stringify(selfViewPos));
-            } catch {}
+            } catch { }
             window.removeEventListener('pointermove', onMove);
             window.removeEventListener('pointerup', onUp);
             if (!selfViewDidDragRef.current) {
@@ -221,8 +221,8 @@ const RoomPage: React.FC = () => {
 
     const handleJoinRoom = async () => {
         try {
-            let password: string | undefined ;
-            if(passwordFromState){
+            let password: string | undefined;
+            if (passwordFromState) {
                 password = passwordFromState
             }
             let data = await dispatch(joinRoomThunk({ roomId: roomId!, password })).unwrap();
@@ -335,10 +335,32 @@ const RoomPage: React.FC = () => {
         }
     };
 
+    // const handlePermissionsUpdated = (data: any) => {
+    //     console.log('[permissions-updated] event received:', data);
+    //     console.log('[permissions-updated] Current room:', currentRoom);
+    //     console.log('[permissions-updated] Current participants before update:', currentRoom?.participants);
+
+    //     dispatch(updateUserPermissions({
+    //         userId: data.targetUserId,
+    //         permissions: data.permissions
+    //     }));
+
+    //     if (data.targetUserId === user?.id && editorRef.current) {
+    //         const canEdit = data.permissions.canEditCode || false;
+    //         editorRef.current.updateOptions({
+    //             readOnly: !canEdit,
+    //             domReadOnly: !canEdit
+    //         });
+
+    //         console.log('Your permissions were updated:', data.permissions);
+    //     }
+    // };
+
     const handlePermissionsUpdated = (data: any) => {
         dispatch(updateUserPermissions({
             userId: data.targetUserId,
-            permissions: data.permissions
+            permissions: data.permissions,
+            targetUserId: user?.id
         }));
 
         if (data.targetUserId === user?.id && editorRef.current) {
@@ -347,15 +369,16 @@ const RoomPage: React.FC = () => {
                 readOnly: !canEdit,
                 domReadOnly: !canEdit
             });
-
-            console.log('Your permissions were updated:', data.permissions);
         }
     };
 
     const handleUserJoined = (data: any) => {
         dispatch(addParticipant({
             userId: data.userId,
-            username: data.username
+            username: data.userName,
+            fullName: data?.fullName,
+            email: data?.email,
+            profilePicKey: data?.profilePicKey,
         }));
     };
 
@@ -672,25 +695,25 @@ const RoomPage: React.FC = () => {
                         />
                     </div>
                 </div>
-            {activeTab !== 'video' && isCameraOn && (
-                <div
-                    className="fixed z-40 cursor-move"
-                    style={{ left: `${selfViewPos.x}px`, top: `${selfViewPos.y}px` }}
-                    onPointerDown={onSelfViewPointerDown}
-                >
-                    <video
-                        ref={selfViewVideoRef}
-                        muted
-                        autoPlay
-                        playsInline
-                        onLoadedMetadata={() => {
-                            try { selfViewVideoRef.current?.play().catch(() => {}); } catch {}
-                        }}
-                        style={{ width: '240px', height: '135px', transform: 'scaleX(-1)' }}
-                        className="rounded-xl border-2 border-green-500 shadow-xl bg-black"
-                    />
-                </div>
-            )}
+                {activeTab !== 'video' && isCameraOn && (
+                    <div
+                        className="fixed z-40 cursor-move"
+                        style={{ left: `${selfViewPos.x}px`, top: `${selfViewPos.y}px` }}
+                        onPointerDown={onSelfViewPointerDown}
+                    >
+                        <video
+                            ref={selfViewVideoRef}
+                            muted
+                            autoPlay
+                            playsInline
+                            onLoadedMetadata={() => {
+                                try { selfViewVideoRef.current?.play().catch(() => { }); } catch { }
+                            }}
+                            style={{ width: '240px', height: '135px', transform: 'scaleX(-1)' }}
+                            className="rounded-xl border-2 border-green-500 shadow-xl bg-black"
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );
