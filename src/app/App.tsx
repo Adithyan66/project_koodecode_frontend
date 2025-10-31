@@ -5,6 +5,7 @@ import { useAppDispatch } from "./hooks"
 import { initializeAuth } from "../features/auth/userThunks"
 import { ToastContainer } from 'react-toastify';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { registerServiceWorker } from "../utils/pushNotifications";
 
 
 
@@ -17,6 +18,14 @@ function App() {
     dispatch(initializeAuth());
 
   }, [dispatch]);
+
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      registerServiceWorker().catch((error) => {
+        console.error('Service Worker registration failed:', error);
+      });
+    }
+  }, []);
 
 
 
