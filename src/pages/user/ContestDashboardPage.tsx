@@ -278,7 +278,7 @@ const ContestDashboardPage = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-1">
+          {/* <div className="lg:col-span-1">
             <div className="sticky top-4 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border-2 border-green-500/30 rounded-2xl p-6 shadow-2xl shadow-green-500/10">
               <div className="mb-6 text-center">
                 <div className="inline-flex items-center gap-3 bg-gradient-to-r from-green-500/20 to-emerald-500/20 px-6 py-3 rounded-xl border border-green-500/50 mb-3">
@@ -331,7 +331,7 @@ const ContestDashboardPage = () => {
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
