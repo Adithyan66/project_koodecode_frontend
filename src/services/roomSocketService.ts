@@ -191,6 +191,8 @@ class RoomSocketService {
 
 
   updatePermissions(targetUserId: string, permissions: any) {
+    console.log("=== FRONTEND update-permissions emit ===");
+    console.log({ targetUserId, permissions, connected: this.socket?.connected, socketId: this.socket?.id });
     this.socket?.emit('update-permissions', { targetUserId, permissions });
   }
 

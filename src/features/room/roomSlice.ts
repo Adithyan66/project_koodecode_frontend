@@ -69,23 +69,36 @@ const roomSlice = createSlice({
       }
     },
 
-    updateUserPermissions: (state, action: PayloadAction<{ userId: string; permissions: any }>) => {
+    updateUserPermissions: (state, action: PayloadAction<{ userId: string; permissions: any; targetUserId?: string }>) => {
       if (state.currentRoom) {
         const participant = state.currentRoom.participants.find(p => p.userId === action.payload.userId);
         if (participant) {
           participant.permissions = action.payload.permissions;
         }
+        
+        if (action.payload.targetUserId && action.payload.targetUserId === action.payload.userId) {
+          state.currentRoom.userPermissions = action.payload.permissions;
+        }
       }
     },
 
-    addParticipant: (state, action: PayloadAction<{ userId: string; username: string }>) => {
+    addParticipant: (state, action: PayloadAction<{
+      userId: string;
+      username: string;
+      fullName: string;
+      email: string;
+      profilePicKey: string,
+    }>) => {
       if (state.currentRoom) {
         const exists = state.currentRoom.participants.some(p => p.userId === action.payload.userId);
         if (!exists) {
           state.currentRoom.participants.push({
             userId: action.payload.userId,
             username: action.payload.username,
-            joinedAt: new Date(),
+            fullName: action.payload.fullName,
+            email: action.payload.email,
+            profilePicKey: action.payload.profilePicKey,
+            joinedAt: new Date().toISOString(),
             isOnline: true,
             permissions: { canEditCode: false, canDrawWhiteboard: false, canChangeProblem: false }
           });

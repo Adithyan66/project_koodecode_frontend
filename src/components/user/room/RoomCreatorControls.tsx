@@ -1,47 +1,46 @@
 
 import React, { useState } from 'react';
-import { X, Users, Settings, UserX, Shield, Code, Edit3 } from 'lucide-react';
-import { useSelector } from 'react-redux';
-import type { RootState } from '../../../app/store';
+import { X, Users, Settings, UserX, Code, Edit3, Crown, Mail } from 'lucide-react';
+import { useAppSelector } from '../../../app/hooks';
 import { roomService } from '../../../services/axios/user/room';
 import { roomSocketService } from '../../../services/roomSocketService';
+import { imageKitService } from '../../../services/ImageKitService';
 import type { Room } from '../../../types/room';
-import { useAppSelector } from '../../../app/hooks';
 
 interface RoomCreatorControlsProps {
   room: Room;
   onClose: () => void;
 }
 
-const RoomCreatorControls: React.FC<RoomCreatorControlsProps> = ({ room, onClose }) => {
-  // const { user } = useSelector((state: RootState) => state.auth);
+const RoomCreatorControls: React.FC<RoomCreatorControlsProps> = ({ room: roomProp, onClose }) => {
   const user = useAppSelector(state => state.user.user);
-  const [activeSection, setActiveSection] = useState<'participants' | 'permissions' | 'settings'>('participants');
-  const [selectedUserId, setSelectedUserId] = useState<string>('');
-  const [isUpdatingPermissions, setIsUpdatingPermissions] = useState(false);
+  const roomFromRedux = useAppSelector(state => state.room.currentRoom);
+  const room = roomFromRedux || roomProp;
+  const [activeSection, setActiveSection] = useState<'participants' | 'settings'>('participants');
+  const [isUpdatingPermissions, setIsUpdatingPermissions] = useState<Record<string, boolean>>({});
 
   const handlePermissionToggle = async (userId: string, permission: 'canEditCode' | 'canDrawWhiteboard' | 'canChangeProblem', value: boolean) => {
-    setIsUpdatingPermissions(true);
+    setIsUpdatingPermissions(prev => ({ ...prev, [userId]: true }));
     try {
       const participant = room.participants.find(p => p.userId === userId);
       if (!participant) return;
 
       const updatedPermissions = {
-        ...participant.permissions,
+        ...(participant.permissions || {}),
         [permission]: value
       };
 
-      await roomService.updatePermissions(room.roomId, {
-        userId,
-        permissions: updatedPermissions
-      });
+      // await roomService.updatePermissions(room.roomId, {
+      //   userId,
+      //   permissions: updatedPermissions
+      // });
 
-      // The socket will handle the UI update via the permissions-updated event
+      roomSocketService.updatePermissions(userId, updatedPermissions);
     } catch (error) {
       console.error('Failed to update permissions:', error);
       alert('Failed to update permissions. Please try again.');
     } finally {
-      setIsUpdatingPermissions(false);
+      setIsUpdatingPermissions(prev => ({ ...prev, [userId]: false }));
     }
   };
 
@@ -62,198 +61,235 @@ const RoomCreatorControls: React.FC<RoomCreatorControlsProps> = ({ room, onClose
     }
   };
 
-  const renderParticipants = () => (
-    <div className="space-y-3">
-      <h3 className="text-white font-medium flex items-center">
-        <Users size={16} className="mr-2" />
-        Participants ({room.participants.length})
-      </h3>
+  const renderParticipants = () => {
+    const profileImageUrl = (participant: typeof room.participants[0]) => {
+      if (!participant?.profilePicKey) return null;
+      return imageKitService.getProfileImageUrl(participant.profilePicKey, 60, 60, {
+        radius: 'max',
+        crop: 'force',
+        quality: 90
+      });
+    };
 
-      {room.participants.map(participant => (
-        <div key={participant.userId} className="bg-gray-700 rounded-lg p-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center space-x-2">
-              <div className={`w-3 h-3 rounded-full ${participant.isOnline ? 'bg-green-500' : 'bg-gray-500'}`}></div>
-              <span className="text-white font-medium">{participant.username}</span>
-              {participant.userId === room.createdBy && (
-                <span className="bg-purple-600 text-xs px-2 py-1 rounded">Creator</span>
-              )}
-              {participant.userId === user?.id && (
-                <span className="bg-blue-600 text-xs px-2 py-1 rounded">You</span>
-              )}
-            </div>
+    const getInitials = (fullName: string) => {
+      if (!fullName || typeof fullName !== 'string') return '??';
+      const parts = fullName.trim().split(' ').filter(part => part.length > 0);
+      if (parts.length === 0) return '??';
+      return parts
+        .map(n => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+    };
 
-            {participant.userId !== user?.id && (
-              <button
-                onClick={() => handleKickUser(participant.userId, participant.username)}
-                className="text-red-400 hover:text-red-300 p-1 transition-colors"
-                title="Kick User"
-              >
-                <UserX size={16} />
-              </button>
-            )}
-          </div>
-
-          <div className="flex items-center space-x-4 text-sm">
-            <div className="flex items-center space-x-1">
-              <Code size={12} />
-              <span className={participant.permissions.canEditCode ? 'text-green-400' : 'text-gray-400'}>
-                Code
-              </span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Edit3 size={12} />
-              <span className={participant.permissions.canDrawWhiteboard ? 'text-green-400' : 'text-gray-400'}>
-                Whiteboard
-              </span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Settings size={12} />
-              <span className={participant.permissions.canChangeProblem ? 'text-green-400' : 'text-gray-400'}>
-                Problem
-              </span>
-            </div>
-          </div>
-
-          <div className="text-xs text-gray-400 mt-2">
-            Joined: {new Date(participant.joinedAt).toLocaleString()}
-          </div>
+    if (!room.participants || room.participants.length === 0) {
+      return (
+        <div className="text-center py-8 text-gray-400">
+          <Users size={48} className="mx-auto mb-3 opacity-50" />
+          <p>No participants yet</p>
         </div>
-      ))}
-    </div>
-  );
+      );
+    }
 
-  const renderPermissions = () => (
-    <div className="space-y-4">
-      <h3 className="text-white font-medium flex items-center">
-        <Shield size={16} className="mr-2" />
-        Manage Permissions
-      </h3>
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-white font-semibold flex items-center">
+            <Users size={18} className="mr-2" />
+            Participants
+          </h3>
+          <span className="text-gray-400 text-sm bg-gray-800 px-3 py-1 rounded-full">
+            {room.participants.length}
+          </span>
+        </div>
 
-      <div className="mb-4">
-        <select
-          value={selectedUserId}
-          onChange={(e) => setSelectedUserId(e.target.value)}
-          className="w-full bg-gray-700 text-white border border-gray-600 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Select a participant...</option>
-          {room.participants.filter(p => p.userId !== user?.id).map(participant => (
-            <option key={participant.userId} value={participant.userId}>
-              {participant.username}
-            </option>
-          ))}
-        </select>
-      </div>
+        {room.participants.map(participant => {
+          if (!participant) return null;
+          
+          const imageUrl = profileImageUrl(participant);
+          const isLoading = isUpdatingPermissions[participant.userId];
+          const isCreator = participant.userId === room.createdBy;
+          const isCurrentUser = participant.userId === user?.id;
 
-      {selectedUserId && (
-        <div className="bg-gray-700 rounded-lg p-4 space-y-3">
-          {(() => {
-            const participant = room.participants.find(p => p.userId === selectedUserId);
-            if (!participant) return null;
-
-            return (
-              <>
-                <h4 className="text-white font-medium">{participant.username}'s Permissions</h4>
-
-                <div className="space-y-3">
-                  <label className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Code size={16} className="text-blue-400" />
-                      <span className="text-white">Can Edit Code</span>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={participant.permissions.canEditCode}
-                      onChange={(e) => handlePermissionToggle(selectedUserId, 'canEditCode', e.target.checked)}
-                      disabled={isUpdatingPermissions}
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+          return (
+            <div key={participant.userId} className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-4 border border-gray-700 hover:border-gray-600 transition-all">
+              <div className="flex items-start space-x-4">
+                <div className="relative flex-shrink-0">
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt={participant.username || 'User'}
+                      className="w-14 h-14 rounded-full border-2 border-gray-600 object-cover"
                     />
-                  </label>
-
-                  <label className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Edit3 size={16} className="text-green-400" />
-                      <span className="text-white">Can Draw on Whiteboard</span>
+                  ) : (
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 border-2 border-gray-600 flex items-center justify-center">
+                      <span className="text-white font-bold text-lg">{getInitials(participant.fullName || participant.username || '')}</span>
                     </div>
-                    <input
-                      type="checkbox"
-                      checked={participant.permissions.canDrawWhiteboard}
-                      onChange={(e) => handlePermissionToggle(selectedUserId, 'canDrawWhiteboard', e.target.checked)}
-                      disabled={isUpdatingPermissions}
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                  </label>
-
-                  <label className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Settings size={16} className="text-purple-400" />
-                      <span className="text-white">Can Change Problem</span>
+                  )}
+                  <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-gray-900 ${
+                    participant.isOnline ? 'bg-green-500' : 'bg-gray-500'
+                  }`}></div>
+                  {isCreator && (
+                    <div className="absolute -top-1 -right-1 bg-gradient-to-r from-purple-600 to-purple-700 p-1 rounded-full border-2 border-gray-900">
+                      <Crown size={12} className="text-white" />
                     </div>
-                    <input
-                      type="checkbox"
-                      checked={participant.permissions.canChangeProblem}
-                      onChange={(e) => handlePermissionToggle(selectedUserId, 'canChangeProblem', e.target.checked)}
-                      disabled={isUpdatingPermissions}
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                  </label>
+                  )}
                 </div>
-              </>
-            );
-          })()}
-        </div>
-      )}
-    </div>
-  );
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center space-x-2">
+                      <h4 className="text-white font-semibold truncate">{participant.fullName || participant.username || 'Unknown User'}</h4>
+                      {isCurrentUser && (
+                        <span className="bg-blue-600 text-xs px-2 py-0.5 rounded-full font-medium">You</span>
+                      )}
+                    </div>
+                    {!isCreator && !isCurrentUser && (
+                      <button
+                        onClick={() => handleKickUser(participant.userId, participant.username || 'User')}
+                        className="text-red-400 hover:text-red-300 hover:bg-red-900/20 p-1.5 rounded-lg transition-all"
+                        title="Kick User"
+                      >
+                        <UserX size={16} />
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center space-x-3 mb-2 text-sm">
+                    <span className="text-gray-300 truncate">@{participant.username || 'unknown'}</span>
+                    {participant.email && (
+                      <div className="flex items-center text-gray-400">
+                        <Mail size={12} className="mr-1" />
+                        <span className="truncate max-w-[120px]">{participant.email}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-700">
+                    <div className="flex items-center space-x-3">
+                      <button
+                        onClick={() => handlePermissionToggle(participant.userId, 'canEditCode', !participant.permissions?.canEditCode)}
+                        disabled={isLoading || isCreator}
+                        className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-medium text-sm transition-all ${
+                          participant.permissions?.canEditCode
+                            ? 'bg-green-600/20 text-green-400 border border-green-600/30 hover:bg-green-600/30'
+                            : 'bg-gray-700 text-gray-400 border border-gray-600 hover:bg-gray-650'
+                        } ${isCreator ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      >
+                        <Code size={14} />
+                        <span>Code</span>
+                      </button>
+
+                      <button
+                        onClick={() => handlePermissionToggle(participant.userId, 'canDrawWhiteboard', !participant.permissions?.canDrawWhiteboard)}
+                        disabled={isLoading || isCreator}
+                        className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-medium text-sm transition-all ${
+                          participant.permissions?.canDrawWhiteboard
+                            ? 'bg-purple-600/20 text-purple-400 border border-purple-600/30 hover:bg-purple-600/30'
+                            : 'bg-gray-700 text-gray-400 border border-gray-600 hover:bg-gray-650'
+                        } ${isCreator ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      >
+                        <Edit3 size={14} />
+                        <span>Draw</span>
+                      </button>
+
+                      <button
+                        onClick={() => handlePermissionToggle(participant.userId, 'canChangeProblem', !participant.permissions?.canChangeProblem)}
+                        disabled={isLoading || isCreator}
+                        className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-medium text-sm transition-all ${
+                          participant.permissions?.canChangeProblem
+                            ? 'bg-orange-600/20 text-orange-400 border border-orange-600/30 hover:bg-orange-600/30'
+                            : 'bg-gray-700 text-gray-400 border border-gray-600 hover:bg-gray-650'
+                        } ${isCreator ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      >
+                        <Settings size={14} />
+                        <span>Problem</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-gray-500 mt-2 flex items-center justify-between">
+                    <span>Joined {participant.joinedAt ? new Date(participant.joinedAt).toLocaleDateString() : 'Unknown'}</span>
+                    {isLoading && (
+                      <span className="text-blue-400 flex items-center">
+                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-400 mr-1"></div>
+                        Updating...
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   const renderSettings = () => (
     <div className="space-y-4">
-      <h3 className="text-white font-medium flex items-center">
-        <Settings size={16} className="mr-2" />
-        Room Settings
-      </h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-white font-semibold flex items-center">
+          <Settings size={18} className="mr-2" />
+          Room Settings
+        </h3>
+      </div>
 
-      <div className="bg-gray-700 rounded-lg p-4 space-y-4">
+      <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-4 border border-gray-700 space-y-4">
         <div>
-          <label className="block text-white text-sm font-medium mb-2">Room Information</label>
-          <div className="space-y-2 text-sm text-gray-300">
-            <div><strong>Name:</strong> {room.name}</div>
-            <div><strong>Description:</strong> {room.description}</div>
-            <div><strong>Room ID:</strong> {room.roomId}</div>
-            <div><strong>Created:</strong> {new Date(room.createdAt).toLocaleString()}</div>
-            <div><strong>Status:</strong>
-              <span className={`ml-1 px-2 py-1 rounded text-xs ${room.status === 'active' ? 'bg-green-600' :
-                  room.status === 'waiting' ? 'bg-yellow-600' : 'bg-gray-600'
-                }`}>
-                {room.status}
+          <label className="block text-white text-sm font-medium mb-3">Room Information</label>
+          <div className="space-y-3 text-sm">
+            <div className="flex items-start justify-between py-2 border-b border-gray-700">
+              <span className="text-gray-400 font-medium">Name:</span>
+              <span className="text-white text-right max-w-[60%]">{room.name}</span>
+            </div>
+            <div className="flex items-start justify-between py-2 border-b border-gray-700">
+              <span className="text-gray-400 font-medium">Description:</span>
+              <span className="text-white text-right max-w-[60%]">{room.description}</span>
+            </div>
+            <div className="flex items-start justify-between py-2 border-b border-gray-700">
+              <span className="text-gray-400 font-medium">Room ID:</span>
+              <span className="text-white font-mono text-xs text-right max-w-[60%] break-all">{room.roomId}</span>
+            </div>
+            <div className="flex items-start justify-between py-2 border-b border-gray-700">
+              <span className="text-gray-400 font-medium">Created:</span>
+              <span className="text-white text-right max-w-[60%]">{new Date(room.createdAt).toLocaleDateString()}</span>
+            </div>
+            <div className="flex items-start justify-between py-2">
+              <span className="text-gray-400 font-medium">Status:</span>
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                room.status === 'active' ? 'bg-green-600/20 text-green-400 border border-green-600/30' :
+                room.status === 'waiting' ? 'bg-yellow-600/20 text-yellow-400 border border-yellow-600/30' : 
+                'bg-gray-600/20 text-gray-400 border border-gray-600/30'
+              }`}>
+                {room.status.charAt(0).toUpperCase() + room.status.slice(1)}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-gray-600 pt-4">
-          <label className="block text-white text-sm font-medium mb-2">Quick Actions</label>
+        <div className="border-t border-gray-700 pt-4">
+          <label className="block text-white text-sm font-medium mb-3">Quick Actions</label>
           <div className="space-y-2">
             <button
               onClick={() => {
                 navigator.clipboard.writeText(`${window.location.origin}/room/${room.roomId}`);
                 alert('Room link copied to clipboard!');
               }}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition-colors"
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-3 rounded-lg text-sm font-medium transition-all flex items-center justify-center space-x-2 shadow-lg shadow-blue-900/20"
             >
-              Copy Room Link
+              <span>Copy Room Link</span>
             </button>
 
             <button
               onClick={() => {
                 if (confirm('Are you sure you want to end this room? All participants will be disconnected.')) {
-                  // TODO: Implement end room functionality
                   alert('End room functionality to be implemented');
                 }
               }}
-              className="w-full bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm transition-colors"
+              className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-3 rounded-lg text-sm font-medium transition-all flex items-center justify-center space-x-2 shadow-lg shadow-red-900/20"
             >
-              End Room
+              <span>End Room</span>
             </button>
           </div>
         </div>
@@ -286,7 +322,6 @@ const RoomCreatorControls: React.FC<RoomCreatorControlsProps> = ({ room, onClose
           <div className="flex space-x-2 mb-4">
             {[
               { id: 'participants', label: 'Participants', icon: Users },
-              { id: 'permissions', label: 'Permissions', icon: Shield },
               { id: 'settings', label: 'Settings', icon: Settings }
             ].map(({ id, label, icon: Icon }) => (
               <button
@@ -305,7 +340,6 @@ const RoomCreatorControls: React.FC<RoomCreatorControlsProps> = ({ room, onClose
 
           <div className="max-h-[60vh] overflow-y-auto tiny-scrollbar pr-1">
             {activeSection === 'participants' && renderParticipants()}
-            {activeSection === 'permissions' && renderPermissions()}
             {activeSection === 'settings' && renderSettings()}
           </div>
         </div>
