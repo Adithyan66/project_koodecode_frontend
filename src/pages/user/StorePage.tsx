@@ -1,19 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast'; 
-import type { RootState } from '../../app/store';
+import { format } from 'date-fns';
 import Navbar from '../../components/user/Navbar';
 import CoinBalance from '../../components/user/store/CoinBalance';
 import StoreItemCard from '../../components/user/store/StoreItemCard';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import TimeTravelTicketModal from '../../components/user/store/TimeTravelTicketModal';
 import { storeService } from '../../services/axios/user/store';
-import type { StoreItem } from '../../types/store';
+import { StoreItemType } from '../../types/store';
+import type { StoreItem, UserInventory } from '../../types/store';
 
 const StorePage: React.FC = () => {
     const [storeItems, setStoreItems] = useState<StoreItem[]>([]);
+    const [userInventory, setUserInventory] = useState<UserInventory | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const user = useSelector((state: RootState) => state.user.user);
+    const [showTimeTravelModal, setShowTimeTravelModal] = useState(false);
+
+    const fetchUserInventory = async () => {
+        try {
+            const inventory = await storeService.getUserInventory();
+            setUserInventory(inventory);
+        } catch (err) {
+            console.error('Failed to load user inventory:', err);
+        }
+    };
 
     const fetchStoreItems = async () => {
         try {
@@ -31,18 +42,58 @@ const StorePage: React.FC = () => {
 
     useEffect(() => {
         fetchStoreItems();
+        fetchUserInventory();
     }, []);
 
     const handlePurchase = async (itemId: string, quantity: number = 1) => {
         try {
             const response = await storeService.purchaseItem({ itemId, quantity });
             toast.success(response.message);
-            // Refetch store items to update ownership status
             await fetchStoreItems();
+            await fetchUserInventory();
         } catch (err: any) {
             const errorMessage = err.response?.data?.message || 'Purchase failed';
             toast.error(errorMessage);
         }
+    };
+
+    const handleUse = async (itemId: string) => {
+        const item = storeItems.find(i => i.id === itemId);
+        if (item?.type === StoreItemType.TIME_TRAVEL_TICKET) {
+            setShowTimeTravelModal(true);
+        } else {
+            toast.success(`Item activated successfully! (ID: ${itemId})`);
+        }
+    };
+
+    const handleTimeTravelConfirm = async (selectedDate: Date) => {
+        try {
+            const dateToFill = format(selectedDate, 'yyyy-MM-dd');
+            const response = await storeService.useTimeTravelTicket({ dateToFill });
+            toast.success(response.message);
+            setShowTimeTravelModal(false);
+            await fetchUserInventory();
+            await fetchStoreItems();
+        } catch (err: any) {
+            const errorMessage = err.response?.data?.message || 'Failed to use time travel ticket';
+            toast.error(errorMessage);
+        }
+    };
+
+    const getEnrichedStoreItems = (): StoreItem[] => {
+        if (!userInventory) return storeItems;
+
+        return storeItems.map(item => {
+            const inventoryItem = userInventory.items.find(inv => inv.itemId === item.id);
+            if (inventoryItem) {
+                return {
+                    ...item,
+                    isOwned: true,
+                    quantity: inventoryItem.quantity
+                };
+            }
+            return item;
+        });
     };
 
     return (
@@ -92,11 +143,12 @@ const StorePage: React.FC = () => {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {storeItems.map((item) => (
+                            {getEnrichedStoreItems().map((item) => (
                                 <StoreItemCard
                                     key={item.id}
                                     item={item}
                                     onPurchase={handlePurchase}
+                                    onUse={handleUse}
                                 />
                             ))}
                         </div>
@@ -116,6 +168,13 @@ const StorePage: React.FC = () => {
                     <p>&copy; 2024 KodeCode. All rights reserved.</p>
                 </div>
             </footer>
+
+            {/* Time Travel Ticket Modal */}
+            <TimeTravelTicketModal
+                isOpen={showTimeTravelModal}
+                onConfirm={handleTimeTravelConfirm}
+                onCancel={() => setShowTimeTravelModal(false)}
+            />
         </div>
     );
 };

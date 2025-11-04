@@ -8,9 +8,10 @@ import PurchaseModal from './PurchaseModal';
 interface StoreItemCardProps {
     item: StoreItem;
     onPurchase: (itemId: string, quantity?: number) => Promise<void>;
+    onUse?: (itemId: string) => Promise<void>;
 }
 
-const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onPurchase }) => {
+const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onPurchase, onUse }) => {
     const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
     const handlePurchaseClick = () => {
@@ -24,6 +25,12 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onPurchase }) => {
 
     const handlePurchaseCancel = () => {
         setShowPurchaseModal(false);
+    };
+
+    const handleUseClick = async () => {
+        if (onUse) {
+            await onUse(item.id);
+        }
     };
 
     const renderPreview = () => {
@@ -106,18 +113,27 @@ const StoreItemCard: React.FC<StoreItemCardProps> = ({ item, onPurchase }) => {
                         </div>
                     )}
 
-                    {/* Purchase Button */}
-                    <button
-                        onClick={handlePurchaseClick}
-                        disabled={item.isOwned && item.type === StoreItemType.PROFILE_FRAME}
-                        className={`w-full py-2 px-4 rounded-lg font-semibold transition-colors ${
-                            item.isOwned && item.type === StoreItemType.PROFILE_FRAME
-                                ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                                : 'bg-green-500 hover:bg-green-600 text-black'
-                        }`}
-                    >
-                        {item.isOwned && item.type === StoreItemType.PROFILE_FRAME ? 'Already Owned' : 'Purchase'}
-                    </button>
+                    {/* Purchase/Use Button */}
+                    {item.isOwned && item.type !== StoreItemType.PROFILE_FRAME ? (
+                        <button
+                            onClick={handleUseClick}
+                            className="w-full py-2 px-4 rounded-lg font-semibold transition-colors bg-blue-500 hover:bg-blue-600 text-white"
+                        >
+                            Use
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handlePurchaseClick}
+                            disabled={item.isOwned && item.type === StoreItemType.PROFILE_FRAME}
+                            className={`w-full py-2 px-4 rounded-lg font-semibold transition-colors ${
+                                item.isOwned && item.type === StoreItemType.PROFILE_FRAME
+                                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                                    : 'bg-green-500 hover:bg-green-600 text-black'
+                            }`}
+                        >
+                            {item.isOwned && item.type === StoreItemType.PROFILE_FRAME ? 'Already Owned' : 'Purchase'}
+                        </button>
+                    )}
                 </div>
             </div>
 
