@@ -10,7 +10,7 @@ export const useContestInfo = () => {
   const [contest, setContest] = useState<ContestDTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRegistering, setIsRegistering] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchContestData = async () => {
     if (!contestNumber) return;
@@ -23,7 +23,7 @@ export const useContestInfo = () => {
       const mapped = mapContestResponseToDTO(apiContest);
       setContest(mapped);
     } catch (error) {
-      setError(error.message);
+      setError(error instanceof Error ? error.message : 'An error occurred');
     } finally {
       setIsLoading(false);
     }

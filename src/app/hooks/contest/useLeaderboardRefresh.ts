@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import ContestService from '../../../services/axios/user/contest';
 import { ContestState } from '../../../types/contest-info';
+import type { ContestDTO } from '../../../types/contest.dto';
 
-export const useLeaderboardRefresh = (contest) => {
+export const useLeaderboardRefresh = (contest: ContestDTO | null) => {
   const [leaderboard, setLeaderboard] = useState(null);
 
   const fetchLeaderboardData = async () => {

@@ -131,30 +131,6 @@ export const useContestSolving = () => {
         }
     };
 
-    // const submitCode = async (autoSubmit?: boolean) => {
-    //     if (!problemData || !contestNumber) return;
-    //     setIsSubmitting(true);
-    //     setSubmissionResults(null);
-    //     setContestSubmissionData(null);
-    //     try {
-    //         const results = await submitContestCodeApi(contestNumber, code, getLanguageId(selectedLanguage), autoSubmit === true);
-    //         setSubmissionResults(results.result);
-    //         setContestSubmissionData(results);
-
-    //             setShowSubmissionModal(true);
-
-    //         if (results.result.overallVerdict === 'Accepted') {
-    //             toast.success(`✅ Accepted! ${results.result.testCasesPassed}/${results.result.totalTestCases} test cases passed`);
-    //         } else {
-    //             toast.error(`❌ ${results.result.overallVerdict} - ${results.result.testCasesPassed}/${results.result.totalTestCases} test cases passed`);
-    //         }
-    //         setActiveTab('result');
-    //     } catch (err) {
-    //         // Error already toasted in API
-    //     } finally {
-    //         setIsSubmitting(false);
-    //     }
-    // };
 
     const submitCode = async (autoSubmit = false) => {
         if (!problemData || !contestNumber) return;
@@ -171,7 +147,7 @@ export const useContestSolving = () => {
                 userId
             });
             const blob = new Blob([payload], { type: 'application/json' });
-            navigator.sendBeacon('http://localhost:3000/api/user/contests/auto-submit-solution', blob);
+            navigator.sendBeacon(`${import.meta.env.VITE_API_URL}user/contests/auto-submit-solution`, blob);
             return;
         }
         

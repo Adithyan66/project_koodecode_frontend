@@ -65,22 +65,6 @@ export const useContests = () => {
   };
 
 
-  // const filterContests = useCallback(
-  //   useDebounce((term: string) => {
-  //     if (!term.trim()) {
-  //       setFilteredUpcoming(upcomingContests);
-  //     } else {
-  //       const filtered = upcomingContests.filter(
-  //         (contest) =>
-  //           contest.title.toLowerCase().includes(term.toLowerCase()) ||
-  //           contest.description.toLowerCase().includes(term.toLowerCase())
-  //       );
-  //       setFilteredUpcoming(filtered);
-  //     }
-  //   }, 300),
-  //   [upcomingContests]
-  // );
-
   useEffect(() => {
     fetchActiveContest();
     fetchUpcomingContests();
@@ -93,9 +77,6 @@ export const useContests = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pastPage, pastLimit, pastSearch]);
 
-  // useEffect(() => {
-  //   filterContests(searchTerm);
-  // }, [searchTerm, filterContests]);
 
   return {
     activeContest,
