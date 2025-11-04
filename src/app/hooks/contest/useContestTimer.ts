@@ -1,40 +1,5 @@
 
 
-// // src/app/hooks/contest/useContestTimer.ts
-// import { useState, useEffect } from 'react';
-// import { Contest } from '../../../types/contest';
-
-// export const useContestTimer = (activeContest) => {
-//   const [timeLeft, setTimeLeft] = useState('');
-
-//   useEffect(() => {
-//     if (activeContest.length > 0 && activeContest[0].state === 'active') {
-//       const timer = setInterval(() => {
-//         const now = new Date().getTime();
-//         const endTime = new Date(activeContest[0].endTime).getTime();
-//         const difference = endTime - now;
-
-//         if (difference > 0) {
-//           const hours = Math.floor(difference / (1000 * 60 * 60));
-//           const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-//           const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-//           setTimeLeft(
-//             `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-//           );
-//         } else {
-//           setTimeLeft('Contest Ended');
-//           clearInterval(timer);
-//         }
-//       }, 1000);
-
-//       return () => clearInterval(timer);
-//     }
-//   }, [activeContest]);
-
-//   return timeLeft;
-// };
-
-
 
 import { useState, useEffect } from 'react';
 import { ContestState } from '../../../types/contest-info';
