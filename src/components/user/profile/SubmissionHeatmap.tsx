@@ -71,9 +71,9 @@ export const SubmissionHeatmap: React.FC<SubmissionHeatmapProps> = ({
           {totalSubmissions} submissions in the past one year
         </h3>
         <div className="flex items-center gap-4 text-sm text-gray-400">
-          <span>Total active days: {activeDays}</span>
+          {/* <span>Total active days: {activeDays}</span>
           <span>Max streak: {maxStreak}</span>
-          <span>Current</span>
+          <span>Current</span> */}
         </div>
       </div>
 

@@ -24,12 +24,12 @@ export const RecentSubmissions: React.FC<RecentSubmissionsProps> = ({
           </div>
           <h3 className="text-white text-lg font-semibold">Recent AC</h3>
         </div>
-        <button className="text-gray-400 hover:text-white text-sm flex items-center gap-1 transition-colors">
+        {/* <button className="text-gray-400 hover:text-white text-sm flex items-center gap-1 transition-colors">
           View all submissions
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
-        </button>
+        </button> */}
       </div>
 
       <div className="space-y-3">

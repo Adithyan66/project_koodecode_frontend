@@ -58,3 +58,19 @@ export interface PurchaseRequest {
     itemId: string;
     quantity?: number;
 }
+
+export interface MissedDaysResponse {
+    missedDays: string[];
+    currentMonth: number;
+    currentYear: number;
+}
+
+export interface UseTimeTravelTicketRequest {
+    dateToFill: string;
+}
+
+export interface UseTimeTravelTicketResponse {
+    success: boolean;
+    message: string;
+    remainingTickets?: number;
+}

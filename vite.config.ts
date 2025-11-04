@@ -23,7 +23,7 @@ export default defineConfig({
     ],
     proxy: {
       '/jitsi': {
-        target: 'http://localhost:8000',
+        target: 'https://meet.jit.si:8000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/jitsi/, '')
       }
