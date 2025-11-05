@@ -13,6 +13,7 @@ import CodeEditorSection from '../../components/user/problem-solving/CodeEditorS
 import BottomPanel from '../../components/user/problem-solving/BottomPanel';
 import type { Constraint } from '../../types/problem';
 import Navbar from '../../components/user/Navbar';
+import RotatingSpinner from '../../components/common/LoadingSpinner';
 
 const STORAGE_KEYS = {
     LEFT_WIDTH: 'problemSolving_leftWidth',
@@ -142,7 +143,7 @@ const ProblemSolvingPage: React.FC = () => {
         }
     }, [isResizingVertical, isResizingHorizontal]);
 
-    if (loading) return <LoadingSpinner />;
+    if (loading) return <RotatingSpinner />;
     if (error) return <ErrorDisplay message={error} />;
     if (!problemData) return <ErrorDisplay message="No problem data available" />;
 
