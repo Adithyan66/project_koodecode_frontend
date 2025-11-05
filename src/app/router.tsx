@@ -1,32 +1,25 @@
 
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import LandingPage from '../pages/user/LandingPage'
 import LoginPage from '../pages/user/LoginPage'
 import SignupPage from '../pages/user/SignupPage'
 import ProblemsList from '../pages/user/ProblemsList'
 import ProblemSolvingPage from '../pages/user/ProblemSolvingPage'
 
-import { useAppSelector } from './hooks'
-import React, { useEffect } from 'react'
 
 import UserProtected from "../components/protectedRoutes/UserProtected"
 import AdminProtected from '../components/protectedRoutes/AdminProtected'
-import ProblemListingPage from '../pages/admin/ProblemListingPage'
-import { DashboardPage } from '../pages/admin/DashboardPage'
-import AddProblemPage from '../pages/admin/AddProblemPage'
+
 import UserProfilePage from '../pages/user/UserProfilePage'
 import SettingsPage from '../pages/user/SettingsPage'
 import ForgotPasswordPage from '../pages/user/ForgotPasswordPage'
 import GitHubCallback from '../components/user/auth/GitHubCallback'
-import { ContestListing } from '../components/admin/contests/contestListing/ContestListing'
-import ContestListingPage from '../pages/admin/ContestListingPage'
-import CreateContestPage from '../pages/admin/CreateContestPage'
+
 import ContestDashboardPage from '../pages/user/ContestDashboardPage'
 import ContestInfoPage from '../pages/user/ContestInfoPage'
 import ContestSolvingPage from '../pages/user/ContestSolvingPage'
 import RoomPage from '../pages/user/RoomPage'
 import StorePage from '../pages/user/StorePage'
-// import ExcalidrawPage from '../pages/user/ExcailDrawPAge'
 
 export default function Router() {
 
@@ -55,15 +48,6 @@ export default function Router() {
 
             <Route path="/store" element={<UserProtected><StorePage /></UserProtected>} />
 
-            {/* <Route path="/exc" element={<ExcalidrawPage />} /> */}
-
-
-            <Route path="/admin/dashboard" element={<AdminProtected> <DashboardPage /></AdminProtected>} />
-            <Route path="/admin/problems" element={<AdminProtected> <ProblemListingPage /></AdminProtected>} />
-            <Route path="/admin/problems/addProblem" element={<AdminProtected> <AddProblemPage /></AdminProtected>} />
-            <Route path="/admin/contests" element={<AdminProtected> <ContestListingPage /></AdminProtected>} />
-            <Route path="/admin/contests/create-contest" element={<AdminProtected> <CreateContestPage /></AdminProtected>} />
-            <Route path="/admin/*" element={<AdminProtected> <DashboardPage /></AdminProtected>} />
         </Routes>
     )
 }

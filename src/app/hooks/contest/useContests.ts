@@ -19,7 +19,6 @@ export const useContests = () => {
   const [pastTotalPages, setPastTotalPages] = useState(1);
   const [pastSearch, setPastSearch] = useState('');
   const [filteredUpcoming, setFilteredUpcoming] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
   const [loadingActive, setLoadingActive] = useState(true);
   const [loadingUpcoming, setLoadingUpcoming] = useState(true);
   const [loadingPast, setLoadingPast] = useState(false);
