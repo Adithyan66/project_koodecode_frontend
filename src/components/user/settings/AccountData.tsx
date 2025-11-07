@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Save, Download, Trash2, AlertTriangle, BarChart3 } from 'lucide-react';
+import {  Download, Trash2, AlertTriangle, BarChart3 } from 'lucide-react';
 
 const AccountData: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);

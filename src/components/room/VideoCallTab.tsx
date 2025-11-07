@@ -4,6 +4,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Minimize2, Maximize2, X, Mic, MicOff, Video, VideoOff } from 'lucide-react';
+import RotatingSpinner from '../common/LoadingSpinner';
 
 interface VideoCallTabProps {
   roomId: string;
@@ -39,9 +40,10 @@ const VideoCallTab: React.FC<VideoCallTabProps> = ({
   const [isJitsiLoaded, setIsJitsiLoaded] = useState(false);
   const [isAudioMuted, setIsAudioMuted] = useState(false);
   const [isVideoMuted, setIsVideoMuted] = useState(false);
-  const [activeParticipants, setActiveParticipants] = useState<string[]>([]);
   const [isJoined, setIsJoined] = useState(false);
   const scriptLoadedRef = useRef(false);
+  const meetingLink = jitsiUrl ? `${jitsiUrl}/${roomId}` : '';
+  const participantCount = participants?.length ?? 0;
   
   // Add these refs to prevent multiple initialization
   const initializationRef = useRef(false);
@@ -311,16 +313,6 @@ const VideoCallTab: React.FC<VideoCallTabProps> = ({
       try { onLocalVideoStatusChange && onLocalVideoStatusChange(false); } catch {}
     });
 
-    jitsiApiRef.current.addEventListener('participantJoined', (event: any) => {
-      console.log('Participant joined:', event);
-      setActiveParticipants(prev => [...prev, event.id]);
-    });
-
-    jitsiApiRef.current.addEventListener('participantLeft', (event: any) => {
-      console.log('Participant left:', event);
-      setActiveParticipants(prev => prev.filter(id => id !== event.id));
-    });
-
     jitsiApiRef.current.addEventListener('audioMuteStatusChanged', (event: any) => {
       setIsAudioMuted(event.muted);
     });
@@ -384,11 +376,11 @@ const VideoCallTab: React.FC<VideoCallTabProps> = ({
     }
   };
 
-  const hangUp = () => {
-    if (jitsiApiRef.current) {
-      jitsiApiRef.current.executeCommand('hangup');
-    }
-  };
+  // const hangUp = () => {
+  //   if (jitsiApiRef.current) {
+  //     jitsiApiRef.current.executeCommand('hangup');
+  //   }
+  // };
 
   // Handle page unload
   useEffect(() => {
@@ -419,9 +411,24 @@ const VideoCallTab: React.FC<VideoCallTabProps> = ({
           <span className="text-gray-400 text-sm">
             {username} • {isJoined ? 'Connected' : 'Connecting...'}
           </span>
+          {participantCount > 0 && (
+            <span className="text-gray-400 text-sm">
+              • Participants: {participantCount}
+            </span>
+          )}
         </div>
 
         <div className="flex space-x-2">
+          {meetingLink && (
+            <a
+              href={meetingLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 text-xs flex items-center"
+            >
+              Open in new tab
+            </a>
+          )}
           {!minimized && onMinimize && (
             <button
               onClick={onMinimize}
@@ -490,10 +497,10 @@ const VideoCallTab: React.FC<VideoCallTabProps> = ({
 
       {/* Loading State */}
       {!isJitsiLoaded && (
-        <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
-          <div className="text-white text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
-            <p>Loading KoodeCode Video Call...</p>
+        <div className="absolute inset-0 bg-gray-900 bg-opacity-95 flex flex-col items-center justify-center space-y-2">
+          <RotatingSpinner fullscreen={false} />
+          <div className="text-center">
+            <p className="text-white">Loading KoodeCode Video Call...</p>
             <p className="text-sm text-gray-400">Auto-joining as {username}...</p>
           </div>
         </div>

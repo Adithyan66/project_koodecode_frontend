@@ -1,5 +1,5 @@
 import React from 'react';
-import type { BannerCard as BannerCardType } from '../../data/problemsMockData';
+import type { BannerCard as BannerCardType } from '../../services/axios/user/problem';
 
 interface BannerCardProps {
   card: BannerCardType;

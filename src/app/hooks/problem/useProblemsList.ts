@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ProblemService } from '../../../services/axios/user/problem';
 import type { Problem } from '../../../types/problem-list';
-import type { BannerCard, CalendarDay } from '../../../data/problemsMockData';
+import type { BannerCard, CalendarDay } from '../../../services/axios/user/problem';
 
 const ITEMS_PER_PAGE = 10;
 

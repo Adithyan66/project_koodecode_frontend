@@ -7,7 +7,7 @@ import {
   endOfMonth,
   isSameDay,
   parseISO,
-  getDay,
+ // getDay,
   startOfWeek,
   endOfWeek,
 } from 'date-fns';
@@ -28,9 +28,9 @@ interface SubmissionHeatmapProps {
 export const SubmissionHeatmap: React.FC<SubmissionHeatmapProps> = ({
   data,
   totalSubmissions,
-  activeDays,
-  maxStreak,
-  currentStreak,
+ // activeDays,
+ // maxStreak,
+ // currentStreak,
 }) => {
   const getColorIntensity = (count: number) => {
     if (count === 0) return '#2a2a2a';

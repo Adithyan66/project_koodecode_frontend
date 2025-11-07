@@ -1,6 +1,42 @@
 import httpClient from '../httpClient';
 import type { ProblemsResponse, ProblemsFilters } from '../../../types/problem-list';
-import type { BannerCard, CalendarDay } from '../../../data/problemsMockData';
+
+
+
+export interface BannerCard {
+    id: number;
+    bannerurl: string;
+    title?: string;
+    subtitle?: string;
+    buttonText?: string;
+    bgGradient?: string;
+  }
+  
+  export interface MockProblem {
+    id: number;
+    number: number;
+    title: string;
+    acceptance: number;
+    difficulty: 'Easy' | 'Med.' | 'Hard';
+    status?: 'solved' | 'attempted' | null;
+  }
+  
+  export interface CalendarDay {
+    date: number;
+    solved: boolean;
+    count?: number;
+  }
+  
+  export interface ProblemsPageData {
+    bannerCards: BannerCard[];
+    problems: MockProblem[];
+    solvedStats: {
+      solved: number;
+      total: number;
+    };
+    calendarData: CalendarDay[];
+  }
+  
 
 interface ListPageDataResponse {
     success: boolean;

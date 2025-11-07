@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { profileService } from '../../../services/axios/user/profile';
 import { imageKitService } from '../../../services/ImageKitService';
-import type { UserProfileData } from '../../../types/profile';
 
 interface DayData {
   date: string;
@@ -45,12 +44,12 @@ export const useProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const transformActivitiesToHeatmap = (activities: Record<string, number>): DayData[] => {
-    return Object.entries(activities).map(([date, count]) => ({
-      date,
-      count,
-    }));
-  };
+  // const transformActivitiesToHeatmap = (activities: Record<string, number>): DayData[] => {
+  //   return Object.entries(activities).map(([date, count]) => ({
+  //     date,
+  //     count,
+  //   }));
+  // };
 
   const transformBadges = (badges: any[]) => {
     const colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#6366f1', '#14b8a6'];
@@ -102,23 +101,20 @@ export const useProfile = () => {
           ? imageKitService.getAvatarUrl(data.user.profileImage, 1000)
           : 'https://ik.imagekit.io/devtown/default_profile_BnM0aD0IW.jpg';
 
-        const badges = data.badges || { total: 0, list: [] };
-        
-        if (!badges.recent && badges.list && badges.list.length > 0) {
-          badges.recent = {
-            icon: '🏆',
-            title: badges.list[0]?.name || '200 Days Badge 2025',
-            year: new Date().getFullYear(),
-            color: '#8b5cf6',
-          };
-        } else if (!badges.recent) {
-          badges.recent = {
-            icon: '🏆',
-            title: '200 Days Badge 2025',
-            year: new Date().getFullYear(),
-            color: '#8b5cf6',
-          };
-        }
+        const badgesSource = data.badges || {};
+        const badgesList = transformBadges(badgesSource.list || []);
+        const badgesRecent = badgesSource.recent || {
+          icon: '🏆',
+          title: badgesSource.list?.[0]?.name || '200 Days Badge 2025',
+          year: new Date().getFullYear(),
+          color: '#8b5cf6',
+        };
+
+        const badges: TransformedProfileData['badges'] = {
+          total: badgesSource.total ?? badgesList.length,
+          list: badgesList,
+          recent: badgesRecent,
+        };
 
         const transformed: TransformedProfileData = {
           user: {
@@ -129,7 +125,7 @@ export const useProfile = () => {
             location: data.user?.location || 'Unknown',
             githubUrl: data.user?.githubUrl || '#',
             linkedinUrl: data.user?.linkedinUrl || '#',
-            languages: transformLanguages(data.user?.languages || data.user?.languagesUsed || data.languagesUsed || []),
+            languages: transformLanguages(data.user?.languages || data.user?.languages || data.languagesUsed || []),
           },
           stats: data.stats || {
             easy: { solved: 0, total: 3730 },

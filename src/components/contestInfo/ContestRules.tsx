@@ -1,4 +1,4 @@
-import { formatTime } from '../../utils/format';
+
 import type { ContestDTO } from '../../types/contest.dto';
 
 interface ContestRulesProps {

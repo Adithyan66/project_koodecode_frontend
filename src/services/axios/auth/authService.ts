@@ -33,7 +33,7 @@ export const authAPI = {
         return response.data
     }
     ,
-    getProfile: (token: string) =>
+    getProfile: () =>
         httpClient.get('/auth/profile')
     ,
     validateTokenAndGetUser: async (token: string) => {

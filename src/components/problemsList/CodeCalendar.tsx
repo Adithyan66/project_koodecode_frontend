@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { CalendarDay } from '../../data/problemsMockData';
+import type { CalendarDay } from '../../services/axios/user/problem';
 
 interface CodeCalendarProps {
   calendarData: CalendarDay[];

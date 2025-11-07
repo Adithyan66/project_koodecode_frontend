@@ -2,7 +2,7 @@
 
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { roomService } from '../../services/axios/user/room';
-import type { CreateRoomRequest, JoinRoomRequest } from '../../types/room';
+import type { CreateRoomRequest, JoinRoomRequest, JoinRoomResponse } from '../../types/room';
 
 
 interface ProblemSummary {
@@ -30,14 +30,16 @@ export const createRoomThunk = createAsyncThunk(
   }
 );
 
-export const joinRoomThunk = createAsyncThunk(
+export const joinRoomThunk = createAsyncThunk<JoinRoomResponse, JoinRoomRequest, { rejectValue: string }>(
   'room/join',
-  async (data: JoinRoomRequest, { rejectWithValue }) => {
+  async (data, { rejectWithValue }) => {
     try {
       const result = await roomService.joinRoom(data);
       console.log("ressssssssssssssssssssssssssss", result);
-
-      return { success: true, room: result };
+      if (!result.success) {
+        return rejectWithValue(result.error || result.message || 'Failed to join room');
+      }
+      return result;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to join room');
     }

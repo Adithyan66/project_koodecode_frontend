@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { X } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { ContestSubmissionData } from '../../../types/contest-problems';
@@ -18,10 +18,10 @@ const SubmissionResultModal: React.FC<SubmissionModalProps> = ({ isOpen, onClose
     const { contestNumber } = useParams();
     const { result, isCorrect, attemptNumber, penaltyApplied, totalScore, message, canContinue, rank, timeTaken } = submissionData as any;
     const isAccepted = isCorrect === true || result?.overallVerdict === 'Accepted';
-    const remainingAttempts = useMemo(() => {
-        const match = String(message || '').match(/(\d+)\s+attempt\(s\)\s+remaining/);
-        return match ? match[1] : '0';
-    }, [message]);
+    // const remainingAttempts = useMemo(() => {
+    //     const match = String(message || '').match(/(\d+)\s+attempt\(s\)\s+remaining/);
+    //     return match ? match[1] : '0';
+    // }, [message]);
 
     const handleClose = () => {
         onClose?.();

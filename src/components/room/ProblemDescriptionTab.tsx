@@ -21,7 +21,7 @@
 
 
 
-import React, { useEffect, useState } from 'react';
+import React, {  useState } from 'react';
 import { ChevronDown, RefreshCw } from 'lucide-react';
 import DescriptionSection from '../user/problem-solving/DescriptionSection';
 import ProblemSelector from './problem-related/ProblemSelector';

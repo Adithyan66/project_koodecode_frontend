@@ -6,6 +6,7 @@ import { joinRoomThunk } from '../../../features/room/roomThunks';
 import { leaveRoom, setSocketConnected, updateRoomProblem, updateUserPermissions, addParticipant, removeParticipant } from '../../../features/room/roomSlice';
 import { roomSocketService } from '../../../services/roomSocketService';
 import type { ProblemData, RunCodeResponse, SampleTestCase, SubmissionResponse } from '../../../types/problem';
+import type { Room } from '../../../types/room';
 import { getLanguageId, languageMap } from '../../../utils/problem-related';
 import { runCodeApi } from '../../../services/axios/auth/problem';
 
@@ -27,6 +28,7 @@ export const useRoom = () => {
     const rightPaneRef = useRef<HTMLDivElement>(null);
     const selfViewVideoRef = useRef<HTMLVideoElement>(null);
     const hasLeftRoomRef = useRef(false);
+    const currentRoomRef = useRef<Room | null>(null);
 
     const [activeTab, setActiveTab] = useState<RoomTab>('video');
     const [showCreatorControls, setShowCreatorControls] = useState(false);
@@ -173,22 +175,28 @@ export const useRoom = () => {
             if (passwordFromState) {
                 password = passwordFromState;
             }
-            const data = await dispatch(joinRoomThunk({ roomId: roomId!, password })).unwrap();
-            if (data.room) {
-                setProblemData(data.room.problem!);
-                setSampleTestCases(data.room?.sampleTestCases || []);
-                const supported = Array.isArray(data.room.problem?.supportedLanguages) ? data.room.problem!.supportedLanguages! : [];
+            const response = await dispatch(joinRoomThunk({ roomId: roomId!, password })).unwrap();
+            const room = response.data;
+            const roomProblem = room.problem ?? null;
+            if (room) {
+                setProblemData(roomProblem);
+                setSampleTestCases(room.sampleTestCases || []);
+                const supported = Array.isArray(roomProblem?.supportedLanguages)
+                    ? roomProblem.supportedLanguages
+                    : [];
                 const availLanguages = supported
                     .map((id: string | number) => languageMap[+id])
                     .filter((l: any): l is { value: string; label: string } => l !== undefined);
                 setLanguages(availLanguages);
-                if (availLanguages.length > 0) {
+                if (availLanguages.length > 0 && roomProblem?.templates) {
                     const firstLang = availLanguages[0].value;
                     setSelectedLanguage(firstLang);
                     const langId = getLanguageId(firstLang);
-                    const template = data.room?.problem.templates[langId!.toString()];
-                    if (template) {
-                        setCode(template.userFunctionSignature);
+                    if (langId) {
+                        const template = roomProblem.templates[langId.toString()];
+                        if (template) {
+                            setCode(template.userFunctionSignature);
+                        }
                     }
                 }
             }
@@ -232,6 +240,8 @@ export const useRoom = () => {
     }, [dispatch, navigate]);
 
     const handleProblemChanged = useCallback((data: any) => {
+        console.log("problem changedddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", data);
+        
         dispatch(updateRoomProblem({
             problem: data.problem,
             code: data.code,
@@ -303,13 +313,17 @@ export const useRoom = () => {
 
     const isCreator = currentRoom?.createdBy === user?.id;
 
+    useEffect(() => {
+        currentRoomRef.current = currentRoom ?? null;
+    }, [currentRoom]);
+
     const handleLanguageChange = (language: string) => {
         if (!currentRoom?.userPermissions?.canEditCode) return;
         if (!isCreator) return;
         setSelectedLanguage(language);
         const langId = getLanguageId(language);
         if (!langId) return;
-        const template = currentRoom.problem?.templates?.[langId.toString()];
+        const template = currentRoom?.problem?.templates?.[langId.toString()];
         if (template?.userFunctionSignature) {
             const newCode = template.userFunctionSignature;
             setCode(newCode);
@@ -374,15 +388,19 @@ export const useRoom = () => {
     };
 
     useEffect(() => {
-        if (roomId && !currentRoom) {
-            void handleJoinRoom();
-        }
+        if (!roomId) return;
+        if (isJoining) return;
+        if (currentRoom) return;
+        void handleJoinRoom();
+    }, [roomId, currentRoom, isJoining, handleJoinRoom]);
+
+    useEffect(() => {
         return () => {
-            if (currentRoom && !hasLeftRoomRef.current) {
+            if (currentRoomRef.current && !hasLeftRoomRef.current) {
                 handleLeaveRoom();
             }
         };
-    }, [roomId, currentRoom, handleJoinRoom, handleLeaveRoom]);
+    }, [handleLeaveRoom]);
 
     useEffect(() => {
         if (!currentRoom?.socketToken) return;

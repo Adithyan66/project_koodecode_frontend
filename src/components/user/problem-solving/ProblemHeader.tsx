@@ -1,5 +1,5 @@
 import React from 'react';
-import { ThumbsUp, Users, CheckCircle, BadgeCheck } from 'lucide-react';
+import { Users, CheckCircle, BadgeCheck } from 'lucide-react';
 import type { ProblemData } from '../../../types/problem';
 
 interface ProblemHeaderProps {

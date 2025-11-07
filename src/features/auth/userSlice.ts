@@ -82,7 +82,7 @@ export const userSlice = createSlice({
             })
 
 
-            .addCase(signupUser.pending, (state, action) => {
+            .addCase(signupUser.pending, (state, ) => {
                 state.status = 'loading';
                 state.error = null
             })
@@ -96,7 +96,7 @@ export const userSlice = createSlice({
                 state.error = null;
             })
 
-            .addCase(signupUser.rejected, (state, action) => {
+            .addCase(signupUser.rejected, (state, ) => {
                 state.status = 'failed';
                 // state.error = 'signup failed';
             })
@@ -150,7 +150,7 @@ export const userSlice = createSlice({
             })
 
 
-            .addCase(forgotPassword.pending, (state, action) => {
+            .addCase(forgotPassword.pending, (state, ) => {
                 state.status = 'loading';
                 state.error = null;
             })
@@ -164,7 +164,7 @@ export const userSlice = createSlice({
                 state.error = null;
 
             })
-            .addCase(forgotPassword.rejected, (state, action) => {
+            .addCase(forgotPassword.rejected, (state, ) => {
                 state.status = 'failed';
                 state.error = 'request failed this is hardcoded in slice check';
             })

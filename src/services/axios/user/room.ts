@@ -1,8 +1,6 @@
 
 import httpClient from '../httpClient';
-import type { Room, CreateRoomRequest, JoinRoomRequest, UpdatePermissionsRequest, PublicRoomsResponse } from '../../../types/room';
-import type { SetStateAction } from 'react';
-import type { ProblemData } from '../../../types/problem';
+import type { Room, CreateRoomRequest, JoinRoomRequest, UpdatePermissionsRequest, PublicRoomsResponse, JoinRoomResponse } from '../../../types/room';
 
 
 
@@ -34,18 +32,15 @@ export const roomService = {
     }
   },
 
-  async joinRoom(data: JoinRoomRequest): Promise<{
-    sampleTestCases: never[];
-    problem: SetStateAction<ProblemData | null>; success: boolean; room?: Room; error?: string
-  }> {
+  async joinRoom(data: JoinRoomRequest): Promise<JoinRoomResponse> {
     try {
       const response = await httpClient.post(`/user/rooms/${data.roomId}/join`, { password: data.password });
-      return response.data.data;
+      return response.data;
     } catch (error: any) {
       return {
         success: false,
-        sampleTestCases: [],
-        problem: null,
+        message: 'Failed to join room',
+        data: {} as Room,
         error: error.response?.data?.error || 'Failed to join room'
       };
     }
