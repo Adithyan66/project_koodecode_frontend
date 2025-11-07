@@ -1,11 +1,4 @@
-
-
-
-
-
-
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import {
     User,
     Code,
@@ -73,87 +66,85 @@ const SettingsPage: React.FC<SettingsProps> = () => {
     const ActiveComponent = settingsCategories.find(cat => cat.id === activeTab)?.component || ProfileSettings;
 
     return (
-    <>
-        <Navbar />
-
-        <div className="min-h-screen bg-black flex items-center justify-center">
-  <div className="w-full max-w-6xl h-[90vh] bg-black rounded-2xl shadow-lg overflow-hidden">
-
-    {/* Mobile Header */}
-    <div className="lg:hidden bg-gray-900 px-4 py-3">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-white">Settings</h1>
-        <button
-          onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-          className="p-2 rounded-md text-gray-300 hover:bg-gray-700"
-        >
-          {isMobileSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-    </div>
-
-    <div className="flex h-[calc(100%-64px)]">
-      {/* Sidebar */}
-      <div
-        className={`
-          fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 transform transition-transform duration-300 ease-in-out
-          lg:translate-x-0 lg:static lg:inset-0 lg:h-full
-          ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        `}
-      >
-        <div className="hidden lg:block p-6">
-          <h1 className="text-2xl font-bold text-white">Settings</h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Manage your KoodeCode preferences
-          </p>
-        </div>
-
-        <nav className="p-4 space-y-2 lg:mt-0 mt-4">
-          {settingsCategories.map((category) => {
-            const Icon = category.icon;
-            return (
-              <button
-                key={category.id}
-                onClick={() => {
-                  setActiveTab(category.id);
-                  setIsMobileSidebarOpen(false);
-                }}
-                className={`
-                  w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors
-                  ${
-                    activeTab === category.id
-                      ? 'bg-blue-900/30 text-blue-300'
-                      : 'text-gray-300 hover:bg-gray-700'
-                  }
-                `}
-              >
-                <Icon size={20} />
-                <span className="font-medium">{category.name}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-
-      {isMobileSidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
-          onClick={() => setIsMobileSidebarOpen(false)}
-        />
-      )}
-
-      {/* Main Content */}
-      <div className="flex-1 bg-black overflow-y-auto">
-        <div className="p-6">
-          <ActiveComponent />
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-</>
-
+        <>
+            <Navbar />
+            <div className="min-h-screen bg-gradient-to-b from-black via-[#0a0a0a] to-black flex items-center justify-center text-white">
+                <div className="w-full max-w-6xl h-[90vh] rounded-3xl border border-white/10 bg-black/70 shadow-[0_25px_60px_rgba(15,15,15,0.45)] backdrop-blur-2xl overflow-hidden">
+                    <div className="lg:hidden bg-black/85 border-b border-white/10 px-4 py-3">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs uppercase tracking-[0.35em] text-gray-400">Settings</p>
+                                <h1 className="text-xl font-semibold text-white">Control Center</h1>
+                            </div>
+                            <button
+                                onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+                                className="p-2 rounded-full border border-white/20 bg-white/10 text-gray-200 transition hover:border-white/40 hover:bg-white/20"
+                            >
+                                {isMobileSidebarOpen ? <X size={22} /> : <Menu size={22} />}
+                            </button>
+                        </div>
+                    </div>
+                    <div className="flex h-[calc(100%-64px)]">
+                        <aside
+                            className={`
+                                tiny-scrollbar fixed inset-y-0 left-0 z-40 w-72 overflow-y-auto border-r border-white/10 bg-black/85 px-5 py-8 backdrop-blur-xl transition-transform duration-300 lg:static lg:h-full lg:w-72 lg:translate-x-0
+                                ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+                            `}
+                        >
+                            <div className="hidden lg:flex flex-col">
+                                <p className="text-xs uppercase tracking-[0.35em] text-gray-400">Settings</p>
+                                <h2 className="mt-2 text-2xl font-semibold text-white">Control Center</h2>
+                                <p className="mt-3 text-sm text-gray-400">
+                                    Tailor your profile, privacy, and workflow preferences in one place.
+                                </p>
+                            </div>
+                            <nav className="mt-6 flex flex-col gap-2">
+                                {settingsCategories.map((category) => {
+                                    const Icon = category.icon;
+                                    const isActive = activeTab === category.id;
+                                    return (
+                                        <button
+                                            key={category.id}
+                                            onClick={() => {
+                                                setActiveTab(category.id);
+                                                setIsMobileSidebarOpen(false);
+                                            }}
+                                            className={`
+                                                group flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left transition-all duration-200
+                                                ${
+                                                    isActive
+                                                        ? 'border-white/40 bg-white/10 text-white shadow-[0_12px_28px_rgba(255,255,255,0.12)]'
+                                                        : 'border-white/10 text-gray-300 hover:border-white/30 hover:bg-white/10 hover:text-white'
+                                                }
+                                            `}
+                                        >
+                                            <span className="flex items-center gap-3">
+                                                <span className={`rounded-xl border px-2.5 py-2 transition ${isActive ? 'border-white/50 bg-white/10' : 'border-white/10 bg-white/5 group-hover:border-white/30 group-hover:bg-white/10'}`}>
+                                                    <Icon size={18} />
+                                                </span>
+                                                <span className="font-medium">{category.name}</span>
+                                            </span>
+                                            <span className={`h-2 w-2 rounded-full transition ${isActive ? 'bg-white shadow-[0_0_12px_rgba(255,255,255,0.6)]' : 'bg-white/20 group-hover:bg-white group-hover:shadow-[0_0_12px_rgba(255,255,255,0.6)]'}`} />
+                                        </button>
+                                    );
+                                })}
+                            </nav>
+                        </aside>
+                        {isMobileSidebarOpen && (
+                            <div
+                                className="fixed inset-0 z-30 bg-black/70 lg:hidden"
+                                onClick={() => setIsMobileSidebarOpen(false)}
+                            />
+                        )}
+                        <div className="flex-1 bg-gradient-to-br from-black/85 via-black/70 to-black/60">
+                            <div className="tiny-scrollbar h-full overflow-y-auto p-6">
+                                    <ActiveComponent />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
     );
 };
 

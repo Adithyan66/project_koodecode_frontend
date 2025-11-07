@@ -137,7 +137,6 @@ const roomSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    // Create Room
     builder
       .addCase(createRoomThunk.pending, (state) => {
         state.isLoading = true;
@@ -156,7 +155,6 @@ const roomSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Join Room
     builder
       .addCase(joinRoomThunk.pending, (state) => {
         state.isJoining = true;
@@ -175,7 +173,6 @@ const roomSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Get Public Rooms
     builder
       .addCase(getPublicRoomsThunk.pending, (state) => {
         state.isLoading = true;
@@ -194,7 +191,6 @@ const roomSlice = createSlice({
         state.problemsLoading = true;
         state.problemsError = null;
 
-        // Reset problems list if it's a new search or first page
         if (action.meta.arg?.page === 1 || action.meta.arg?.search !== state.currentSearchQuery) {
           state.problems = [];
           state.currentProblemPage = 1;
@@ -205,11 +201,9 @@ const roomSlice = createSlice({
 
         const { problems, hasMore, total, page, search } = action.payload;
 
-        // If it's a new search, replace the problems list
         if (page === 1 || search !== state.currentSearchQuery) {
           state.problems = problems;
         } else {
-          // Otherwise, append to existing problems
           state.problems = [...state.problems, ...problems];
         }
 

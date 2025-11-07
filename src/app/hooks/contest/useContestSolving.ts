@@ -1,27 +1,11 @@
 
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import type { ProblemData, SampleTestCase, RunCodeResponse, SubmissionResponse, ContestSubmissionData } from '../../../types/contest-problems';
-import { fetchContestProblemDetail, runCodeApi, submitContestCodeApi } from '../../../services/axios/user/contest-problem';
+import { fetchContestProblemDetail, runCodeApi, submitContestCodeApi, autoSubmitContestCodeApi } from '../../../services/axios/user/contest-problem';
 import { useAppSelector } from '../../hooks';
+import { getLanguageId, languageMap } from '../../../utils/problem-related';
 
-const languageMap: Record<number, { value: string; label: string }> = {
-    50: { value: 'c', label: 'C' },
-    51: { value: 'csharp', label: 'C#' },
-    54: { value: 'cpp', label: 'C++' },
-    60: { value: 'go', label: 'Go' },
-    62: { value: 'java', label: 'Java' },
-    63: { value: 'javascript', label: 'JavaScript' },
-    68: { value: 'php', label: 'PHP' },
-    71: { value: 'python', label: 'Python' },
-    72: { value: 'ruby', label: 'Ruby' },
-    73: { value: 'rust', label: 'Rust' },
-    74: { value: 'typescript', label: 'TypeScript' },
-    78: { value: 'kotlin', label: 'Kotlin' },
-    83: { value: 'swift', label: 'Swift' },
-    85: { value: 'dart', label: 'Dart' },
-};
 
 
 export const useContestSolving = () => {
@@ -35,7 +19,7 @@ export const useContestSolving = () => {
     const [runCodeResults, setRunCodeResults] = useState<RunCodeResponse | null>(null);
     const [submissionResults, setSubmissionResults] = useState<SubmissionResponse | null>(null);
     const [contestSubmissionData, setContestSubmissionData] = useState<ContestSubmissionData | null>(null);
-    const [activeTab, setActiveTab] = useState('testcase');
+    const [activeTab, setActiveTab] = useState<'testcase' | 'result'>('testcase');
     const [activeTestCase, setActiveTestCase] = useState(1);
     const [isRunning, setIsRunning] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,11 +27,13 @@ export const useContestSolving = () => {
     const [languages, setLanguages] = useState<{ value: string; label: string }[]>([]);
     const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
     const [showSubmissionModal, setShowSubmissionModal] = useState(false);
+    const [showAutoSubmitModal, setShowAutoSubmitModal] = useState(false);
 
     const editorRef = useRef<any>(null);
     const { contestNumber } = useParams();
     const navigate = useNavigate();
-    const userId = useAppSelector(store=>store.user.user?.id)
+    const location = useLocation();
+    const userId = useAppSelector(store=>store.user.user?.id);
 
     const getFunctionSeparator = (language: string): string => {
         switch (language) {
@@ -69,26 +55,8 @@ export const useContestSolving = () => {
         }
     };
 
-    const getLanguageId = (language: string): number | undefined => {
-        switch (language.toLowerCase()) {
-            case 'c': return 50;
-            case 'cpp': case 'c++': return 54;
-            case 'java': return 62;
-            case 'javascript': case 'js': return 63;
-            case 'python': case 'py': return 71;
-            case 'typescript': case 'ts': return 74;
-            case 'csharp': case 'c#': return 51;
-            case 'go': return 60;
-            case 'ruby': return 72;
-            case 'swift': return 83;
-            case 'kotlin': return 78;
-            case 'php': return 68;
-            case 'rust': return 73;
-            case 'dart': return 85;
-            default: return undefined;
-        }
-    };
 
+   
     const handleEditorDidMount = (editor: any) => {
         editorRef.current = editor;
     };
@@ -123,7 +91,6 @@ export const useContestSolving = () => {
             const testCaseIds = sampleTestCases.map(tc => tc.id);
             const results = await runCodeApi(problemData.id, code, getLanguageId(selectedLanguage), testCaseIds);
             setRunCodeResults(results);
-            toast.success(`${results.passedTestCases}/${results.totalTestCases} test cases passed`);
         } catch (err) {
             // Error already toasted in API
         } finally {
@@ -132,26 +99,18 @@ export const useContestSolving = () => {
     };
 
 
-    const submitCode = async (autoSubmit = false) => {
+    const submitCode = useCallback(async (autoSubmit = false) => {
         if (!problemData || !contestNumber) return;
         setIsSubmitting(true);
         setSubmissionResults(null);
         setContestSubmissionData(null);
         
         if (autoSubmit) {
-            const payload = JSON.stringify({
-                contestNumber,
-                sourceCode:code,
-                languageId: getLanguageId(selectedLanguage),
-                autoSubmit: true,
-                userId
-            });
-            const blob = new Blob([payload], { type: 'application/json' });
-            navigator.sendBeacon(`${import.meta.env.VITE_API_URL}user/contests/auto-submit-solution`, blob);
+            await autoSubmitContestCodeApi(contestNumber, code, getLanguageId(selectedLanguage), userId);
+            setShowAutoSubmitModal(true);
+            setIsSubmitting(false);
             return;
         }
-        
-
         
         try {
             const results = await submitContestCodeApi(
@@ -163,19 +122,13 @@ export const useContestSolving = () => {
             setSubmissionResults(results.result);
             setContestSubmissionData(results);
             setShowSubmissionModal(true);
-
-            if (results.result.overallVerdict === 'Accepted') {
-                toast.success(`✅ Accepted! ${results.result.testCasesPassed}/${results.result.totalTestCases} test cases passed`);
-            } else {
-                toast.error(`❌ ${results.result.overallVerdict} - ${results.result.testCasesPassed}/${results.result.totalTestCases} test cases passed`);
-            }
             setActiveTab('result');
         } catch (err) {
             // Error already toasted in API
         } finally {
             setIsSubmitting(false);
         }
-    };
+    }, [problemData, contestNumber, code, selectedLanguage, userId]);
 
     const resetCode = () => {
         if (problemData) {
@@ -195,6 +148,47 @@ export const useContestSolving = () => {
         const result = runCodeResults.testCaseResults.find(r => r.testCaseId === testCaseId);
         return result ? result.status === 'passed' ? 'passed' : 'failed' : 'neutral';
     };
+
+    const handleCloseAutoSubmitModal = useCallback(() => {
+        setShowAutoSubmitModal(false);
+        if (contestNumber) {
+            navigate(`/contest/${contestNumber}`, { replace: true });
+        } else {
+            navigate('/', { replace: true });
+        }
+    }, [contestNumber, navigate]);
+
+    // Entry guard: only allow if navigated via Enter button
+    useEffect(() => {
+        const fromEnter = (location.state as any)?.fromEnter === true;
+        let sessionAllowed = false;
+        try {
+            sessionAllowed = window.sessionStorage.getItem(`contest:${contestNumber}:entered`) === '1';
+        } catch {
+            // Ignore sessionStorage errors
+        }
+        if (!fromEnter && !sessionAllowed) {
+            // Replace history to prevent back navigation into this page
+            if (contestNumber) {
+                navigate(`/contest/${contestNumber}`, { replace: true });
+            } else {
+                navigate('/', { replace: true });
+            }
+        }
+    }, [location.state, contestNumber, navigate]);
+
+    // Handle visibility change for auto-submit
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'hidden') {
+                submitCode(true);
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [submitCode]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -256,12 +250,13 @@ export const useContestSolving = () => {
         remainingSeconds,
         showSubmissionModal,
         setShowSubmissionModal,
+        showAutoSubmitModal,
+        handleCloseAutoSubmitModal,
         editorRef,
         handleEditorDidMount,
         handleLanguageChange,
         runCode,
         submitCode,
-        // expose to allow autoSubmit flag
         resetCode,
         getTestCaseStatus,
         handleTimeUp,

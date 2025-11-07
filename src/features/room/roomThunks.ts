@@ -46,9 +46,9 @@ export const joinRoomThunk = createAsyncThunk(
 
 export const getPublicRoomsThunk = createAsyncThunk(
   'room/getPublicRooms',
-  async (limit: number = 20, { rejectWithValue }) => {
+  async (params: { status?: 'active' | 'waiting'; page?: number; limit?: number; search?: string } = {}, { rejectWithValue }) => {
     try {
-      const result = await roomService.getPublicRooms(limit);
+      const result = await roomService.getPublicRooms(params);
       return result;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch rooms');

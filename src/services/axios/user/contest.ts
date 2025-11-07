@@ -43,7 +43,7 @@ class ContestService {
     }
   }
 
-  async fetchLeaderboard(contestNumber) {
+  async fetchLeaderboard(contestNumber: number) {
     try {
       const response = await httpClient.get(`/user/contests/${contestNumber}/leaderboard`);
       const payload = response.data;
@@ -66,13 +66,16 @@ class ContestService {
     }
   }
 
-  async registerForContest(contestId) {
+  async registerForContest(contestId: any) {
     try {
       await httpClient.post('/api/contests/register', { contestId });
       toast.success('Successfully registered for contest!');
       return true;
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to register for contest');
+      const message =
+        (typeof error === 'object' && error !== null && 'response' in error && (error as any).response?.data?.message) ||
+        'Failed to register for contest';
+      toast.error(message);
       return false;
     }
   }

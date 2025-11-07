@@ -2,11 +2,13 @@ import React from 'react';
 import { Play } from 'lucide-react';
 import TestCaseDisplay from './TestCaseDisplay';
 import RunCodeResultDisplay from './RunCodeResultDisplay';
-import type { SampleTestCase, RunCodeResponse } from '../../../types/problem';
+import type { SampleTestCase, RunCodeResponse, SubmissionResponse } from '../../../types/problem';
+
+export type BottomPanelTab = 'testcase' | 'result';
 
 interface BottomPanelProps {
-    activeTab: string;
-    setActiveTab: (tab: string) => void;
+    activeTab: BottomPanelTab;
+    setActiveTab: React.Dispatch<React.SetStateAction<BottomPanelTab>>;
     activeTestCase: number;
     setActiveTestCase: (index: number) => void;
     sampleTestCases: SampleTestCase[];
@@ -14,8 +16,9 @@ interface BottomPanelProps {
     isRunning: boolean;
     isSubmitting: boolean;
     runCode: () => void;
-    submitCode: (autoSubmit: boolean) => void;
+    submitCode: (autoSubmit?: boolean) => void;
     runCodeResults: RunCodeResponse | null;
+    submissionResults?: SubmissionResponse | null;
 }
 
 const BottomPanel: React.FC<BottomPanelProps> = ({
@@ -30,6 +33,7 @@ const BottomPanel: React.FC<BottomPanelProps> = ({
     runCode,
     submitCode,
     runCodeResults,
+    submissionResults: _submissionResults,
 }) => (
     <div className="h-full bg-gradient-to-b from-gray-900 to-black flex flex-col">
         <div className="flex justify-between items-center bg-gray-800/50 backdrop-blur-sm px-6 py-3 border-b border-gray-700/50">

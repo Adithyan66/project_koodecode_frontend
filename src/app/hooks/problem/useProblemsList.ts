@@ -16,13 +16,14 @@ interface UseProblemsListReturn {
     currentPage: number;
     hasMore: boolean;
     totalItems: number;
-    isLoading: boolean;
+    isProblemsLoading: boolean;
     isLoadingMore: boolean;
     observerRef: React.RefObject<HTMLDivElement>;
     banners: BannerCard[];
     stats: { solved: number; total: number };
     calendarData: CalendarDay[];
     toggleSort: () => void;
+    isListDataLoading: boolean;
 }
 
 export const useProblemsList = (): UseProblemsListReturn => {
@@ -33,7 +34,7 @@ export const useProblemsList = (): UseProblemsListReturn => {
     const [currentPage, setCurrentPage] = useState(1);
     const [hasMore, setHasMore] = useState(false);
     const [totalItems, setTotalItems] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isProblemsLoading, setIsProblemsLoading] = useState(false);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const observerRef = useRef<HTMLDivElement>(null);
     const isLoadingRef = useRef(false);
@@ -41,8 +42,10 @@ export const useProblemsList = (): UseProblemsListReturn => {
     const [banners, setBanners] = useState<BannerCard[]>([]);
     const [stats, setStats] = useState({ solved: 0, total: 0 });
     const [calendarData, setCalendarData] = useState<CalendarDay[]>([]);
+    const [isListDataLoading, setIsListDataLoading] = useState(true);
 
     const fetchListPageData = async () => {
+        setIsListDataLoading(true);
         try {
             const response = await ProblemService.getListPageData();
             setBanners(response.data.banners);
@@ -50,6 +53,8 @@ export const useProblemsList = (): UseProblemsListReturn => {
             setCalendarData(response.data.calendar);
         } catch (error) {
             console.error('Failed to fetch list page data:', error);
+        } finally {
+            setIsListDataLoading(false);
         }
     };
 
@@ -60,7 +65,7 @@ export const useProblemsList = (): UseProblemsListReturn => {
         if (append) {
             setIsLoadingMore(true);
         } else {
-            setIsLoading(true);
+            setIsProblemsLoading(true);
             setProblems([]);
         }
 
@@ -85,7 +90,7 @@ export const useProblemsList = (): UseProblemsListReturn => {
         } catch (error) {
             console.error('Failed to fetch problems:', error);
         } finally {
-            setIsLoading(false);
+            setIsProblemsLoading(false);
             setIsLoadingMore(false);
             isLoadingRef.current = false;
         }
@@ -143,13 +148,14 @@ export const useProblemsList = (): UseProblemsListReturn => {
         currentPage,
         hasMore,
         totalItems,
-        isLoading,
+        isProblemsLoading,
         isLoadingMore,
-        observerRef,
+        observerRef: observerRef as React.RefObject<HTMLDivElement>, 
         banners,
         stats,
         calendarData,
         toggleSort,
+        isListDataLoading,
     };
 };
 

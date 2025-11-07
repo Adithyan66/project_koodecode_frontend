@@ -8,13 +8,12 @@ export class ProblemService {
 
     static async getProblems(filters: ProblemsFilters): Promise<ProblemsResponse> {
         try {
-            const params = { ...filters };
-            // Remove undefined/null values
-            Object.keys(params).forEach(key => {
-                if (params[key] === undefined || params[key] === null || params[key] === '') {
-                    delete params[key];
+            const params = Object.entries(filters).reduce<Partial<ProblemsFilters>>((acc, [key, value]) => {
+                if (value !== undefined && value !== null && value !== '') {
+                    acc[key as keyof ProblemsFilters] = value;
                 }
-            });
+                return acc;
+            }, {});
 
             const response = await httpClient.get(`${this.BASE_URL}/get-problems`, { params });
             return response.data.data;

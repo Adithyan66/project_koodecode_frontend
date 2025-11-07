@@ -51,7 +51,7 @@ export const StatsCircles: React.FC<StatsCirclesProps> = ({
   ];
 
   return (
-    <div className="bg-[#1a1a1a] rounded-lg p-4 flex items-center gap-6">
+    <div className="bg-white/5 rounded-lg p-4 flex items-center gap-6">
       <div className="flex flex-col items-center">
         <ResponsiveContainer width={180} height={180}>
           <RadialBarChart

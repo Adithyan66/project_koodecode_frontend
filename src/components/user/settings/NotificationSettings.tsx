@@ -72,7 +72,6 @@ const NotificationSettings: React.FC = () => {
     setIsLoading(true);
     try {
       console.log('Saving notification settings:', notifications);
-      // await saveNotificationSettings(notifications);
     } catch (error) {
       console.error('Failed to save notification settings:', error);
     } finally {
@@ -124,32 +123,31 @@ const NotificationSettings: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <div className="flex items-center space-x-3 mb-4">
-          <MessageSquare className="text-blue-600" size={24} />
+    <div className="space-y-6 text-gray-200">
+      {/* Browser Push Notifications */}
+      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+        <div className="mb-4 flex items-center gap-3">
+          <MessageSquare className="text-gray-300" size={24} />
           <div className="flex-1">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Browser Push Notifications</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <h2 className="text-xl font-semibold text-white">Browser Push Notifications</h2>
+            <p className="text-sm text-gray-400">
               Receive push notifications even when the browser is closed
             </p>
           </div>
         </div>
 
         {!isPushSupported ? (
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-4">
-            <p className="text-sm text-yellow-800 dark:text-yellow-200">
-              Push notifications are not supported in your browser. Please use a modern browser like Chrome, Firefox, or Edge.
-            </p>
+          <div className="rounded-2xl border border-yellow-300/40 bg-yellow-500/10 p-4 text-sm text-yellow-100">
+            Push notifications are not supported in your browser. Please use a modern browser like Chrome, Firefox, or Edge.
           </div>
         ) : (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="text-sm font-medium text-white">
                   Enable Push Notifications
                 </label>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-400">
                   {isPushSubscribed
                     ? 'You will receive browser notifications for important updates'
                     : 'Enable to receive notifications for contests, achievements, and more'}
@@ -158,30 +156,23 @@ const NotificationSettings: React.FC = () => {
               <button
                 onClick={handlePushToggle}
                 disabled={isPushLoading}
-                className={`
-                  relative inline-flex items-center h-6 rounded-full w-11 transition-colors
-                  ${isPushSubscribed ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'}
-                  ${isPushLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                `}
+                className={`relative inline-flex h-7 w-12 items-center rounded-full border border-white/20 bg-white/10 transition ${
+                  isPushSubscribed ? 'justify-end bg-blue-500/80' : 'justify-start'
+                } ${isPushLoading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-white/40 hover:bg-white/20'}`}
               >
-                <span
-                  className={`
-                    inline-block w-4 h-4 transform rounded-full bg-white transition-transform
-                    ${isPushSubscribed ? 'translate-x-6' : 'translate-x-1'}
-                  `}
-                />
+                <span className="m-1 inline-block h-5 w-5 rounded-full bg-white transition" />
               </button>
             </div>
+
             {pushError && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-3">
-                <p className="text-xs text-red-800 dark:text-red-200">{pushError}</p>
+              <div className="rounded-2xl border border-red-400/40 bg-red-500/10 p-3 text-xs text-red-100">
+                {pushError}
               </div>
             )}
+
             {isPushSubscribed && (
-              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md p-3">
-                <p className="text-xs text-green-800 dark:text-green-200">
-                  ✓ Push notifications are enabled for this browser
-                </p>
+              <div className="rounded-2xl border border-blue-400/40 bg-blue-500/10 p-3 text-xs text-blue-100">
+                ✓ Push notifications are enabled for this browser
               </div>
             )}
           </div>
@@ -190,13 +181,14 @@ const NotificationSettings: React.FC = () => {
 
       {notificationCategories.map(category => {
         const Icon = category.icon;
+        const categoryState = notifications[category.key as keyof typeof notifications];
         return (
-          <div key={category.key} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <div className="flex items-center space-x-3 mb-6">
-              <Icon className="text-blue-600" size={24} />
+          <div key={category.key} className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+            <div className="mb-6 flex items-center gap-3">
+              <Icon className="text-gray-300" size={24} />
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{category.title}</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{category.description}</p>
+                <h2 className="text-xl font-semibold text-white">{category.title}</h2>
+                <p className="text-sm text-gray-400">{category.description}</p>
               </div>
             </div>
 
@@ -204,19 +196,19 @@ const NotificationSettings: React.FC = () => {
               {category.settings.map(setting => (
                 <div key={setting.key} className="flex items-center justify-between">
                   <div>
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label className="text-sm font-medium text-white">
                       {setting.label}
                     </label>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{setting.description}</p>
+                    <p className="text-xs text-gray-400">{setting.description}</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={notifications[category.key as keyof typeof notifications][setting.key as keyof any]}
+                      checked={categoryState[setting.key as keyof typeof categoryState] as boolean}
                       onChange={(e) => handleNotificationChange(category.key, setting.key, e.target.checked)}
-                      className="sr-only peer"
+                      className="peer sr-only"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-blue-500"></div>
                   </label>
                 </div>
               ))}
@@ -226,12 +218,11 @@ const NotificationSettings: React.FC = () => {
       })}
 
       {/* Quick Actions */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
+      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+        <h2 className="mb-4 text-xl font-semibold text-white">Quick Actions</h2>
         <div className="flex flex-wrap gap-3">
           <button
             onClick={() => {
-              // Enable all notifications
               const allEnabled = { ...notifications };
               Object.keys(allEnabled).forEach(category => {
                 Object.keys(allEnabled[category as keyof typeof allEnabled]).forEach(key => {
@@ -240,13 +231,12 @@ const NotificationSettings: React.FC = () => {
               });
               setNotifications(allEnabled);
             }}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+            className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-white transition hover:border-white/40 hover:bg-white/20"
           >
             Enable All
           </button>
           <button
             onClick={() => {
-              // Disable all notifications except security alerts
               const allDisabled = { ...notifications };
               Object.keys(allDisabled).forEach(category => {
                 Object.keys(allDisabled[category as keyof typeof allDisabled]).forEach(key => {
@@ -257,7 +247,7 @@ const NotificationSettings: React.FC = () => {
               });
               setNotifications(allDisabled);
             }}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm"
+            className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-white transition hover:border-white/40 hover:bg-white/20"
           >
             Disable All (Keep Security)
           </button>
@@ -269,7 +259,7 @@ const NotificationSettings: React.FC = () => {
         <button
           onClick={handleSave}
           disabled={isLoading}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+          className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2 text-white transition hover:border-white/40 hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Save size={16} />
           <span>{isLoading ? 'Saving...' : 'Save Notification Settings'}</span>

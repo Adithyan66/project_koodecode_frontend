@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import ContestService from '../../../services/axios/user/contest';
 import { Contest } from '../../../types/contest';
-import { useDebounce } from '../../../utils/debounce';
-
 
 
 
@@ -22,7 +20,6 @@ export const useContests = () => {
   const [loadingActive, setLoadingActive] = useState(true);
   const [loadingUpcoming, setLoadingUpcoming] = useState(true);
   const [loadingPast, setLoadingPast] = useState(false);
-  const [userStats, setUserStats] = useState(null);
 
   const fetchActiveContest = async () => {
     setLoadingActive(true);
@@ -51,15 +48,10 @@ export const useContests = () => {
     setLoadingPast(false);
   };
 
-  const fetchUserStats = async () => {
-    const data = await ContestService.fetchUserStats();
-    setUserStats(data);
-  };
-
   const handleRegisterForContest = async (contestId: any) => {
     const success = await ContestService.registerForContest(contestId);
     if (success) {
-      fetchUpcomingContests(); // Refresh upcoming contests
+      fetchUpcomingContests(); 
     }
   };
 
@@ -68,12 +60,10 @@ export const useContests = () => {
     fetchActiveContest();
     fetchUpcomingContests();
     fetchPastContests(1, pastLimit, '');
-    // fetchUserStats();
   }, []);
 
   useEffect(() => {
     fetchPastContests(pastPage, pastLimit, pastSearch);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pastPage, pastLimit, pastSearch]);
 
 
@@ -85,7 +75,6 @@ export const useContests = () => {
     loadingActive,
     loadingUpcoming,
     loadingPast,
-    userStats,
     handleRegisterForContest,
     fetchPastContests,
     pastPage,
