@@ -3,6 +3,8 @@
 import { io, Socket } from 'socket.io-client';
 import type { SocketEvents } from '../types/room';
 
+const SOCKET_SERVER_URL: string = (import.meta as any).env?.VITE_SOCKET_SERVER_URL ?? '';
+
 class RoomSocketService {
   private socket: Socket | null = null;
   private reconnectAttempts = 0;
@@ -13,7 +15,7 @@ class RoomSocketService {
 
     return new Promise((resolve, reject) => {
       try {
-        this.socket = io('http://localhost:3000', {
+        this.socket = io(SOCKET_SERVER_URL, {
           auth: { token },
           transports: ['websocket'],
           autoConnect: false

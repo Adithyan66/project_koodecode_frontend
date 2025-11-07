@@ -2,7 +2,7 @@
 import axios from "axios";
 import { tokenManager } from "../../utils/tokenManager";
 
-const VITE_API_URL = import.meta.env.VITE_API_URL;
+const VITE_API_URL = (import.meta as any).env.VITE_API_URL;
 
 let isRefreshing = false;
 let failedQueue: Array<{
