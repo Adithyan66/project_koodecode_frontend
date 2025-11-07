@@ -1,8 +1,5 @@
 
 
-
-import React, { useEffect, useState } from 'react';
-import Navbar from '../../components/user/Navbar';
 import Timer from '../../components/common/Timer';
 import { useContestSolving } from '../../app/hooks/contest/useContestSolving';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -11,12 +8,11 @@ import DescriptionSection from '../../components/user/problem-solving/Descriptio
 import EditorControls from '../../components/user/problem-solving/EditorControls';
 import CodeEditorSection from '../../components/user/problem-solving/CodeEditorSection';
 import BottomPanel from '../../components/user/problem-solving/BottomPanel';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import SubmissionResultModal from '../../components/user/problem-solving/SubmissionResultModal';
-import type { Constraint } from '../../types/problem';
-import Logo from "../../assets/images/Screenshot from 2025-08-02 10-50-58 1.svg"
+import Logo from "../../assets/images/Screenshot from 2025-08-02 10-50-58 1.svg";
+import { formatConstraints } from '../../utils/problem-related';
 
-const ContestSolvingPage: React.FC = () => {
+const ContestSolvingPage = () => {
     const {
         code,
         setCode,
@@ -38,6 +34,8 @@ const ContestSolvingPage: React.FC = () => {
         remainingSeconds,
         showSubmissionModal,
         setShowSubmissionModal,
+        showAutoSubmitModal,
+        handleCloseAutoSubmitModal,
         handleEditorDidMount,
         handleLanguageChange,
         runCode,
@@ -47,72 +45,12 @@ const ContestSolvingPage: React.FC = () => {
         handleTimeUp,
         selectedLanguage,
     } = useContestSolving();
-    const { contestNumber } = useParams();
-    const navigate = useNavigate();
-
-    const [showAutoSubmitModal, setShowAutoSubmitModal] = useState(false);
-
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'hidden') {
-                submitCode(true);
-                setShowAutoSubmitModal(true);
-            }
-        };
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
-    }, [submitCode, code, problemData, contestNumber, selectedLanguage]);
-
-
-
-    // Entry guard: only allow if navigated via Enter button
-    const location = useLocation();
-
-    useEffect(() => {
-        const fromEnter = (location.state as any)?.fromEnter === true;
-        let sessionAllowed = false;
-        try {
-            sessionAllowed = window.sessionStorage.getItem(`contest:${contestNumber}:entered`) === '1';
-        } catch { }
-        if (!fromEnter && !sessionAllowed) {
-            // Replace history to prevent back navigation into this page
-            if (contestNumber) {
-                navigate(`/contest/${contestNumber}`, { replace: true });
-            } else {
-                navigate('/', { replace: true });
-            }
-        }
-    }, [location.state, contestNumber, navigate]);
 
     if (loading) return <LoadingSpinner />;
     if (error) return <ErrorDisplay message={error} />;
     if (!problemData) return <ErrorDisplay message="No problem data available" />;
 
-    const formatConstraints = (constraints: Constraint[]): string[] => {
-        return constraints.map(constraint => {
-            let formatted = `${constraint.parameterName}: ${constraint.type}`;
-            if (constraint.type === 'array') {
-                if (constraint.minLength !== undefined && constraint.maxLength !== undefined) {
-                    formatted += ` (length: ${constraint.minLength} <= length <= ${constraint.maxLength})`;
-                } else if (constraint.minLength !== undefined) {
-                    formatted += ` (length >= ${constraint.minLength})`;
-                } else if (constraint.maxLength !== undefined) {
-                    formatted += ` (length <= ${constraint.maxLength})`;
-                }
-            } else {
-                if (constraint.minValue !== undefined && constraint.maxValue !== undefined) {
-                    formatted += ` (${constraint.minValue} <= value <= ${constraint.maxValue})`;
-                } else if (constraint.minValue !== undefined) {
-                    formatted += ` (>= ${constraint.minValue})`;
-                } else if (constraint.maxValue !== undefined) {
-                    formatted += ` (<= ${constraint.maxValue})`;
-                }
-            }
-            return formatted;
-        });
-    };
+    
 
     const formattedConstraints = formatConstraints(problemData.constraints);
 
@@ -183,25 +121,44 @@ const ContestSolvingPage: React.FC = () => {
 
             {showAutoSubmitModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/60" />
-                    <div className="relative bg-gray-900/95 backdrop-blur rounded-xl border border-gray-700 w-full max-w-md p-5">
-                        <h3 className="text-white text-lg font-semibold mb-2">Code auto-submitted</h3>
-                        <p className="text-gray-300 text-sm mb-4">
-                            Your code was auto-submitted because the contest tab was hidden (tab change/minimize/close).
-                        </p>
-                        <button
-                            className="w-full px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white"
-                            onClick={() => {
-                                setShowAutoSubmitModal(false);
-                                if (contestNumber) {
-                                    navigate(`/contest/${contestNumber}`, { replace: true });
-                                } else {
-                                    navigate('/', { replace: true });
-                                }
-                            }}
-                        >
-                            Go to Contest Info
-                        </button>
+                    <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+                    <div className="relative bg-gradient-to-br from-gray-900 via-gray-900 to-gray-950 rounded-2xl border-2 border-green-500/40 shadow-2xl shadow-green-500/20 w-full max-w-md overflow-hidden">
+                        {/* Glow effect */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-emerald-500/5 to-transparent pointer-events-none" />
+                        
+                        {/* Content */}
+                        <div className="relative p-6">
+                            {/* Icon */}
+                            <div className="flex justify-center mb-4">
+                                <div className="relative">
+                                    <div className="absolute inset-0 bg-green-500/30 rounded-full blur-xl animate-pulse" />
+                                    <div className="relative bg-gradient-to-br from-green-900/60 to-emerald-900/60 rounded-full p-4 border-2 border-green-500/50">
+                                        <i className="fas fa-check-circle text-4xl text-green-400" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Title */}
+                            <h3 className="text-white text-xl font-bold mb-3 text-center bg-gradient-to-r from-green-400 via-emerald-400 to-green-500 bg-clip-text text-transparent">
+                                Code Auto-Submitted
+                            </h3>
+
+                            {/* Description */}
+                            <div className="bg-gray-950/50 rounded-lg p-4 mb-6 border border-green-500/20">
+                                <p className="text-gray-300 text-sm leading-relaxed text-center">
+                                    Your code was automatically submitted because the contest tab was hidden (tab change, minimize, or close).
+                                </p>
+                            </div>
+
+                            {/* Button */}
+                            <button
+                                className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold transition-all duration-300 shadow-lg shadow-green-500/30 hover:shadow-green-500/50 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+                                onClick={handleCloseAutoSubmitModal}
+                            >
+                                <i className="fas fa-arrow-right" />
+                                <span>Go to Contest Info</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

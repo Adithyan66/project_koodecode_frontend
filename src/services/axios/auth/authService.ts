@@ -1,4 +1,3 @@
-import type { UserDetails } from "../../../features/auth/userSlice";
 import httpClient from "../httpClient";
 
 interface LoginCredentials {
@@ -6,14 +5,6 @@ interface LoginCredentials {
     password: string;
 }
 
-interface LoginResponse {
-    token: string;
-    user: UserDetails;
-}
-
-interface LoginError {
-    message: string;
-}
 
 
 
@@ -42,7 +33,7 @@ export const authAPI = {
         return response.data
     }
     ,
-    getProfile: (token?: string) =>
+    getProfile: (token: string) =>
         httpClient.get('/auth/profile')
     ,
     validateTokenAndGetUser: async (token: string) => {

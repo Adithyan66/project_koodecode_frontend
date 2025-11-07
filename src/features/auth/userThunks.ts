@@ -3,8 +3,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { tokenManager } from '../../utils/tokenManager';
 import type { UserDetails } from './userSlice';
-import httpClient from '../../services/axios/httpClient';
-import { toast } from 'react-toastify';
+
 import { authAPI } from '../../services/axios/auth/authService';
 
 
@@ -14,10 +13,7 @@ interface LoginCredentials {
     password: string;
 }
 
-interface LoginResponse {
-    token: string;
-    user: UserDetails;
-}
+
 
 interface LoginError {
     message: string;

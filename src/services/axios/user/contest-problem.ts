@@ -83,3 +83,23 @@ export const submitContestCodeApi = async (contestNumber: string, sourceCode: st
         throw err;
     }
 };
+
+export const autoSubmitContestCodeApi = async (contestNumber: string, sourceCode: string, languageId: number | undefined, userId: string | undefined): Promise<void> => {
+    try {
+        const payload = JSON.stringify({
+            contestNumber,
+            sourceCode,
+            languageId,
+            autoSubmit: true,
+            userId
+        });
+        const blob = new Blob([payload], { type: 'application/json' });
+        const success = navigator.sendBeacon(`${import.meta.env.VITE_API_URL}user/contests/auto-submit-solution`, blob);
+        if (!success) {
+            throw new Error('Failed to send auto-submit request');
+        }
+    } catch (err: any) {
+        console.error('Auto-submit error:', err);
+        // Don't show toast for auto-submit failures as user may have closed the tab
+    }
+};

@@ -4,16 +4,15 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useProblemSolving } from '../../app/hooks/problem/useProblemSolving';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorDisplay from '../../components/common/ErrorDisplay';
 import ProblemHeader from '../../components/user/problem-solving/ProblemHeader';
 import DescriptionSectionWithTabs from '../../components/user/problem-solving/DescriptionSectionWithTabs';
 import EditorControls from '../../components/user/problem-solving/EditorControls';
 import CodeEditorSection from '../../components/user/problem-solving/CodeEditorSection';
 import BottomPanel from '../../components/user/problem-solving/BottomPanel';
-import type { Constraint } from '../../types/problem';
 import Navbar from '../../components/user/Navbar';
 import RotatingSpinner from '../../components/common/LoadingSpinner';
+import { formatConstraints } from '../../utils/problem-related';
 
 const STORAGE_KEYS = {
     LEFT_WIDTH: 'problemSolving_leftWidth',
@@ -147,29 +146,7 @@ const ProblemSolvingPage: React.FC = () => {
     if (error) return <ErrorDisplay message={error} />;
     if (!problemData) return <ErrorDisplay message="No problem data available" />;
 
-    const formatConstraints = (constraints: Constraint[]): string[] => {
-        return constraints.map(constraint => {
-            let formatted = `${constraint.parameterName}: ${constraint.type}`;
-            if (constraint.type === 'array') {
-                if (constraint.minLength !== undefined && constraint.maxLength !== undefined) {
-                    formatted += ` (length: ${constraint.minLength} <= length <= ${constraint.maxLength})`;
-                } else if (constraint.minLength !== undefined) {
-                    formatted += ` (length >= ${constraint.minLength})`;
-                } else if (constraint.maxLength !== undefined) {
-                    formatted += ` (length <= ${constraint.maxLength})`;
-                }
-            } else {
-                if (constraint.minValue !== undefined && constraint.maxValue !== undefined) {
-                    formatted += ` (${constraint.minValue} <= value <= ${constraint.maxValue})`;
-                } else if (constraint.minValue !== undefined) {
-                    formatted += ` (>= ${constraint.minValue})`;
-                } else if (constraint.maxValue !== undefined) {
-                    formatted += ` (<= ${constraint.maxValue})`;
-                }
-            }
-            return formatted;
-        });
-    };
+    
 
     const getAcceptanceRate = (accepted: number, total: number): string => {
         if (total === 0) return '0%';

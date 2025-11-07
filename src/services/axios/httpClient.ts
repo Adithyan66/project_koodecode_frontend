@@ -4,15 +4,30 @@ import { tokenManager } from "../../utils/tokenManager";
 
 const VITE_API_URL = import.meta.env.VITE_API_URL;
 
+let isRefreshing = false;
+let failedQueue: Array<{
+    resolve: (value?: any) => void;
+    reject: (error?: any) => void;
+}> = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+    failedQueue.forEach(prom => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    
+    failedQueue = [];
+};
 
 const httpClient = axios.create({
     baseURL: VITE_API_URL,
     withCredentials: true,
 })
 
-
 httpClient.interceptors.request.use(
-
     (config) => {
         const token = tokenManager.getToken();
         if (token) {
@@ -22,8 +37,6 @@ httpClient.interceptors.request.use(
     },
     (error) => Promise.reject(error)
 );
-
-
 
 httpClient.interceptors.request.use(
     (config) => {
@@ -39,10 +52,8 @@ httpClient.interceptors.request.use(
     }
 )
 
-
 httpClient.interceptors.response.use(
     response => response,
-
     async error => {
         const originalRequest = error.config;
 
@@ -52,19 +63,35 @@ httpClient.interceptors.response.use(
             !originalRequest._retry &&
             !originalRequest.url.includes("/refresh-token")
         ) {
-            console.log("401 detected, attempting to refresh token...");
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                }).then(token => {
+                    originalRequest.headers.Authorization = `Bearer ${token}`;
+                    return httpClient(originalRequest);
+                }).catch(err => {
+                    return Promise.reject(err);
+                });
+            }
+
             originalRequest._retry = true;
+            isRefreshing = true;
 
             try {
                 const { data } = await httpClient.get("auth/refresh-token", {});
 
-                localStorage.setItem("accessToken", data.data.accessToken);
+                const newToken = data.data.accessToken;
+                tokenManager.setToken(newToken);
+                isRefreshing = false;
+                processQueue(null, newToken);
 
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
                 return httpClient(originalRequest);
 
             } catch (refreshError) {
-
-                localStorage.removeItem("accessToken");
+                isRefreshing = false;
+                tokenManager.removeToken();
+                processQueue(refreshError, null);
                 return Promise.reject(refreshError);
             }
         }
@@ -72,63 +99,5 @@ httpClient.interceptors.response.use(
         return Promise.reject(error);
     }
 );
-
-
-// httpClient.interceptors.response.use(
-
-//     response => response,
-
-//     async error => {
-
-//         const originalRequest = error.config;
-
-
-//         if (error.response && error.response.status === 401 && !originalRequest._retry) {
-
-//             console.log("401 detected, attempting to refresh token...");
-
-//             originalRequest._retry = true;
-
-//             try {
-
-//                 const { data } = await httpClient.get('/user/refresh-token');
-
-//                 localStorage.setItem('accessToken', data.accessToken);
-
-//                 originalRequest.headers['Authorization'] = `Bearer ${data.accessToken}`;
-
-//                 return httpClient(originalRequest);
-
-//             } catch (refreshError) {
-
-//                 localStorage.removeItem('accessToken');
-
-//                 return Promise.reject(refreshError);
-
-//             }
-//         }
-
-//         return Promise.reject(error);
-//     }
-// );
-
-
-// httpClient.interceptors.response.use(
-//     (response) => response,
-//     (error) => {
-//         if (
-//             error.response &&
-//             error.response.status === 403 &&
-//             error.response.data.message === 'User account is blocked'
-//         ) {
-//             logout()
-//             localStorage.removeItem('accessToken');
-//             window.location.href = '/'
-//             toast.error("User blocked")
-//         }
-//         return Promise.reject(error);
-//     }
-// );
-
 
 export default httpClient;

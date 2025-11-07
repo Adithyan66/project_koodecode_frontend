@@ -6,6 +6,7 @@ import { BadgesSection } from '../../components/user/profile/BadgesSection';
 import { SubmissionHeatmap } from '../../components/user/profile/SubmissionHeatmap';
 import { RecentSubmissions } from '../../components/user/profile/RecentSubmissions';
 import { useProfile } from '../../app/hooks/profile/useProfile';
+import RotatingSpinner from '../../components/common/LoadingSpinner';
 
 const UserProfilePage: React.FC = () => {
   const { profileData, loading, error } = useProfile();
@@ -15,10 +16,7 @@ const UserProfilePage: React.FC = () => {
       <div className="min-h-screen bg-black text-white">
         <Navbar />
         <div className="flex items-center justify-center h-[80vh]">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-400">Loading profile...</p>
-          </div>
+          <RotatingSpinner/>
         </div>
       </div>
     );
@@ -80,9 +78,7 @@ const UserProfilePage: React.FC = () => {
               currentStreak={profileData.heatmap.currentStreak}
             />
 
-            {profileData.recentSubmissions.length > 0 && (
-              <RecentSubmissions submissions={profileData.recentSubmissions} />
-            )}
+            <RecentSubmissions submissions={profileData.recentSubmissions} />
           </div>
         </div>
       </div>

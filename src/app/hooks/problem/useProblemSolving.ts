@@ -5,23 +5,24 @@ import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import type { ProblemData, SampleTestCase, RunCodeResponse, SubmissionResponse } from '../../../types/problem';
 import { fetchProblemDetail, runCodeApi, submitCodeApi } from '../../../services/axios/auth/problem';
+import { languageMap } from '../../../utils/problem-related';
 
-const languageMap: Record<number, { value: string; label: string }> = {
+// const languageMap: Record<number, { value: string; label: string }> = {
 
-    50: { value: 'c', label: 'C' },
-    51: { value: 'csharp', label: 'C#' },
-    54: { value: 'cpp', label: 'C++' },
-    60: { value: 'go', label: 'Go' },
-    62: { value: 'java', label: 'Java' },
-    63: { value: 'javascript', label: 'JavaScript' },
-    68: { value: 'php', label: 'PHP' },
-    71: { value: 'python', label: 'Python' },
-    72: { value: 'ruby', label: 'Ruby' },
-    73: { value: 'rust', label: 'Rust' },
-    74: { value: 'typescript', label: 'TypeScript' },
-    78: { value: 'kotlin', label: 'Kotlin' },
-    83: { value: 'swift', label: 'Swift' },
-};
+//     50: { value: 'c', label: 'C' },
+//     51: { value: 'csharp', label: 'C#' },
+//     54: { value: 'cpp', label: 'C++' },
+//     60: { value: 'go', label: 'Go' },
+//     62: { value: 'java', label: 'Java' },
+//     63: { value: 'javascript', label: 'JavaScript' },
+//     68: { value: 'php', label: 'PHP' },
+//     71: { value: 'python', label: 'Python' },
+//     72: { value: 'ruby', label: 'Ruby' },
+//     73: { value: 'rust', label: 'Rust' },
+//     74: { value: 'typescript', label: 'TypeScript' },
+//     78: { value: 'kotlin', label: 'Kotlin' },
+//     83: { value: 'swift', label: 'Swift' },
+// };
 
 export const useProblemSolving = () => {
 
@@ -33,7 +34,7 @@ export const useProblemSolving = () => {
     const [error, setError] = useState<string | null>(null);
     const [runCodeResults, setRunCodeResults] = useState<RunCodeResponse | null>(null);
     const [submissionResults, setSubmissionResults] = useState<SubmissionResponse | null>(null);
-    const [activeTab, setActiveTab] = useState('testcase');
+    const [activeTab, setActiveTab] = useState<'testcase' | 'result'>('testcase');
     const [activeTestCase, setActiveTestCase] = useState(1);
     const [isRunning, setIsRunning] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);

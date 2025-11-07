@@ -65,7 +65,7 @@ export const SubmissionHeatmap: React.FC<SubmissionHeatmapProps> = ({
   const months = Array.from({ length: 12 }, (_, i) => subMonths(today, 11 - i));
 
   return (
-    <div className="bg-[#1a1a1a] rounded-lg p-6">
+    <div className="bg-white/5 rounded-lg p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-white text-lg font-semibold">
           {totalSubmissions} submissions in the past one year

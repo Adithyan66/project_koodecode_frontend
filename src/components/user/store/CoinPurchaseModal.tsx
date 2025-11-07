@@ -2,7 +2,8 @@
 
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { toast } from 'react-hot-toast';
 import { paymentService } from '../../../services/axios/user/payment';
 import type { CoinPackage, RazorpayResponse } from '../../../types/payment';
@@ -22,6 +23,13 @@ interface CoinPurchaseModalProps {
 const CoinPurchaseModal: React.FC<CoinPurchaseModalProps> = ({ isOpen, onClose, onSuccess }) => {
     const [loading, setLoading] = useState(false);
     const [selectedPackage, setSelectedPackage] = useState<CoinPackage | null>(null);
+    const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
+
+    useEffect(() => {
+        if (typeof document !== 'undefined') {
+            setPortalContainer(document.body);
+        }
+    }, []);
 
     const coinPackages: CoinPackage[] = [
         { coins: 100, price: 100 },
@@ -133,10 +141,10 @@ const CoinPurchaseModal: React.FC<CoinPurchaseModalProps> = ({ isOpen, onClose, 
         }
     };
 
-    if (!isOpen) return null;
+    if (!isOpen || !portalContainer) return null;
 
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    return createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4 py-8 backdrop-blur-sm">
             <div className="bg-gray-900 rounded-lg p-6 w-full max-w-md border border-gray-700 shadow-2xl max-h-[90vh] overflow-y-auto">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
@@ -276,7 +284,8 @@ const CoinPurchaseModal: React.FC<CoinPurchaseModalProps> = ({ isOpen, onClose, 
                     </div>
                 </div>
             </div>
-        </div>
+        </div>,
+        portalContainer
     );
 };
 

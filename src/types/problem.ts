@@ -102,6 +102,7 @@ export interface SampleTestCase {
 }
 
 export interface ProblemData {
+    acceptanceRate: any;
     isSolved: any;
     problemNumber: number;
     title: string;

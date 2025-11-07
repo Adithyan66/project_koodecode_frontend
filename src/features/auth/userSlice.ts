@@ -3,7 +3,7 @@
 
 
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { loginUser, initializeAuth, logoutUser, fetchUserProfile, signupUser, forgotPassword, googleOAuthLogin, githubOAuthLogin } from './userThunks';
+import { loginUser, initializeAuth, logoutUser, signupUser, forgotPassword, googleOAuthLogin, githubOAuthLogin } from './userThunks';
 
 export interface UserDetails {
     userName: string;

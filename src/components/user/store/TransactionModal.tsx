@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import { storeService } from '../../../services/axios/user/store';
 import type { CoinTransaction, CoinTransactionResponse } from '../../../types/store';
@@ -42,7 +38,6 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, bu
         }
     }, [isOpen]);
 
-    // Close modal when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (
@@ -78,68 +73,63 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, bu
         });
     };
 
-    const getTransactionIcon = (type: string, source: string) => {
-        if (type === 'earn') {
-            return <span className="text-green-400">+</span>;
-        }
-        return <span className="text-red-400">-</span>;
-    };
-
     if (!isOpen) return null;
 
     return (
-        <div 
+        <div
             ref={modalRef}
-            className="absolute top-full right-0 mt-2 w-full max-w-2xl bg-gray-900 rounded-lg border border-gray-700 shadow-xl z-50"
+            className="absolute top-full right-0 z-50 mt-3 w-full max-w-2xl rounded-3xl border border-white/10 bg-white/5 shadow-[0_40px_120px_-60px_rgba(17,24,39,0.7)]"
             style={{ minWidth: '500px' }}
         >
-            {/* Header */}
-            <div className="flex justify-between items-center p-6 border-b border-gray-700">
-                <h2 className="text-xl font-bold text-white">Transaction History</h2>
+            <div className="flex items-center justify-between rounded-t-3xl border-b border-white/10 px-6 py-5">
+                <h2 className="text-lg font-semibold text-white">Transaction History</h2>
                 <button
                     onClick={onClose}
-                    className="text-gray-400 hover:text-white transition-colors"
+                    className="text-white/50 transition-colors hover:text-white"
                 >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
 
-            {/* Content */}
-            <div className="p-6">
-                <div className="overflow-y-auto max-h-96">
+            <div className="px-6 py-5">
+                <div className="max-h-96 overflow-y-auto pr-2">
                     {loading ? (
-                        <div className="flex justify-center py-8">
+                        <div className="flex justify-center py-12">
                             <LoadingSpinner />
                         </div>
                     ) : error ? (
-                        <div className="text-red-400 text-center py-8">{error}</div>
+                        <div className="py-12 text-center text-rose-300">{error}</div>
                     ) : transactions.length === 0 ? (
-                        <div className="text-gray-400 text-center py-8">No transactions found</div>
+                        <div className="py-12 text-center text-white/60">No transactions found</div>
                     ) : (
                         <div className="space-y-3">
                             {transactions.map((transaction) => (
-                                <div key={transaction.id} className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                                    <div className="flex justify-between items-start">
+                                <div
+                                    key={transaction.id}
+                                    className="rounded-3xl border border-white/12 bg-gray-700 p-5 shadow-[0_30px_60px_-40px_rgba(15,23,42,0.7)] transition hover:border-white/25"
+                                >
+                                    <div className="flex items-start justify-between gap-6">
                                         <div className="flex-1">
-                                            <div className="flex items-center space-x-2 mb-1">
-                                                {getTransactionIcon(transaction.type, transaction.source)}
-                                                <span className="text-white font-medium">
-                                                    {transaction.description}
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <span className={`font-semibold ${transaction.type === 'earn' ? 'text-emerald-300' : 'text-rose-300'}`}>
+                                                    {transaction.type === 'earn' ? 'Earned' : 'Spent'}
+                                                </span>
+                                                <span className="text-white/50">·</span>
+                                                <span className="capitalize text-white/60">
+                                                    {transaction.source.replace('_', ' ')}
                                                 </span>
                                             </div>
-                                            <div className="text-sm text-gray-400">
+                                            <div className="mt-2 text-base font-semibold text-white">
+                                                {transaction.description}
+                                            </div>
+                                            <div className="mt-1 text-xs uppercase tracking-[0.3em] text-white/40">
                                                 {formatDate(transaction.createdAt)}
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <div className={`font-bold ${transaction.type === 'earn' ? 'text-green-400' : 'text-red-400'}`}>
-                                                {transaction.type === 'earn' ? '+' : '-'}{transaction.amount}
-                                            </div>
-                                            <div className="text-xs text-gray-500 capitalize">
-                                                {transaction.source.replace('_', ' ')}
-                                            </div>
+                                        <div className={`text-right text-lg font-semibold ${transaction.type === 'earn' ? 'text-emerald-300' : 'text-rose-300'}`}>
+                                            {transaction.type === 'earn' ? '+' : '-'}{transaction.amount}
                                         </div>
                                     </div>
                                 </div>
@@ -148,30 +138,30 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, bu
                     )}
                 </div>
 
-                {/* Pagination */}
                 {totalPages > 1 && (
-                    <div className="flex justify-center items-center space-x-2 mt-6 pt-4 border-t border-gray-700">
+                    <div className="mt-6 flex items-center justify-center gap-3 border-t border-white/10 pt-4">
                         <button
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className="px-3 py-1 rounded bg-gray-800 text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="rounded-full border border-white/15 px-4 py-2 text-sm text-white/80 transition hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
                         >
                             Previous
                         </button>
-                        
-                        <div className="flex space-x-1">
+
+                        <div className="flex gap-2">
                             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                                 const page = Math.max(1, currentPage - 2) + i;
                                 if (page > totalPages) return null;
-                                
+
+                                const isActive = page === currentPage;
                                 return (
                                     <button
                                         key={page}
                                         onClick={() => handlePageChange(page)}
-                                        className={`px-3 py-1 rounded ${
-                                            page === currentPage
-                                                ? 'bg-green-500 text-black'
-                                                : 'bg-gray-800 text-gray-400 hover:text-white'
+                                        className={`rounded-full px-4 py-2 text-sm transition ${
+                                            isActive
+                                                ? 'bg-white text-black'
+                                                : 'border border-white/15 text-white/80 hover:border-white/30 hover:text-white'
                                         }`}
                                     >
                                         {page}
@@ -183,7 +173,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, bu
                         <button
                             onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage === totalPages}
-                            className="px-3 py-1 rounded bg-gray-800 text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="rounded-full border border-white/15 px-4 py-2 text-sm text-white/80 transition hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
                         >
                             Next
                         </button>
@@ -195,3 +185,4 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, bu
 };
 
 export default TransactionModal;
+

@@ -1,9 +1,7 @@
 
 
-// src/services/axios/user/contest.ts
 import httpClient from '../httpClient';
 import { toast } from 'react-hot-toast';
-import { ContestData, ContestLeaderboard, LeaderboardEntry } from '../../../types/contest-info';
 
 class ContestService {
   async fetchActiveContest() {
@@ -36,12 +34,12 @@ class ContestService {
     }
   }
 
-  async fetchLeaderboard(contestNumber) {
+  async fetchLeaderboard(contestNumber: any) {
     try {
       const response = await httpClient.get(`/user/contests/${contestNumber}/leaderboard`);
       return {
         contestId: response.data.leaderboard.contestId,
-        rankings: response.data.leaderboard.rankings.map((entry) => ({
+        rankings: response.data.leaderboard.rankings.map((entry: { timeTaken: any; }) => ({
           ...entry,
           timeTaken: String(entry.timeTaken),
         })),
@@ -64,18 +62,21 @@ class ContestService {
     }
   }
 
-  async registerForContest(contestId) {
+  async registerForContest(contestId: string) {
     try {
       await httpClient.post('/user/contests/register', { contestId });
       toast.success('Successfully registered for contest!');
       return true;
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to register for contest');
+      const message =
+        (typeof error === 'object' && error !== null && 'response' in error && (error as any).response?.data?.message) ||
+        'Failed to register for contest';
+      toast.error(message);
       return false;
     }
   }
 
-  async fetchContestData(contestNumber) {
+  async fetchContestData(contestNumber: string) {
     try {
       const response = await httpClient.get(`/user/contests/${contestNumber}`);
       return {
@@ -85,9 +86,9 @@ class ContestService {
         registrationDeadline: new Date(response.data.data.contest.registrationDeadline),
         userSubmission: response.data.data.contest.userSubmission
           ? {
-              ...response.data.data.contest.userSubmission,
-              submittedAt: new Date(response.data.data.contest.userSubmission.submittedAt),
-            }
+            ...response.data.data.contest.userSubmission,
+            submittedAt: new Date(response.data.data.contest.userSubmission.submittedAt),
+          }
           : null,
       };
     } catch (error) {

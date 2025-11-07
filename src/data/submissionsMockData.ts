@@ -57,7 +57,8 @@ export const mockSubmissionsHistory: SubmissionResponse[] = [
             ],
             userMemory: 8.89,
             beats: 22.06
-        }
+        },
+        maxMemoryUsage: 0
     },
     {
         id: 'sub_002',
@@ -93,7 +94,8 @@ export const mockSubmissionsHistory: SubmissionResponse[] = [
         for j in range(i + 1, len(nums)):
             if nums[i] + nums[j] == target:
                 result.append([i, j])
-    return result[0] if result else []`
+    return result[0] if result else []`,
+        maxMemoryUsage: 0
     },
     {
         id: 'sub_003',
@@ -132,7 +134,8 @@ export const mockSubmissionsHistory: SubmissionResponse[] = [
         }
     }
     return [];
-}`
+}`,
+        maxMemoryUsage: 0
     },
     {
         id: 'sub_004',
@@ -176,7 +179,8 @@ vector<int> twoSum(vector<int>& nums, int target) {
         map[nums[i]] = i;
     }
     return {};
-}`
+}`,
+        maxMemoryUsage: 0
     },
     {
         id: 'sub_005',
@@ -223,7 +227,8 @@ vector<int> twoSum(vector<int>& nums, int target) {
             ],
             userMemory: 10.2,
             beats: 68.75
-        }
+        },
+        maxMemoryUsage: 0
     }
 ];
 
@@ -234,4 +239,3 @@ export const getMockSubmissionHistory = async (): Promise<SubmissionResponse[]> 
         }, 300);
     });
 };
-

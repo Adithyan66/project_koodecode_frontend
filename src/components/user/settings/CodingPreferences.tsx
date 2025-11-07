@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { Save } from 'lucide-react';
 
@@ -52,7 +50,6 @@ const CodingPreferences: React.FC = () => {
     setIsLoading(true);
     try {
       console.log('Saving coding preferences:', preferences);
-      // await saveCodingPreferences(preferences);
     } catch (error) {
       console.error('Failed to save preferences:', error);
     } finally {
@@ -61,20 +58,20 @@ const CodingPreferences: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Coding Preferences</h2>
+    <div className="space-y-6 text-gray-200">
+      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+        <h2 className="mb-6 text-xl font-semibold text-white">Coding Preferences</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Editor Theme */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="mb-2 block text-sm font-medium text-white">
               Editor Theme
             </label>
             <select
               value={preferences.theme}
               onChange={(e) => handleChange('theme', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              className="w-full rounded-2xl border border-white/20 bg-black/60 px-3 py-2 text-gray-200 shadow-sm focus:border-white/40 focus:outline-none"
             >
               {themes.map(theme => (
                 <option key={theme.value} value={theme.value}>{theme.label}</option>
@@ -84,7 +81,7 @@ const CodingPreferences: React.FC = () => {
 
           {/* Font Size */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="mb-2 block text-sm font-medium text-white">
               Font Size: {preferences.fontSize}px
             </label>
             <input
@@ -93,19 +90,19 @@ const CodingPreferences: React.FC = () => {
               max="24"
               value={preferences.fontSize}
               onChange={(e) => handleChange('fontSize', parseInt(e.target.value))}
-              className="w-full"
+              className="w-full accent-blue-500"
             />
           </div>
 
           {/* Font Family */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="mb-2 block text-sm font-medium text-white">
               Font Family
             </label>
             <select
               value={preferences.fontFamily}
               onChange={(e) => handleChange('fontFamily', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              className="w-full rounded-2xl border border-white/20 bg-black/60 px-3 py-2 text-gray-200 shadow-sm focus:border-white/40 focus:outline-none"
             >
               {fontFamilies.map(font => (
                 <option key={font} value={font}>{font}</option>
@@ -115,7 +112,7 @@ const CodingPreferences: React.FC = () => {
 
           {/* Tab Size */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="mb-2 block text-sm font-medium text-white">
               Tab Size: {preferences.tabSize}
             </label>
             <input
@@ -124,19 +121,19 @@ const CodingPreferences: React.FC = () => {
               max="8"
               value={preferences.tabSize}
               onChange={(e) => handleChange('tabSize', parseInt(e.target.value))}
-              className="w-full"
+              className="w-full accent-blue-500"
             />
           </div>
 
           {/* Default Language */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="mb-2 block text-sm font-medium text-white">
               Default Language
             </label>
             <select
               value={preferences.defaultLanguage}
               onChange={(e) => handleChange('defaultLanguage', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              className="w-full rounded-2xl border border-white/20 bg-black/60 px-3 py-2 text-gray-200 shadow-sm focus:border-white/40 focus:outline-none"
             >
               {languages.map(lang => (
                 <option key={lang.value} value={lang.value}>{lang.label}</option>
@@ -146,7 +143,7 @@ const CodingPreferences: React.FC = () => {
 
           {/* Execution Timeout */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="mb-2 block text-sm font-medium text-white">
               Execution Timeout: {preferences.executionTimeout}s
             </label>
             <input
@@ -155,14 +152,14 @@ const CodingPreferences: React.FC = () => {
               max="60"
               value={preferences.executionTimeout}
               onChange={(e) => handleChange('executionTimeout', parseInt(e.target.value))}
-              className="w-full"
+              className="w-full accent-blue-500"
             />
           </div>
         </div>
 
         {/* Toggle Options */}
         <div className="mt-6 space-y-4">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white">Editor Options</h3>
+          <h3 className="text-lg font-medium text-white">Editor Options</h3>
           
           <div className="space-y-3">
             {[
@@ -172,10 +169,10 @@ const CodingPreferences: React.FC = () => {
             ].map(option => (
               <div key={option.key} className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label className="text-sm font-medium text-white">
                     {option.label}
                   </label>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{option.description}</p>
+                  <p className="text-xs text-gray-400">{option.description}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
@@ -184,7 +181,7 @@ const CodingPreferences: React.FC = () => {
                     onChange={(e) => handleChange(option.key, e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                  <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-blue-500"></div>
                 </label>
               </div>
             ))}
@@ -196,7 +193,7 @@ const CodingPreferences: React.FC = () => {
           <button
             onClick={handleSave}
             disabled={isLoading}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2 text-white transition hover:border-white/40 hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Save size={16} />
             <span>{isLoading ? 'Saving...' : 'Save Changes'}</span>

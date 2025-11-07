@@ -13,8 +13,10 @@ interface RecentSubmissionsProps {
 export const RecentSubmissions: React.FC<RecentSubmissionsProps> = ({
   submissions,
 }) => {
+  const hasSubmissions = submissions.length > 0;
+
   return (
-    <div className="bg-[#1a1a1a] rounded-lg p-6">
+    <div className="rounded-lg bg-white/5 p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 bg-gray-700 rounded flex items-center justify-center">
@@ -32,17 +34,40 @@ export const RecentSubmissions: React.FC<RecentSubmissionsProps> = ({
         </button> */}
       </div>
 
-      <div className="space-y-3">
-        {submissions.map((submission) => (
-          <div
-            key={submission.id}
-            className="flex items-center justify-between py-3 px-4 bg-[#252525] hover:bg-[#2a2a2a] rounded-lg transition-colors cursor-pointer"
-          >
-            <span className="text-gray-300 text-sm">{submission.title}</span>
-            <span className="text-gray-500 text-xs whitespace-nowrap ml-4">{submission.timeAgo}</span>
+      {hasSubmissions ? (
+        <div className="space-y-3">
+          {submissions.map((submission) => (
+            <div
+              key={submission.id}
+              className="flex items-center justify-between rounded-lg bg-[#252525] px-4 py-3 transition-colors hover:bg-[#2a2a2a]"
+            >
+              <span className="text-sm text-gray-300">{submission.title}</span>
+              <span className="ml-4 whitespace-nowrap text-xs text-gray-500">{submission.timeAgo}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex h-[360px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-center">
+          <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-300">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              className="h-7 w-7"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 9l2.25 2.25L15 7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
           </div>
-        ))}
-      </div>
+          <h4 className="text-lg font-semibold text-white">No submissions yet</h4>
+          <p className="mt-2 max-w-xs text-sm text-white/70">Solve a challenge to see your recent accepted solutions right here.</p>
+        </div>
+      )}
     </div>
   );
 };

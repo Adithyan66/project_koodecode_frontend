@@ -28,7 +28,6 @@ const AccessibilitySettings: React.FC = () => {
     setIsLoading(true);
     try {
       console.log('Saving accessibility settings:', accessibility);
-      // await saveAccessibilitySettings(accessibility);
     } catch (error) {
       console.error('Failed to save accessibility settings:', error);
     } finally {
@@ -37,14 +36,14 @@ const AccessibilitySettings: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-gray-200">
       {/* Visual Accessibility */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <div className="flex items-center space-x-3 mb-6">
-          <Eye className="text-blue-600" size={24} />
+      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+        <div className="mb-6 flex items-center gap-3">
+          <Eye className="text-gray-300" size={24} />
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Visual Accessibility</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Customize visual elements for better readability</p>
+            <h2 className="text-xl font-semibold text-white">Visual Accessibility</h2>
+            <p className="text-sm text-gray-400">Customize visual elements for better readability</p>
           </div>
         </div>
 
@@ -59,10 +58,10 @@ const AccessibilitySettings: React.FC = () => {
             ].map(option => (
               <div key={option.key} className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label className="text-sm font-medium text-white">
                     {option.label}
                   </label>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{option.description}</p>
+                  <p className="text-xs text-gray-400">{option.description}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
@@ -71,7 +70,7 @@ const AccessibilitySettings: React.FC = () => {
                     onChange={(e) => handleChange(option.key, e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                  <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-blue-500"></div>
                 </label>
               </div>
             ))}
@@ -79,7 +78,7 @@ const AccessibilitySettings: React.FC = () => {
 
           {/* Font Size */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="mb-2 block text-sm font-medium text-white">
               Base Font Size: {accessibility.fontSize}px
             </label>
             <input
@@ -88,13 +87,13 @@ const AccessibilitySettings: React.FC = () => {
               max="24"
               value={accessibility.fontSize}
               onChange={(e) => handleChange('fontSize', parseInt(e.target.value))}
-              className="w-full"
+              className="w-full accent-blue-500"
             />
           </div>
 
           {/* Line Height */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="mb-2 block text-sm font-medium text-white">
               Line Height: {accessibility.lineHeight}
             </label>
             <input
@@ -104,13 +103,13 @@ const AccessibilitySettings: React.FC = () => {
               step="0.1"
               value={accessibility.lineHeight}
               onChange={(e) => handleChange('lineHeight', parseFloat(e.target.value))}
-              className="w-full"
+              className="w-full accent-blue-500"
             />
           </div>
 
           {/* Letter Spacing */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="mb-2 block text-sm font-medium text-white">
               Letter Spacing: {accessibility.letterSpacing}px
             </label>
             <input
@@ -120,19 +119,19 @@ const AccessibilitySettings: React.FC = () => {
               step="0.5"
               value={accessibility.letterSpacing}
               onChange={(e) => handleChange('letterSpacing', parseFloat(e.target.value))}
-              className="w-full"
+              className="w-full accent-blue-500"
             />
           </div>
         </div>
       </div>
 
       {/* Keyboard Navigation */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <div className="flex items-center space-x-3 mb-6">
-          <Keyboard className="text-blue-600" size={24} />
+      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+        <div className="mb-6 flex items-center gap-3">
+          <Keyboard className="text-gray-300" size={24} />
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Keyboard Navigation</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Customize keyboard interaction settings</p>
+            <h2 className="text-xl font-semibold text-white">Keyboard Navigation</h2>
+            <p className="text-sm text-gray-400">Customize keyboard interaction settings</p>
           </div>
         </div>
 
@@ -143,10 +142,10 @@ const AccessibilitySettings: React.FC = () => {
           ].map(option => (
             <div key={option.key} className="flex items-center justify-between">
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="text-sm font-medium text-white">
                   {option.label}
                 </label>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{option.description}</p>
+                <p className="text-xs text-gray-400">{option.description}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -155,53 +154,53 @@ const AccessibilitySettings: React.FC = () => {
                   onChange={(e) => handleChange(option.key, e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-blue-500"></div>
               </label>
             </div>
           ))}
         </div>
 
         {/* Keyboard Shortcuts */}
-        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-md">
-          <h3 className="font-medium text-gray-900 dark:text-white mb-3">Keyboard Shortcuts</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Navigate problems</span>
-              <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded text-xs">↑ ↓</kbd>
+        <div className="mt-6 rounded-2xl border border-white/10 bg-black/50 p-4">
+          <h3 className="mb-3 font-medium text-white">Keyboard Shortcuts</h3>
+          <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
+            <div className="flex justify-between text-gray-200">
+              <span>Navigate problems</span>
+              <kbd className="rounded border border-white/20 bg-black/60 px-2 py-1 text-xs text-gray-200">↑ ↓</kbd>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Submit solution</span>
-              <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded text-xs">Ctrl + Enter</kbd>
+            <div className="flex justify-between text-gray-200">
+              <span>Submit solution</span>
+              <kbd className="rounded border border-white/20 bg-black/60 px-2 py-1 text-xs text-gray-200">Ctrl + Enter</kbd>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Open settings</span>
-              <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded text-xs">Ctrl + ,</kbd>
+            <div className="flex justify-between text-gray-200">
+              <span>Open settings</span>
+              <kbd className="rounded border border-white/20 bg-black/60 px-2 py-1 text-xs text-gray-200">Ctrl + ,</kbd>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Search problems</span>
-              <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded text-xs">Ctrl + K</kbd>
+            <div className="flex justify-between text-gray-200">
+              <span>Search problems</span>
+              <kbd className="rounded border border-white/20 bg-black/60 px-2 py-1 text-xs text-gray-200">Ctrl + K</kbd>
             </div>
           </div>
         </div>
       </div>
 
       {/* Screen Reader Support */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <div className="flex items-center space-x-3 mb-6">
-          <Volume2 className="text-blue-600" size={24} />
+      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+        <div className="mb-6 flex items-center gap-3">
+          <Volume2 className="text-gray-300" size={24} />
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Screen Reader Support</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Optimize for assistive technologies</p>
+            <h2 className="text-xl font-semibold text-white">Screen Reader Support</h2>
+            <p className="text-sm text-gray-400">Optimize for assistive technologies</p>
           </div>
         </div>
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="text-sm font-medium text-white">
                 Screen Reader Optimization
               </label>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Add extra context and descriptions for screen readers</p>
+              <p className="text-xs text-gray-400">Add extra context and descriptions for screen readers</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -210,7 +209,7 @@ const AccessibilitySettings: React.FC = () => {
                 onChange={(e) => handleChange('screenReader', e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+              <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-blue-500"></div>
             </label>
           </div>
         </div>
@@ -221,7 +220,7 @@ const AccessibilitySettings: React.FC = () => {
         <button
           onClick={handleSave}
           disabled={isLoading}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+          className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2 text-white transition hover:border-white/40 hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Save size={16} />
           <span>{isLoading ? 'Saving...' : 'Save Accessibility Settings'}</span>

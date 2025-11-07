@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import ContestService from '../../../services/axios/user/contest';
 import { ContestState } from '../../../types/contest-info';
 import type { ContestDTO } from '../../../types/contest.dto';
@@ -6,24 +6,24 @@ import type { ContestDTO } from '../../../types/contest.dto';
 export const useLeaderboardRefresh = (contest: ContestDTO | null) => {
   const [leaderboard, setLeaderboard] = useState(null);
 
-  const fetchLeaderboardData = async () => {
+  const fetchLeaderboardData = useCallback(async () => {
     if (!contest || !contest.contestNumber) return;
     const data = await ContestService.fetchLeaderboard(contest.contestNumber);
     setLeaderboard(data);
-  };
+  }, [contest?.contestNumber]); // Only depend on contestNumber, not entire contest object
 
   useEffect(() => {
-    if (contest) {
+    if (contest?.contestNumber) {
       fetchLeaderboardData();
     }
-  }, [contest]);
+  }, [contest?.contestNumber, fetchLeaderboardData]); // Use contestNumber instead of contest
 
   useEffect(() => {
-    if (contest && contest.state === ContestState.ACTIVE) {
+    if (contest?.state === ContestState.ACTIVE && contest?.contestNumber) {
       const interval = setInterval(fetchLeaderboardData, 30000);
       return () => clearInterval(interval);
     }
-  }, [contest?.state]);
+  }, [contest?.state, contest?.contestNumber, fetchLeaderboardData]);
 
   return leaderboard;
 };

@@ -25,7 +25,7 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({
   recentBadge,
 }) => {
   return (
-    <div className="bg-[#1a1a1a] rounded-lg p-4">
+    <div className="bg-white/5 rounded-lg p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
           <div>
