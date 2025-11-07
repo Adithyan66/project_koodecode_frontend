@@ -1,11 +1,16 @@
 
 
-// src/components/user/contests/UserStatsCard.tsx
-import React from 'react';
-import { UserContestStats } from '../../../types/contest';
-import { Medal, Star, TrendingUp } from 'lucide-react';
 
-const UserStatsCard = ({ stats }) => {
+import { Medal, Star, TrendingUp, Trophy } from 'lucide-react';
+
+interface UserStats {
+  totalContestsParticipated: number;
+  bestRank: number;
+  averageRank: number;
+  totalCoinsEarned: number;
+}
+
+const UserStatsCard = ({ stats }: { stats: UserStats | null }) => {
   if (!stats) return null;
 
   return (

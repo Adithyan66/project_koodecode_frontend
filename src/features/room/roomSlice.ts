@@ -162,15 +162,11 @@ const roomSlice = createSlice({
       })
       .addCase(joinRoomThunk.fulfilled, (state, action) => {
         state.isJoining = false;
-        if (action.payload.success) {
-          state.currentRoom = action.payload.room!;
-        } else {
-          state.error = action.payload.error!;
-        }
+        state.currentRoom = action.payload.data;
       })
       .addCase(joinRoomThunk.rejected, (state, action) => {
         state.isJoining = false;
-        state.error = action.payload as string;
+        state.error = action.payload ?? action.error?.message ?? null;
       });
 
     builder
@@ -179,7 +175,7 @@ const roomSlice = createSlice({
       })
       .addCase(getPublicRoomsThunk.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.publicRooms = action.payload.rooms;
+        state.publicRooms = (action.payload?.rooms ?? []) as unknown as RoomListItem[];
       })
       .addCase(getPublicRoomsThunk.rejected, (state) => {
         state.isLoading = false;

@@ -4,7 +4,6 @@
 
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Search, AlertCircle, Loader } from 'lucide-react';
 import { fetchProblemsThunk } from '../../../features/room/roomThunks';
 import { clearProblemsError, resetProblems, setProblemsSearchQuery } from '../../../features/room/roomSlice';
@@ -12,7 +11,7 @@ import { useDebounce } from '../../../utils/debounce';
 import { useInfiniteScroll } from '../../../app/hooks/problem/useInfiniteScroll';
 // import type { RootState, AppDispatch } from '';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import type { AppDispatch, RootState } from '../../../app/store';
+import type {  RootState } from '../../../app/store';
 
 
 interface ProblemSelectorProps {
@@ -21,11 +20,11 @@ interface ProblemSelectorProps {
   isChanging: boolean;
 }
 
-interface ProblemSummary {
-  problemNumber: number;
-  title: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-}
+// interface ProblemSummary {
+//   problemNumber: number;
+//   title: string;
+//   difficulty: 'Easy' | 'Medium' | 'Hard';
+// }
 
 const ProblemSelector: React.FC<ProblemSelectorProps> = ({
   onSelectProblem,

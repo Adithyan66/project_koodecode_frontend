@@ -20,9 +20,9 @@ const CodeProblemItem: React.FC<CodeProblemItemProps> = ({ problem, onClick }) =
     }
   };
 
-  const getAcceptanceBarWidth = (acceptance: number) => {
-    return `${acceptance}%`;
-  };
+  // const getAcceptanceBarWidth = (acceptance: number) => {
+  //   return `${acceptance}%`;
+  // };
 
   return (
     <div

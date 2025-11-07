@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import { Camera, Save, Upload } from 'lucide-react';
 import httpClient from '../../../services/axios/httpClient';
 import { toast } from 'react-toastify';

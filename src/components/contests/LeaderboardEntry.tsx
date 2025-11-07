@@ -1,9 +1,19 @@
 
-
-import React from 'react';
 import { imageKitService } from '../../services/ImageKitService';
 
-const LeaderboardEntry = ({ entry }) => {
+interface LeaderboardEntryProps {
+  entry: {
+    rank: number;
+    profileImage?: string;
+    username: string;
+    isCurrentUser?: boolean;
+    timeTaken: string;
+    totalScore: number;
+    attempts: number;
+  };
+}
+
+const LeaderboardEntry = ({ entry }: LeaderboardEntryProps) => {
   const initials = (name: string) => {
     if (!name) return 'U';
     const parts = String(name).trim().split(' ');

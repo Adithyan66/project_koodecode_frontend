@@ -51,6 +51,7 @@ export interface Badge {
 }
 
 export interface UserProfileData {
+  languagesUsed: { name: string; count: number; }[];
   user: {
     profileImage: string;
     name: string;

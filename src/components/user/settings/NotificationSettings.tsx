@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Save, Mail, Bell, MessageSquare, Trophy } from 'lucide-react';
+import { Save, Mail, Bell, MessageSquare } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { usePushNotifications } from '../../../app/hooks/usePushNotifications';
 

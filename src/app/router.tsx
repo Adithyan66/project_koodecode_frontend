@@ -8,7 +8,7 @@ import ProblemSolvingPage from '../pages/user/ProblemSolvingPage'
 
 
 import UserProtected from "../components/protectedRoutes/UserProtected"
-import AdminProtected from '../components/protectedRoutes/AdminProtected'
+// import AdminProtected from '../components/protectedRoutes/AdminProtected'
 
 import UserProfilePage from '../pages/user/UserProfilePage'
 import SettingsPage from '../pages/user/SettingsPage'

@@ -88,8 +88,8 @@ const CoinPurchaseModal: React.FC<CoinPurchaseModalProps> = ({ isOpen, onClose, 
                             razorpay_signature: response.razorpay_signature
                         });
 
-                        if (verification.success && verification.data) {
-                            const { coins } = verification.data;
+                        if (verification.success && typeof verification.data === 'number') {
+                            const coins = verification.data;
 
                             // Display success message with payment method
                             toast.success(

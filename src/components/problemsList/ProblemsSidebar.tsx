@@ -1,6 +1,6 @@
 import React from 'react';
 import CodeCalendar from './CodeCalendar';
-import type { CalendarDay } from '../../data/problemsMockData';
+import type { CalendarDay } from '../../services/axios/user/problem';
 
 type ProblemsSidebarProps = {
     calendarData: CalendarDay[];

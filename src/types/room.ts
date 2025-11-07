@@ -13,8 +13,8 @@ export interface Room {
   isPrivate: boolean;
   scheduledTime?: string;
   problemNumber?: number;
-  problem?: ProblemData;
-  sampleTestCases?: SampleTestCase;
+  problem?: ProblemData | null;
+  sampleTestCases?: SampleTestCase[];
   status: 'waiting' | 'active' | 'inactive';
   participants: Participant[];
   userPermissions: UserPermissions;
@@ -67,6 +67,13 @@ export interface CreateRoomRequest {
 export interface JoinRoomRequest {
   roomId: string;
   password?: string;
+}
+
+export interface JoinRoomResponse {
+  success: boolean;
+  message: string;
+  data: Room;
+  error?: string;
 }
 
 export interface UpdatePermissionsRequest {

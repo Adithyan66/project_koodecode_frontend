@@ -8,7 +8,7 @@ type Size = 'small' | 'medium' | 'large';
 interface ImageTransformations {
   width?: number;
   height?: number;
-  crop?: 'maintain_ratio' | 'force' | 'at_least' | 'at_max' | 'extract';
+  crop?: 'maintain_ratio' | 'force' | 'at_least' | 'at_max' | 'at_max_enlarge';
   quality?: number;
   format?: 'auto' | 'webp' | 'jpg' | 'png';
   radius?: number | 'max';
@@ -85,7 +85,7 @@ class ImageKitService {
     height?: number,
     options?: {
       radius?: number | 'max';
-      crop?: 'maintain_ratio' | 'force' | 'at_least' | 'at_max' | 'extract';
+      crop?: 'maintain_ratio' | 'force' | 'at_least' | 'at_max' | 'at_max_enlarge';
       quality?: number;
       format?: 'auto' | 'webp' | 'jpg' | 'png';
     }

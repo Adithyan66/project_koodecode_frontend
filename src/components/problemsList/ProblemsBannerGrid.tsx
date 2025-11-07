@@ -1,6 +1,6 @@
 import React from 'react';
 import BannerCard from './BannerCard';
-import type { BannerCard as BannerCardType } from '../../data/problemsMockData';
+import type { BannerCard as BannerCardType } from '../../services/axios/user/problem';
 
 type ProblemsBannerGridProps = {
     banners: BannerCardType[];

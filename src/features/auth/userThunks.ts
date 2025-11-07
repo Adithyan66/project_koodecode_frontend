@@ -38,7 +38,7 @@ export const loginUser = createAsyncThunk<
     { rejectValue: LoginError }
 >(
     'user/login',
-    async (credentials: LoginCredentials, { dispatch, rejectWithValue }) => {
+    async (credentials: LoginCredentials, {  rejectWithValue }) => {
 
         try {
 
@@ -60,7 +60,7 @@ export const loginUser = createAsyncThunk<
 
 export const signupUser = createAsyncThunk(
     'user/signup',
-    async (credentials: any, { dispatch, rejectWithValue }) => {
+    async (credentials: any, {  rejectWithValue }) => {
 
         try {
             const response = await authAPI.signup(credentials);
@@ -136,30 +136,30 @@ export const githubOAuthLogin = createAsyncThunk<
     }
 );
 
-export const fetchUserProfile = createAsyncThunk(
-    'user/fetchProfile',
-    async (_, { rejectWithValue }) => {
-        try {
-            const token = tokenManager.getToken();
+// export const fetchUserProfile = createAsyncThunk(
+//     'user/fetchProfile',
+//     async (_, { rejectWithValue }) => {
+//         try {
+//             const token = tokenManager.getToken();
 
-            if (!token) {
+//             if (!token) {
 
-                return rejectWithValue('No authentication token found');
-            }
+//                 return rejectWithValue('No authentication token found');
+//             }
 
-            const response = await authAPI.getProfile(token);
+//             const response = await authAPI.getProfile(token);
 
-            return response.data;
+//             return response.data;
 
-        } catch (error: any) {
+//         } catch (error: any) {
 
-            if (error.response?.status === 401) {
-                tokenManager.removeToken();
-            }
-            return rejectWithValue(error.response?.data?.message || 'Failed to fetch profile');
-        }
-    }
-);
+//             if (error.response?.status === 401) {
+//                 tokenManager.removeToken();
+//             }
+//             return rejectWithValue(error.response?.data?.message || 'Failed to fetch profile');
+//         }
+//     }
+// );
 
 export const initializeAuth = createAsyncThunk(
     'user/initializeAuth',
@@ -191,7 +191,7 @@ export const initializeAuth = createAsyncThunk(
 
 export const forgotPassword = createAsyncThunk(
     'user/forgot-password',
-    async (data: any, { dispatch, rejectWithValue }) => {
+    async (data: any, {  rejectWithValue }) => {
 
         try {
             console.log("ivte varatteee,", data.email, data.otp, data.password);
@@ -240,11 +240,11 @@ export const logoutUser = createAsyncThunk(
     }
 );
 
-export const refreshUserProfile = createAsyncThunk(
-    'user/refreshProfile',
-    async (_, { dispatch }) => {
-        return dispatch(fetchUserProfile());
-    }
-);
+// export const refreshUserProfile = createAsyncThunk(
+//     'user/refreshProfile',
+//     async (_, { dispatch }) => {
+//         return dispatch(fetchUserProfile());
+//     }
+// );
 
 

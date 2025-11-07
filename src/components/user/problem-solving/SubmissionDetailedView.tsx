@@ -137,7 +137,10 @@ const SubmissionDetailedView: React.FC<SubmissionDetailedViewProps> = ({ submiss
                         color="green"
                     />
                     <RuntimeGraph
-                        data={submission.memoryDistribution.data}
+                        data={submission.memoryDistribution.data.map(({ memory, percentage }) => ({
+                            runtime: memory,
+                            percentage
+                        }))}
                         userRuntime={submission.memoryDistribution.userMemory}
                         beats={submission.memoryDistribution.beats}
                         label="Memory"
