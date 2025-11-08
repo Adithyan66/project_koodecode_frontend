@@ -93,7 +93,10 @@ const SubmissionsList: React.FC<SubmissionsListProps> = ({ submissions, onSelect
                                         <span className="text-xs text-gray-500">{formatDate(submission.submittedAt)}</span>
                                     </div>
                                     
-                                    <div className="grid grid-cols-4 gap-3 text-xs">
+                                    <div className="grid grid-cols-5 gap-3 text-xs">
+                                         <div className="flex items-center space-x-2 text-xs text-gray-400">
+                                        <span>Test Cases: {submission.testCasesPassed}/{submission.totalTestCases}</span>
+                                    </div>
                                         <div>
                                             <div className="text-gray-500">Language</div>
                                             <div className="text-white font-medium">{submission.language.name}</div>
@@ -118,9 +121,7 @@ const SubmissionsList: React.FC<SubmissionsListProps> = ({ submissions, onSelect
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center space-x-2 text-xs text-gray-400">
-                                        <span>Test Cases: {submission.testCasesPassed}/{submission.totalTestCases}</span>
-                                    </div>
+                                   
                                 </div>
                             </div>
 

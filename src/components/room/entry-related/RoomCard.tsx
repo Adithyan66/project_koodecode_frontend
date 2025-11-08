@@ -48,7 +48,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onJoinRoom, isJoining = false
         className="cursor-pointer hover:opacity-90 transition-opacity"
         onClick={handleCardClick}
       >
-        <div className="relative w-full aspect-video mb-3 rounded-lg overflow-hidden bg-gray-800">
+        <div className="relative w-full aspect-video mb-3 rounded-lg overflow-hidden bg-white-100">
           {thumbnailUrl ? (
             <img
               src={thumbnailUrl}

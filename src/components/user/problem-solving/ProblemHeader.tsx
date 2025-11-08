@@ -11,6 +11,9 @@ interface ProblemHeaderProps {
 const ProblemHeader: React.FC<ProblemHeaderProps> = ({ problemData, acceptanceRate }) => (
     <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
+            <h1 className="text-2xl font-bold mb-2 text-white ">
+                                {problemData.problemNumber}. {problemData.title}
+                            </h1>
             <span className={`px-2 py-1 text-white text-xs rounded font-medium ${problemData.difficulty.toLowerCase() === 'easy' ? 'bg-green-600' :
                 problemData.difficulty.toLowerCase() === 'medium' ? 'bg-yellow-600' :
                     'bg-red-600'
