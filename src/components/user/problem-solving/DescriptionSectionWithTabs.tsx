@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Building2, Lightbulb, ChevronDown, ChevronRight } from 'lucide-react';
 import type { ProblemData } from '../../../types/problem';
-import type { SubmissionResponse } from '../../../types/problem';
+import type { SubmissionResponse, SubmissionPagination } from '../../../types/problem';
 import SubmissionsList from './SubmissionsList';
 import SubmissionDetailedView from './SubmissionDetailedView';
-import { getMockSubmissionHistory } from '../../../data/submissionsMockData';
+import { ProblemSubmissionService } from '../../../services/axios/user/problem-submissions';
+import RotatingSpinner from '../../common/LoadingSpinner';
 
 interface DescriptionSectionWithTabsProps {
     problemData: ProblemData;
@@ -28,12 +29,117 @@ const DescriptionSectionWithTabs: React.FC<DescriptionSectionWithTabsProps> = ({
     const [submissions, setSubmissions] = useState<SubmissionResponse[]>([]);
     const [selectedSubmission, setSelectedSubmission] = useState<SubmissionResponse | null>(null);
     const [loading, setLoading] = useState(false);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const isThrottledRef = useRef(false);
+    const throttleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const isFetchingRef = useRef(false);
+    const currentPageRef = useRef(0);
+    const hasNextRef = useRef(true);
+    const submissionsContainerRef = useRef<HTMLDivElement | null>(null);
+
+    const fetchSubmissions = useCallback(async (page: number, append: boolean) => {
+        if (isFetchingRef.current) {
+            return;
+        }
+
+        isFetchingRef.current = true;
+
+        if (append) {
+            setIsLoadingMore(true);
+        } else {
+            setLoading(true);
+        }
+
+        try {
+            const response = await ProblemSubmissionService.getSubmissions(problemData.id, { page });
+            const responsePayload = response.data as any;
+            const fetchedSubmissions = (responsePayload?.submissions ?? responsePayload?.data?.submissions ?? []) as SubmissionResponse[];
+            const pagination = (responsePayload?.pagination ?? responsePayload?.data?.pagination) as SubmissionPagination | undefined;
+
+            setSubmissions(prev => {
+                if (!append) {
+                    return fetchedSubmissions;
+                }
+
+                const existingIds = new Set(prev.map(item => item.id));
+                const merged = fetchedSubmissions.filter(item => !existingIds.has(item.id));
+                return [...prev, ...merged];
+            });
+
+            if (pagination) {
+                currentPageRef.current = pagination.page;
+                hasNextRef.current = pagination.hasNext;
+            } else {
+                currentPageRef.current = append ? currentPageRef.current + 1 : 1;
+                hasNextRef.current = false;
+            }
+        } catch (error) {
+            console.error('Failed to load submissions:', error);
+        } finally {
+            if (append) {
+                setIsLoadingMore(false);
+            } else {
+                setLoading(false);
+            }
+            isFetchingRef.current = false;
+        }
+    }, [problemData.id]);
+
+    const throttledFetchSubmissions = useCallback((page: number, append = false) => {
+        if (append && !hasNextRef.current) {
+            return;
+        }
+
+        if (isThrottledRef.current) {
+            return;
+        }
+
+        isThrottledRef.current = true;
+        fetchSubmissions(page, append);
+
+        throttleTimeoutRef.current = setTimeout(() => {
+            isThrottledRef.current = false;
+            throttleTimeoutRef.current = null;
+        }, 1000);
+    }, [fetchSubmissions]);
 
     useEffect(() => {
         if (activeDescriptionTab === 'submissions') {
-            loadSubmissions();
+            setSubmissions([]);
+            setSelectedSubmission(null);
+            currentPageRef.current = 0;
+            hasNextRef.current = true;
+            throttledFetchSubmissions(1);
         }
-    }, [activeDescriptionTab]);
+    }, [activeDescriptionTab, problemData.id, throttledFetchSubmissions]);
+
+    const handleScroll = useCallback(() => {
+        const container = submissionsContainerRef.current;
+        if (!container || activeDescriptionTab !== 'submissions') {
+            return;
+        }
+
+        if (loading || isLoadingMore || !hasNextRef.current) {
+            return;
+        }
+
+        const threshold = 150;
+        const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+
+        if (distanceFromBottom <= threshold) {
+            throttledFetchSubmissions(currentPageRef.current + 1, true);
+        }
+    }, [activeDescriptionTab, loading, isLoadingMore, throttledFetchSubmissions]);
+
+    useEffect(() => {
+        return () => {
+            if (throttleTimeoutRef.current) {
+                clearTimeout(throttleTimeoutRef.current);
+            }
+            isThrottledRef.current = false;
+            isFetchingRef.current = false;
+        };
+    }, []);
 
     useEffect(() => {
         if (latestSubmission) {
@@ -45,21 +151,9 @@ const DescriptionSectionWithTabs: React.FC<DescriptionSectionWithTabsProps> = ({
         }
     }, [latestSubmission]);
 
-    const loadSubmissions = async () => {
-        setLoading(true);
-        try {
-            const history = await getMockSubmissionHistory();
-            
-            setSubmissions(history);
-        } catch (error) {
-            console.error('Failed to load submissions:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const handleSelectSubmission = (submission: SubmissionResponse) => {
         setSelectedSubmission(submission);
+        setSubmissions(prev => prev.map(item => item.id === submission.id ? submission : item));
     };
 
     const handleBackToList = () => {
@@ -82,7 +176,7 @@ const DescriptionSectionWithTabs: React.FC<DescriptionSectionWithTabsProps> = ({
                 >
                     <span>Description</span>
                     {activeDescriptionTab === 'description' && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-green-500 to-transparent" />
                     )}
                 </button>
                 <button
@@ -98,12 +192,16 @@ const DescriptionSectionWithTabs: React.FC<DescriptionSectionWithTabsProps> = ({
                 >
                     <span>Submissions</span>
                     {activeDescriptionTab === 'submissions' && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-green-500 to-transparent" />
                     )}
                 </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto no-scrollbar">
+            <div
+                className="flex-1 overflow-y-auto no-scrollbar"
+                ref={submissionsContainerRef}
+                onScroll={handleScroll}
+            >
                 {activeDescriptionTab === 'description' ? (
                     <div className="space-y-6 text-gray-300 leading-relaxed">
                         <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: problemData.description }} />
@@ -238,8 +336,9 @@ const DescriptionSectionWithTabs: React.FC<DescriptionSectionWithTabsProps> = ({
                 ) : (
                     <div>
                         {loading ? (
-                            <div className="flex items-center justify-center py-16">
-                                <div className="animate-spin w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full"></div>
+                            <div className="flex items-center justify-center ">
+                                {/* <div className="animate-spin w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full"></div> */}
+                                <RotatingSpinner/>
                             </div>
                         ) : selectedSubmission ? (
                             <SubmissionDetailedView 
@@ -247,10 +346,17 @@ const DescriptionSectionWithTabs: React.FC<DescriptionSectionWithTabsProps> = ({
                                 onBack={handleBackToList}
                             />
                         ) : (
-                            <SubmissionsList 
-                                submissions={submissions}
-                                onSelectSubmission={handleSelectSubmission}
-                            />
+                            <div className="space-y-4">
+                                <SubmissionsList 
+                                    submissions={submissions}
+                                    onSelectSubmission={handleSelectSubmission}
+                                />
+                                {isLoadingMore && (
+                                    <div className="flex items-center justify-center py-4">
+                                        <RotatingSpinner />
+                                    </div>
+                                )}
+                            </div>
                         )}
                     </div>
                 )}

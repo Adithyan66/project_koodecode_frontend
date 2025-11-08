@@ -1,6 +1,6 @@
 
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Search, ChevronLeft, ChevronRight, Loader, AlertCircle } from 'lucide-react';
 import RoomCard from './RoomCard';
 import { useRoomSection } from '../../../app/hooks/room/useRoomSection';
@@ -10,6 +10,25 @@ interface RoomsSectionProps {
   status: 'active' | 'waiting';
   accentColor?: string;
 }
+
+const accentThemes = {
+  green: {
+    glow: 'from-emerald-500/25 via-emerald-400/15 to-cyan-400/25',
+    titleGradient: 'from-emerald-300 via-emerald-200 to-cyan-200',
+  },
+  blue: {
+    glow: 'from-sky-500/25 via-blue-500/15 to-indigo-500/25',
+    titleGradient: 'from-sky-300 via-blue-200 to-indigo-200',
+  },
+  purple: {
+    glow: 'from-fuchsia-500/25 via-purple-500/15 to-indigo-500/25',
+    titleGradient: 'from-fuchsia-300 via-purple-200 to-indigo-200',
+  },
+  orange: {
+    glow: 'from-amber-500/25 via-orange-500/15 to-rose-500/25',
+    titleGradient: 'from-amber-300 via-orange-200 to-rose-200',
+  }
+} as const;
 
 const RoomsSection: React.FC<RoomsSectionProps> = ({
   title,
@@ -30,32 +49,45 @@ const RoomsSection: React.FC<RoomsSectionProps> = ({
     retryFetch,
   } = useRoomSection({ status });
 
-  const getAccentClasses = () => {
-    const classes = {
-      green: 'text-green-400',
-      blue: 'text-blue-400',
-      purple: 'text-purple-400',
-      orange: 'text-orange-400'
-    };
-    return classes[accentColor as keyof typeof classes] || classes.green;
+  const theme = useMemo(() => {
+    const key = accentColor as keyof typeof accentThemes;
+    return accentThemes[key] || accentThemes.green;
+  }, [accentColor]);
+
+  const renderTitle = () => {
+    const words = title.split(' ');
+    return words.map((word, index) => {
+      const isLast = index === words.length - 1;
+      if (isLast) {
+        return (
+          <span
+            key={`${word}-${index}`}
+            className={`bg-gradient-to-r ${theme.titleGradient} bg-clip-text text-transparent`}
+          >
+            {word}
+          </span>
+        );
+      }
+      return (
+        <span key={`${word}-${index}`} className="text-white">
+          {word}{' '}
+        </span>
+      );
+    });
   };
 
   return (
-    <section className="px-6 py-16 bg-black">
-      <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
+    <section className="relative px-6 py-16 bg-black overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className={`absolute top-[-18rem] right-[-10rem] h-[28rem] w-[28rem] blur-3xl rounded-full bg-gradient-to-br ${theme.glow}`} />
+        <div className="absolute bottom-[-16rem] left-[-12rem] h-[26rem] w-[26rem] blur-3xl rounded-full bg-gradient-to-br from-white/10 via-white/5 to-transparent" />
+      </div>
+      <div className="relative max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <h2 className="text-4xl font-bold mb-4 md:mb-0">
-            {title.split(' ').map((word, index) =>
-              index === title.split(' ').length - 1 ? (
-                <span key={index} className={getAccentClasses()}>{word}</span>
-              ) : (
-                <span key={index}>{word} </span>
-              )
-            )}
+            {renderTitle()}
           </h2>
 
-          {/* Search */}
           <div className="relative w-full md:w-80">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
@@ -68,7 +100,6 @@ const RoomsSection: React.FC<RoomsSectionProps> = ({
           </div>
         </div>
 
-        {/* Loading State */}
         {loading && (
           <div className="flex items-center justify-center py-12">
             <div className="flex items-center space-x-3 text-gray-400">
@@ -78,7 +109,6 @@ const RoomsSection: React.FC<RoomsSectionProps> = ({
           </div>
         )}
 
-        {/* Error State */}
         {error && !loading && (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
@@ -97,7 +127,6 @@ const RoomsSection: React.FC<RoomsSectionProps> = ({
           </div>
         )}
 
-        {/* Empty State */}
         {!loading && !error && rooms.length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-400 mb-4">
@@ -110,14 +139,12 @@ const RoomsSection: React.FC<RoomsSectionProps> = ({
               <p>
                 {searchQuery
                   ? 'Try adjusting your search terms'
-                  : `${status === 'active' ? 'Active' : 'Scheduled'} rooms will appear here`
-                }
+                  : `${status === 'active' ? 'Active' : 'Scheduled'} rooms will appear here`}
               </p>
             </div>
           </div>
         )}
 
-        {/* Rooms Grid */}
         {!loading && !error && rooms.length > 0 && (
           <>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -131,7 +158,6 @@ const RoomsSection: React.FC<RoomsSectionProps> = ({
               ))}
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex items-center justify-center space-x-4">
                 <button

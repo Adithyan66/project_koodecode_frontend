@@ -39,10 +39,10 @@ const LandingPage: React.FC = () => {
                 helpNote={helpNote}
             />
 
-            <FeatureHighlightsSection featureHighlights={featureHighlights} />
 
             <WorkflowSection workflowSteps={workflowSteps} />
 
+            <FeatureHighlightsSection featureHighlights={featureHighlights} />
             {isAuthenticated && (
                 <RoomsSection
                     title="Join Active Rooms"

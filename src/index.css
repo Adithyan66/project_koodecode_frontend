@@ -2,7 +2,7 @@
 
 html, body {
   scrollbar-width: thin;
-  scrollbar-color: #4b5563 transparent;
+  scrollbar-color: #696969 #1f2933;
 }
 
 html::-webkit-scrollbar,
@@ -13,12 +13,12 @@ body::-webkit-scrollbar {
 
 html::-webkit-scrollbar-track,
 body::-webkit-scrollbar-track {
-  background: transparent;
+  background: #1f2933;
 }
 
 html::-webkit-scrollbar-thumb,
 body::-webkit-scrollbar-thumb {
-  background-color: #4b5563;
+  background-color: #696969;
   border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: padding-box;
@@ -26,7 +26,7 @@ body::-webkit-scrollbar-thumb {
 
 html::-webkit-scrollbar-thumb:hover,
 body::-webkit-scrollbar-thumb:hover {
-  background-color: #6b7280;
+  background-color: #808080;
 }
 
 @layer utilities {
@@ -39,23 +39,23 @@ body::-webkit-scrollbar-thumb:hover {
   }
   .tiny-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: #4b5563 transparent;
+    scrollbar-color: #696969 #1f2933;
   }
   .tiny-scrollbar::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   .tiny-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
+    background: #1f2933;
   }
   .tiny-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #4b5563;
+    background-color: #696969;
     border-radius: 9999px;
     border: 2px solid transparent;
     background-clip: padding-box;
   }
   .tiny-scrollbar:hover::-webkit-scrollbar-thumb {
-    background-color: #6b7280;
+    background-color: #808080;
   }
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;

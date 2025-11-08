@@ -1,14 +1,14 @@
 
 export interface TestCaseResult {
     testCaseId: string;
-    input: string;
-    expectedOutput: string;
-    actualOutput: string;
-    status: 'passed' | 'failed' | 'error';
-    executionTime: number;
-    memoryUsage: number;
-    judge0Token: string;
-    errorMessage: string | null;
+    status: string;
+    executionTime?: number;
+    memoryUsage?: number;
+    input?: string;
+    expectedOutput?: string;
+    actualOutput?: string;
+    errorMessage?: string | null;
+    judge0Token?: string;
 }
 
 export interface RunCodeResponse {
@@ -141,4 +141,28 @@ export interface ApiResponse {
         problem: ProblemData;
         sampleTestCases: SampleTestCase[];
     };
+}
+
+export interface SubmissionPagination {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+}
+
+export interface SubmissionHistoryResponse {
+    success: boolean;
+    message: string;
+    data: {
+        submissions: SubmissionResponse[];
+        pagination: SubmissionPagination;
+    };
+}
+
+export interface SubmissionDetailResponse {
+    success: boolean;
+    message: string;
+    data: SubmissionResponse;
 }
