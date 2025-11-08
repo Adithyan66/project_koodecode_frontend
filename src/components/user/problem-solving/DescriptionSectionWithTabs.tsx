@@ -36,6 +36,8 @@ const DescriptionSectionWithTabs: React.FC<DescriptionSectionWithTabsProps> = ({
     const currentPageRef = useRef(0);
     const hasNextRef = useRef(true);
     const submissionsContainerRef = useRef<HTMLDivElement | null>(null);
+    const autoShowLatestSubmissionRef = useRef(false);
+    const lastSubmissionIdRef = useRef<string | number | null>(null);
 
     const fetchSubmissions = useCallback(async (page: number, append: boolean) => {
         if (isFetchingRef.current) {
@@ -106,7 +108,10 @@ const DescriptionSectionWithTabs: React.FC<DescriptionSectionWithTabsProps> = ({
     useEffect(() => {
         if (activeDescriptionTab === 'submissions') {
             setSubmissions([]);
-            setSelectedSubmission(null);
+            if (!autoShowLatestSubmissionRef.current) {
+                setSelectedSubmission(null);
+            }
+            autoShowLatestSubmissionRef.current = false;
             currentPageRef.current = 0;
             hasNextRef.current = true;
             throttledFetchSubmissions(1);
@@ -142,14 +147,25 @@ const DescriptionSectionWithTabs: React.FC<DescriptionSectionWithTabsProps> = ({
     }, []);
 
     useEffect(() => {
-        if (latestSubmission) {
-            setSelectedSubmission(latestSubmission);
-            setSubmissions(prev => {
-                const filtered = prev.filter(s => s.id !== latestSubmission.id);
-                return [latestSubmission, ...filtered];
-            });
+        if (!latestSubmission) {
+            return;
         }
-    }, [latestSubmission]);
+
+        if (latestSubmission.id === lastSubmissionIdRef.current) {
+            return;
+        }
+
+        lastSubmissionIdRef.current = latestSubmission.id ?? null;
+        autoShowLatestSubmissionRef.current = true;
+        setSelectedSubmission(latestSubmission);
+        setSubmissions(prev => {
+            const filtered = prev.filter(s => s.id !== latestSubmission.id);
+            return [latestSubmission, ...filtered];
+        });
+        if (activeDescriptionTab !== 'submissions') {
+            setActiveDescriptionTab('submissions');
+        }
+    }, [latestSubmission, activeDescriptionTab, setActiveDescriptionTab]);
 
     const handleSelectSubmission = (submission: SubmissionResponse) => {
         setSelectedSubmission(submission);

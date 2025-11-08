@@ -191,7 +191,7 @@ const VideoCallTab: React.FC<VideoCallTabProps> = ({
     const options = {
       roomName: roomId,
       width: '100%',
-      height: minimized ? 200 : 645,
+      height: minimized ? 200 : '100%',
       parentNode: jitsiContainerRef.current,
 
       userInfo: {
