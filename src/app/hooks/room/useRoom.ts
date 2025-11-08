@@ -9,6 +9,7 @@ import type { ProblemData, RunCodeResponse, SampleTestCase, SubmissionResponse }
 import type { Room } from '../../../types/room';
 import { getLanguageId, languageMap } from '../../../utils/problem-related';
 import { runCodeApi } from '../../../services/axios/auth/problem';
+import { roomService } from '../../../services/axios/user/room';
 
 type RoomTab = 'problem' | 'video' | 'whiteboard' | 'chat';
 type BottomTab = 'testcase' | 'result';
@@ -25,6 +26,7 @@ export const useRoom = () => {
     const passwordFromState = location.state?.password;
 
     const editorRef = useRef<any>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const rightPaneRef = useRef<HTMLDivElement>(null);
     const selfViewVideoRef = useRef<HTMLVideoElement>(null);
     const hasLeftRoomRef = useRef(false);
@@ -43,6 +45,7 @@ export const useRoom = () => {
     const [activeTestCase, setActiveTestCase] = useState(1);
     const [isRunning, setIsRunning] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmissionResultVisible, setIsSubmissionResultVisible] = useState(false);
     const [languages, setLanguages] = useState<{ value: string; label: string }[]>([]);
     const [selfViewStream, setSelfViewStream] = useState<MediaStream | null>(null);
     const [isCameraOn, setIsCameraOn] = useState(false);
@@ -56,26 +59,73 @@ export const useRoom = () => {
     const selfViewDidDragRef = useRef(false);
     const [editorHeightPct, setEditorHeightPct] = useState<number>(60);
     const [isResizingHorizontal, setIsResizingHorizontal] = useState(false);
+    const [leftPaneWidthPct, setLeftPaneWidthPct] = useState<number>(() => {
+        if (typeof window === 'undefined') {
+            return 50;
+        }
+        try {
+            const saved = window.localStorage.getItem('room_leftPaneWidth');
+            if (saved) {
+                const parsed = parseFloat(saved);
+                if (!Number.isNaN(parsed)) {
+                    return Math.min(Math.max(parsed, 37.5), 80);
+                }
+            }
+        } catch {}
+        return 50;
+    });
+    const [isResizingVertical, setIsResizingVertical] = useState(false);
+    const [isDesktop, setIsDesktop] = useState(() => {
+        if (typeof window === 'undefined') {
+            return false;
+        }
+        return window.innerWidth >= 768;
+    });
+
+    useEffect(() => {
+        try {
+            window.localStorage.setItem('room_leftPaneWidth', leftPaneWidthPct.toString());
+        } catch {}
+    }, [leftPaneWidthPct]);
 
     const handleHorizontalMouseDown = useCallback(() => {
         setIsResizingHorizontal(true);
     }, []);
 
+    const handleVerticalMouseDown = useCallback(() => {
+        if (!isDesktop) {
+            return;
+        }
+        setIsResizingVertical(true);
+    }, [isDesktop]);
+
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
-            if (!rightPaneRef.current || !isResizingHorizontal) return;
-            const rect = rightPaneRef.current.getBoundingClientRect();
-            const relativeY = e.clientY - rect.top;
-            const newPct = (relativeY / rect.height) * 100;
-            if (newPct >= 20 && newPct <= 80) {
-                setEditorHeightPct(newPct);
+            if (isResizingVertical && containerRef.current) {
+                const rect = containerRef.current.getBoundingClientRect();
+                const newPct = ((e.clientX - rect.left) / rect.width) * 100;
+                const clamped = Math.min(Math.max(newPct, 37.5), 80);
+                setLeftPaneWidthPct(prev => (prev === clamped ? prev : clamped));
+            }
+            if (isResizingHorizontal && rightPaneRef.current) {
+                const rect = rightPaneRef.current.getBoundingClientRect();
+                const relativeY = e.clientY - rect.top;
+                const newPct = (relativeY / rect.height) * 100;
+                if (newPct >= 20 && newPct <= 80) {
+                    setEditorHeightPct(newPct);
+                }
             }
         };
-        const handleMouseUp = () => setIsResizingHorizontal(false);
-        if (isResizingHorizontal) {
+        const handleMouseUp = () => {
+            setIsResizingVertical(false);
+            setIsResizingHorizontal(false);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        };
+        if (isResizingVertical || isResizingHorizontal) {
             document.addEventListener('mousemove', handleMouseMove);
             document.addEventListener('mouseup', handleMouseUp);
-            document.body.style.cursor = 'row-resize';
+            document.body.style.cursor = isResizingVertical ? 'col-resize' : 'row-resize';
             document.body.style.userSelect = 'none';
             return () => {
                 document.removeEventListener('mousemove', handleMouseMove);
@@ -84,13 +134,15 @@ export const useRoom = () => {
                 document.body.style.userSelect = '';
             };
         }
-    }, [isResizingHorizontal]);
+    }, [isResizingVertical, isResizingHorizontal]);
 
     useEffect(() => {
         const handleResize = () => {
-            if (window.innerWidth < 768) {
+            const width = window.innerWidth;
+            if (width < 768) {
                 setIsVideoMinimized(true);
             }
+            setIsDesktop(width >= 768);
         };
         handleResize();
         window.addEventListener('resize', handleResize);
@@ -240,7 +292,6 @@ export const useRoom = () => {
     }, [dispatch, navigate]);
 
     const handleProblemChanged = useCallback((data: any) => {
-        console.log("problem changedddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", data);
         
         dispatch(updateRoomProblem({
             problem: data.problem,
@@ -376,15 +427,35 @@ export const useRoom = () => {
     };
 
     const submitCode = async () => {
+        if (!roomId) return;
+        if (!problemData) return;
+        const langId = getLanguageId(selectedLanguage);
+        if (!langId) {
+            toast.error('Select a language before submitting');
+            return;
+        }
         setIsSubmitting(true);
+        setBottomActiveTab('result');
+        setRunCodeResults(null);
         try {
-            console.log('Submitting code...');
-            await new Promise(resolve => setTimeout(resolve, 3000));
-            setSubmissionResults({ status: 'accepted', results: [] } as any);
-            setBottomActiveTab('result');
+            const result = await roomService.submitCode({
+                roomId,
+                problemId: problemData.id,
+                sourceCode: code,
+                languageId: langId
+            });
+            setSubmissionResults(result);
+            setIsSubmissionResultVisible(true);
+        } catch (error: any) {
+            const message = error?.response?.data?.message || error?.message || 'Submission failed';
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const closeSubmissionResultView = () => {
+        setIsSubmissionResultVisible(false);
     };
 
     useEffect(() => {
@@ -462,13 +533,20 @@ export const useRoom = () => {
         sampleTestCases,
         runCodeResults,
         submissionResults,
+        isSubmissionResultVisible,
         activeTestCase,
         setActiveTestCase,
         isRunning,
         isSubmitting,
         rightPaneRef,
+        containerRef,
         editorHeightPct,
         handleHorizontalMouseDown,
+        handleVerticalMouseDown,
+        leftPaneWidthPct,
+        isDesktop,
+        isResizingVertical,
+        isResizingHorizontal,
         handleLanguageChange,
         resetCode,
         handleEditorDidMount,
@@ -480,7 +558,8 @@ export const useRoom = () => {
         selfViewPos,
         onSelfViewPointerDown,
         isCameraOn,
-        setIsCameraOn
+        setIsCameraOn,
+        closeSubmissionResultView
     };
 };
 
