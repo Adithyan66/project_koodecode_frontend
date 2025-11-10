@@ -15,6 +15,7 @@ export function usePushNotifications() {
   const [isSupported, setIsSupported] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasCheckedSubscription, setHasCheckedSubscription] = useState(false);
 
   useEffect(() => {
     const supported = 
@@ -25,7 +26,16 @@ export function usePushNotifications() {
     setIsSupported(supported);
 
     if (supported) {
-      checkSubscriptionStatus().then(setIsSubscribed);
+      checkSubscriptionStatus()
+        .then(setIsSubscribed)
+        .catch((err: any) => {
+          console.error('Subscription status check error:', err);
+          setError(err?.message || 'Failed to check push subscription status');
+          setIsSubscribed(false);
+        })
+        .finally(() => setHasCheckedSubscription(true));
+    } else {
+      setHasCheckedSubscription(true);
     }
   }, []);
 
@@ -44,6 +54,7 @@ export function usePushNotifications() {
       const vapidPublicKey = await notificationsService.getVapidPublicKey();
       await subscribeToPushNotifications(API_BASE_URL, token, vapidPublicKey);
       setIsSubscribed(true);
+      setHasCheckedSubscription(true);
       return true;
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to subscribe to push notifications';
@@ -68,6 +79,7 @@ export function usePushNotifications() {
     try {
       await unsubscribeFromPushNotifications(API_BASE_URL, token);
       setIsSubscribed(false);
+      setHasCheckedSubscription(true);
       return true;
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to unsubscribe from push notifications';
@@ -84,6 +96,7 @@ export function usePushNotifications() {
     isSubscribed,
     isLoading,
     error,
+    hasCheckedSubscription,
     subscribe,
     unsubscribe
   };

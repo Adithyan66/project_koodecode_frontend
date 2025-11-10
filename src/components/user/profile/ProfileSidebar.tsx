@@ -6,7 +6,7 @@ interface Language {
 }
 
 interface ProfileSidebarProps {
-  profileImage: string;
+  profileImage: string | null;
   name: string;
   username: string;
   bio: string;
@@ -29,11 +29,20 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
   return (
     <div className="bg-white/5 rounded-lg p-6 space-y-6">
       <div className="flex flex-col items-center">
-        <img
-          src={profileImage}
-          alt={name}
-          className="w-24 h-24 rounded-full mb-4 object-cover"
-        />
+        {profileImage ? (
+          <img
+            src={profileImage}
+            alt={name}
+            className="w-24 h-24 rounded-lg mb-4 object-cover border border-gray-700"
+          />
+        ) : (
+          <div className="w-24 h-24 rounded-lg mb-4 border border-gray-700 bg-white/5 flex items-center justify-center">
+            <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 6A3.75 3.75 0 1112 2.25 3.75 3.75 0 0115.75 6z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.5 20.25a7.5 7.5 0 0115 0" />
+            </svg>
+          </div>
+        )}
         <h2 className="text-2xl font-bold text-white">{name}</h2>
         <p className="text-gray-400 text-sm">{username}</p>
       </div>

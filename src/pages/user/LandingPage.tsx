@@ -29,41 +29,63 @@ const LandingPage: React.FC = () => {
         isSupported,
         isSubscribed,
         isLoading: isPushLoading,
-        subscribe
+        subscribe,
+        hasCheckedSubscription
     } = usePushNotifications();
+    console.log(isSupported, isSubscribed, isPushLoading);
+    
     const [showPushPrompt, setShowPushPrompt] = useState(false);
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
-        if (!isSupported) return;
+        if (!isSupported) {
+            setShowPushPrompt(false);
+            return;
+        }
+        if (!hasCheckedSubscription) {
+            setShowPushPrompt(false);
+            return;
+        }
         const permission = typeof Notification === 'undefined' ? null : Notification.permission;
+        const now = Date.now();
         const lastPromptRaw = localStorage.getItem('koodecode:lastPushPrompt');
         const lastPrompt = lastPromptRaw ? Number(lastPromptRaw) : 0;
-        const now = Date.now();
-        const shouldPrompt = now - lastPrompt >= 30 * 60 * 1000;
-        if (permission === 'granted' && isSubscribed) {
-            if (!lastPrompt) {
+        const shouldPrompt = now - lastPrompt >= 1 * 60 * 1000;
+        if (permission === 'denied') {
+            setShowPushPrompt(false);
+            if (!lastPromptRaw) {
                 localStorage.setItem('koodecode:lastPushPrompt', now.toString());
             }
+            return;
+        }
+        if (permission === 'granted' && isSubscribed) {
+            setShowPushPrompt(false);
+            localStorage.setItem('koodecode:lastPushPrompt', now.toString());
             return;
         }
         if (permission === 'granted' && !isSubscribed) {
             if (shouldPrompt) {
                 setShowPushPrompt(true);
+                localStorage.setItem('koodecode:lastPushPrompt', now.toString());
+            } else {
+                setShowPushPrompt(false);
             }
             return;
         }
         if (shouldPrompt) {
             setShowPushPrompt(true);
+            localStorage.setItem('koodecode:lastPushPrompt', now.toString());
+        } else {
+            setShowPushPrompt(false);
         }
-    }, [isSupported, isSubscribed]);
+    }, [isSupported, isSubscribed, hasCheckedSubscription]);
 
     useEffect(() => {
         if (!showPushPrompt) return;
-        if (!isSupported) {
+        if (!isSupported || !hasCheckedSubscription) {
             setShowPushPrompt(false);
         }
-    }, [isSupported, showPushPrompt]);
+    }, [isSupported, showPushPrompt, hasCheckedSubscription]);
 
     const handleRecordPrompt = () => {
         if (typeof window === 'undefined') return;

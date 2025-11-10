@@ -19,31 +19,40 @@ export const StatsCircles: React.FC<StatsCirclesProps> = ({
   hard,
   attempting,
 }) => {
+  const MIN_FILL_PERCENTAGE = 4;
+
+  const getPercentage = ({ solved, total }: DifficultyStats) => {
+    if (total === 0) {
+      return 0;
+    }
+    if (solved === 0) {
+      return MIN_FILL_PERCENTAGE;
+    }
+    const percentage = (solved / total) * 100;
+    return Math.min(percentage, 100);
+  };
+
   const totalSolved = easy.solved + medium.solved + hard.solved;
   const totalProblems = easy.total + medium.total + hard.total;
-
-  const easyPercentage = (easy.solved / easy.total) * 100;
-  const mediumPercentage = (medium.solved / medium.total) * 100;
-  const hardPercentage = (hard.solved / hard.total) * 100;
 
   const radialData = [
     {
       name: 'Easy',
-      value: easyPercentage,
+      value: getPercentage(easy),
       fill: '#22c55e',
-      solved: easy.solved,
+      solved: easy.solved ,
       total: easy.total,
     },
     {
       name: 'Medium',
-      value: mediumPercentage,
+      value: getPercentage(medium),
       fill: '#eab308',
       solved: medium.solved,
       total: medium.total,
     },
     {
       name: 'Hard',
-      value: hardPercentage,
+      value: getPercentage(hard),
       fill: '#ef4444',
       solved: hard.solved,
       total: hard.total,
@@ -59,8 +68,8 @@ export const StatsCircles: React.FC<StatsCirclesProps> = ({
             innerRadius={30}
             outerRadius={85}
             startAngle={90}
-            endAngle={450}
-            barSize={12}
+            endAngle={360}
+            barSize={10}
           >
             <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
             <RadialBar
@@ -69,7 +78,7 @@ export const StatsCircles: React.FC<StatsCirclesProps> = ({
               background={{ fill: '#2a2a2a' }}
             />
             <text x="50%" y="45%" textAnchor="middle" dominantBaseline="middle">
-              <tspan className="fill-white text-2xl font-bold">
+              <tspan className="fill-white text-l font-bold">
                 {totalSolved}/{totalProblems}
               </tspan>
             </text>
@@ -81,11 +90,6 @@ export const StatsCircles: React.FC<StatsCirclesProps> = ({
           </RadialBarChart>
         </ResponsiveContainer>
         
-        {attempting > 0 && (
-          <div className="text-gray-300 text-sm mt-2">
-            {attempting} Attempting
-          </div>
-        )}
       </div>
 
       <div className="flex flex-col gap-1.5 flex-1">
@@ -103,6 +107,11 @@ export const StatsCircles: React.FC<StatsCirclesProps> = ({
           <div className="text-[#ef4444] text-xs font-medium">Hard</div>
           <div className="text-gray-300 text-xs">{hard.solved}/{hard.total}</div>
         </div>
+           {attempting > 0 && (
+          <div className="text-gray-300 text-sm mt-2">
+            {attempting} Attempting
+          </div>
+        )}
       </div>
     </div>
   );

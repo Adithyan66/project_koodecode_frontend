@@ -105,7 +105,7 @@ class ImageKitService {
     return this.getOptimizedImageUrl(s3Key, {
       width: size,
       height: size,
-      crop: 'force',
+      crop: 'at_max_enlarge',
       radius: 'max',
       quality: 90,
       format: 'auto'

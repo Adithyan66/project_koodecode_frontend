@@ -7,9 +7,23 @@ interface DayData {
   count: number;
 }
 
+interface BadgeInfo {
+  id: string;
+  name: string;
+  imageUrl: string;
+  color: string;
+}
+
+interface RecentBadgeInfo {
+  imageUrl: string;
+  title: string;
+  year: number;
+  color: string;
+}
+
 interface TransformedProfileData {
   user: {
-    profileImage: string;
+    profileImage: string | null;
     name: string;
     username: string;
     bio: string;
@@ -26,8 +40,8 @@ interface TransformedProfileData {
   };
   badges: {
     total: number;
-    list: { id: string; icon: string; color: string }[];
-    recent: { icon: string; title: string; year: number; color: string };
+    list: BadgeInfo[];
+    recent: RecentBadgeInfo;
   };
   heatmap: {
     data: DayData[];
@@ -51,13 +65,29 @@ export const useProfile = () => {
   //   }));
   // };
 
-  const transformBadges = (badges: any[]) => {
+  const transformBadges = (badges: any[]): BadgeInfo[] => {
     const colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#6366f1', '#14b8a6'];
-    return badges.slice(0, 6).map((badge, index) => ({
-      id: badge.badgeId,
-      icon: '🏆',
-      color: colors[index % colors.length],
-    }));
+    return badges.map((badge, index) => {
+      const badgeId = badge?.id || badge?.badgeId || `badge-${index}`;
+      const badgeName = badge?.name || badge?.title || `Badge ${index + 1}`;
+      const badgeImageKey = badge?.imageUrl || badge?.icon || '';
+      const badgeImageUrl = badgeImageKey
+        ? imageKitService.getOptimizedImageUrl(badgeImageKey, {
+            width: 96,
+            height: 96,
+            crop: 'at_least',
+            quality: 90,
+            format: 'auto',
+          })
+        : '';
+
+      return {
+        id: String(badgeId),
+        name: badgeName,
+        imageUrl: badgeImageUrl,
+        color: colors[index % colors.length],
+      };
+    });
   };
 
   const transformLanguages = (languages: any): { name: string; count: number }[] => {
@@ -99,15 +129,24 @@ export const useProfile = () => {
         
         const profileImageUrl = data.user?.profileImage
           ? imageKitService.getAvatarUrl(data.user.profileImage, 1000)
-          : 'https://ik.imagekit.io/devtown/default_profile_BnM0aD0IW.jpg';
+          : null;          
 
-        const badgesSource = data.badges || {};
+        const badgesSource = (data.badges || {}) as any;
         const badgesList = transformBadges(badgesSource.list || []);
-        const badgesRecent = badgesSource.recent || {
-          icon: '🏆',
-          title: badgesSource.list?.[0]?.name || '200 Days Badge 2025',
-          year: new Date().getFullYear(),
-          color: '#8b5cf6',
+        const recentBadgeImageKey = badgesSource.recent?.imageUrl || badgesSource.list?.[0]?.imageUrl || '';
+        const badgesRecent: RecentBadgeInfo = {
+          imageUrl: recentBadgeImageKey
+            ? imageKitService.getOptimizedImageUrl(recentBadgeImageKey, {
+                width: 96,
+                height: 96,
+                crop: 'at_least',
+                quality: 90,
+                format: 'auto',
+              })
+            : '',
+          title: badgesSource.recent?.title || badgesSource.list?.[0]?.name || 'Latest Achievement',
+          year: badgesSource.recent?.year || new Date().getFullYear(),
+          color: badgesList[0]?.color || '#8b5cf6',
         };
 
         const badges: TransformedProfileData['badges'] = {

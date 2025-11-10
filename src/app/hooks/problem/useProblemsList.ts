@@ -3,7 +3,7 @@ import { ProblemService } from '../../../services/axios/user/problem';
 import type { Problem } from '../../../types/problem-list';
 import type { BannerCard, CalendarDay } from '../../../services/axios/user/problem';
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 20;
 
 interface UseProblemsListReturn {
     search: string;
