@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/user/Navbar';
 import RoomsSection from '../../components/room/entry-related/RoomsSection';
 import { useLanding } from '../../app/hooks/common/useLanding';
@@ -6,6 +6,9 @@ import HeroSection from '../../components/landing/HeroSection';
 import FeatureHighlightsSection from '../../components/landing/FeatureHighlightsSection';
 import WorkflowSection from '../../components/landing/WorkflowSection';
 import Footer from '../../components/landing/LandingFooter';
+import { usePushNotifications } from '../../app/hooks/usePushNotifications';
+import PushPermissionPrompt from '../../components/landing/PushPermissionPrompt';
+import { toast } from 'react-toastify';
 
 const LandingPage: React.FC = () => {
     const {
@@ -22,10 +25,79 @@ const LandingPage: React.FC = () => {
         frontCardRef,
         helpNote
     } = useLanding();
+    const {
+        isSupported,
+        isSubscribed,
+        isLoading: isPushLoading,
+        subscribe
+    } = usePushNotifications();
+    const [showPushPrompt, setShowPushPrompt] = useState(false);
 
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        if (!isSupported) return;
+        const permission = typeof Notification === 'undefined' ? null : Notification.permission;
+        const lastPromptRaw = localStorage.getItem('koodecode:lastPushPrompt');
+        const lastPrompt = lastPromptRaw ? Number(lastPromptRaw) : 0;
+        const now = Date.now();
+        const shouldPrompt = now - lastPrompt >= 30 * 60 * 1000;
+        if (permission === 'granted' && isSubscribed) {
+            if (!lastPrompt) {
+                localStorage.setItem('koodecode:lastPushPrompt', now.toString());
+            }
+            return;
+        }
+        if (permission === 'granted' && !isSubscribed) {
+            if (shouldPrompt) {
+                setShowPushPrompt(true);
+            }
+            return;
+        }
+        if (shouldPrompt) {
+            setShowPushPrompt(true);
+        }
+    }, [isSupported, isSubscribed]);
+
+    useEffect(() => {
+        if (!showPushPrompt) return;
+        if (!isSupported) {
+            setShowPushPrompt(false);
+        }
+    }, [isSupported, showPushPrompt]);
+
+    const handleRecordPrompt = () => {
+        if (typeof window === 'undefined') return;
+        localStorage.setItem('koodecode:lastPushPrompt', Date.now().toString());
+    };
+
+    const handleEnableNotifications = async () => {
+        const success = await subscribe();
+        if (success) {
+            toast.success('Push notifications enabled');
+            handleRecordPrompt();
+            setShowPushPrompt(false);
+        } else {
+            toast.error('Unable to enable notifications right now');
+        }
+    };
+
+    const handleDismissPrompt = () => {
+        handleRecordPrompt();
+        setShowPushPrompt(false);
+    };
     return (
         <div className="min-h-screen bg-gradient-to-b from-black via-[#050505] to-black text-white relative">
             <Navbar />
+
+            <div className="pointer-events-none fixed right-6 top-24 z-40 flex justify-end">
+                {showPushPrompt && (
+                    <PushPermissionPrompt
+                        isLoading={isPushLoading}
+                        onEnable={handleEnableNotifications}
+                        onDismiss={handleDismissPrompt}
+                    />
+                )}
+            </div>
 
             <HeroSection
                 activeHeroView={activeHeroView}

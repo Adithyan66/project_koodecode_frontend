@@ -82,8 +82,8 @@ const SecurityPrivacy: React.FC = () => {
   return (
     <div className="space-y-6 text-gray-200">
       {/* Change Password */}
-      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
-        <h2 className="mb-6 text-xl font-semibold text-white">Change Password</h2>
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+        <h2 className="mb-6 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Change Password</h2>
 
         <div className="space-y-4 max-w-md">
           {/* Current Password */}
@@ -167,8 +167,8 @@ const SecurityPrivacy: React.FC = () => {
       </div>
 
       {/* Two-Factor Authentication */}
-      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
-        <h2 className="mb-6 text-xl font-semibold text-white">Two-Factor Authentication</h2>
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+        <h2 className="mb-6 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Two-Factor Authentication</h2>
 
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -210,8 +210,8 @@ const SecurityPrivacy: React.FC = () => {
       </div>
 
       {/* Privacy Settings */}
-      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
-        <h2 className="mb-6 text-xl font-semibold text-white">Privacy Settings</h2>
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+        <h2 className="mb-6 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Privacy Settings</h2>
 
         <div className="space-y-6">
           <div>
@@ -252,7 +252,7 @@ const SecurityPrivacy: React.FC = () => {
                     onChange={(e) => handlePrivacyChange(option.key, e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-blue-500"></div>
+                  <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-green-500"></div>
                 </label>
               </div>
             ))}
@@ -270,12 +270,12 @@ const SecurityPrivacy: React.FC = () => {
       </div>
 
       {/* Active Sessions */}
-      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
-        <h2 className="mb-6 text-xl font-semibold text-white">Active Sessions</h2>
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+        <h2 className="mb-6 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Active Sessions</h2>
 
         <div className="space-y-3">
           {activeSessions.map(session => (
-            <div key={session.id} className="flex items-center justify-between rounded-2xl border border-white/10 bg-black/55 p-4">
+            <div key={session.id} className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/10 p-4">
               <div>
                 <div className="flex items-center space-x-2">
                   <h3 className="font-medium text-white">{session.device}</h3>

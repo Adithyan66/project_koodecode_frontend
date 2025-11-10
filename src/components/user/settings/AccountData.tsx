@@ -51,11 +51,11 @@ const AccountData: React.FC = () => {
   return (
     <div className="space-y-6 text-gray-200">
       {/* Usage Statistics */}
-      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
         <div className="mb-6 flex items-center gap-3">
           <BarChart3 className="text-gray-300" size={24} />
           <div>
-            <h2 className="text-xl font-semibold text-white">Usage Statistics</h2>
+            <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Usage Statistics</h2>
             <p className="text-sm text-gray-400">Overview of your KoodeCode activity</p>
           </div>
         </div>
@@ -71,7 +71,7 @@ const AccountData: React.FC = () => {
             { label: 'Badges Earned', value: usageStats.badgesEarned },
             { label: 'Active Days', value: usageStats.activeDays }
           ].map(stat => (
-            <div key={stat.label} className="rounded-2xl border border-white/10 bg-black/55 p-3 text-center">
+            <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/10 p-3 text-center">
               <div className="text-2xl font-bold text-white">{stat.value}</div>
               <div className="text-sm text-gray-400">{stat.label}</div>
             </div>
@@ -84,11 +84,11 @@ const AccountData: React.FC = () => {
       </div>
 
       {/* Data Export */}
-      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
         <div className="mb-6 flex items-center gap-3">
           <Download className="text-gray-300" size={24} />
           <div>
-            <h2 className="text-xl font-semibold text-white">Data Export</h2>
+            <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Data Export</h2>
             <p className="text-sm text-gray-400">Download your personal data and activity</p>
           </div>
         </div>
@@ -98,7 +98,7 @@ const AccountData: React.FC = () => {
             <button
               onClick={() => handleDataExport('all')}
               disabled={isLoading}
-              className="flex items-center justify-center gap-3 rounded-2xl border border-white/20 bg-black/45 p-4 transition-all hover:border-white/40 hover:bg-white/10 disabled:opacity-50"
+              className="flex items-center justify-center gap-3 rounded-2xl border border-white/20 bg-white/10 p-4 transition-all hover:border-white/40 hover:bg-white/15 disabled:opacity-50"
             >
               <Download size={20} />
               <div className="text-left">
@@ -110,7 +110,7 @@ const AccountData: React.FC = () => {
             <button
               onClick={() => handleDataExport('solutions')}
               disabled={isLoading}
-              className="flex items-center justify-center gap-3 rounded-2xl border border-white/20 bg-black/45 p-4 transition-all hover:border-white/40 hover:bg-white/10 disabled:opacity-50"
+              className="flex items-center justify-center gap-3 rounded-2xl border border-white/20 bg-white/10 p-4 transition-all hover:border-white/40 hover:bg-white/15 disabled:opacity-50"
             >
               <Download size={20} />
               <div className="text-left">
@@ -122,7 +122,7 @@ const AccountData: React.FC = () => {
             <button
               onClick={() => handleDataExport('stats')}
               disabled={isLoading}
-              className="flex items-center justify-center gap-3 rounded-2xl border border-white/20 bg-black/45 p-4 transition-all hover:border-white/40 hover:bg-white/10 disabled:opacity-50"
+              className="flex items-center justify-center gap-3 rounded-2xl border border-white/20 bg-white/10 p-4 transition-all hover:border-white/40 hover:bg-white/15 disabled:opacity-50"
             >
               <Download size={20} />
               <div className="text-left">
@@ -144,7 +144,7 @@ const AccountData: React.FC = () => {
         <div className="mb-6 flex items-center gap-3">
           <AlertTriangle className="text-red-500" size={24} />
           <div>
-            <h2 className="text-xl font-semibold text-white">Danger Zone</h2>
+            <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Danger Zone</h2>
             <p className="text-sm text-red-200/80">Permanently delete your account and data</p>
           </div>
         </div>

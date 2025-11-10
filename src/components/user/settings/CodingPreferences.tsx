@@ -59,8 +59,8 @@ const CodingPreferences: React.FC = () => {
 
   return (
     <div className="space-y-6 text-gray-200">
-      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
-        <h2 className="mb-6 text-xl font-semibold text-white">Coding Preferences</h2>
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+        <h2 className="mb-6 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Coding Preferences</h2>
         
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Editor Theme */}
@@ -90,7 +90,7 @@ const CodingPreferences: React.FC = () => {
               max="24"
               value={preferences.fontSize}
               onChange={(e) => handleChange('fontSize', parseInt(e.target.value))}
-              className="w-full accent-blue-500"
+              className="w-full accent-green-500"
             />
           </div>
 
@@ -121,7 +121,7 @@ const CodingPreferences: React.FC = () => {
               max="8"
               value={preferences.tabSize}
               onChange={(e) => handleChange('tabSize', parseInt(e.target.value))}
-              className="w-full accent-blue-500"
+              className="w-full accent-green-500"
             />
           </div>
 
@@ -152,7 +152,7 @@ const CodingPreferences: React.FC = () => {
               max="60"
               value={preferences.executionTimeout}
               onChange={(e) => handleChange('executionTimeout', parseInt(e.target.value))}
-              className="w-full accent-blue-500"
+              className="w-full accent-green-500"
             />
           </div>
         </div>
@@ -181,7 +181,7 @@ const CodingPreferences: React.FC = () => {
                     onChange={(e) => handleChange(option.key, e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-blue-500"></div>
+                  <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-green-500"></div>
                 </label>
               </div>
             ))}

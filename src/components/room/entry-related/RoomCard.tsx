@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Users, Calendar } from 'lucide-react';
+import { Users, Calendar, Play, Bell } from 'lucide-react';
 import type { PublicRoom } from '../../../types/room';
 import { imageKitService } from '../../../services/ImageKitService';
-import RoomDetailsModal from './RoomDetailsModal';
+import { toast } from 'react-toastify';
 
 interface RoomCardProps {
   room: PublicRoom;
@@ -11,7 +11,7 @@ interface RoomCardProps {
 }
 
 const RoomCard: React.FC<RoomCardProps> = ({ room, onJoinRoom, isJoining = false }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubscribing, setIsSubscribing] = useState(false);
 
   const formatScheduledTime = (scheduledTime?: string) => {
     if (!scheduledTime) return '';
@@ -34,20 +34,26 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onJoinRoom, isJoining = false
 
   const thumbnailUrl = getThumbnailUrl(room.thumbnail);
 
-  const handleCardClick = () => {
-    setIsModalOpen(true);
-  };
-
   const handleJoinRoomWrapper = (roomId: string) => {
     onJoinRoom(roomId);
   };
 
+  const handleGetNotified = async () => {
+    if (isSubscribing) return;
+    setIsSubscribing(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast.success('You will be notified when this room goes live!');
+    } catch (error) {
+      toast.error('Failed to subscribe for notifications');
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
+
   return (
     <>
-      <div
-        className="cursor-pointer hover:opacity-90 transition-opacity"
-        onClick={handleCardClick}
-      >
+      <div className="group transition-opacity hover:opacity-90">
         <div className="relative w-full aspect-video mb-3 rounded-lg overflow-hidden bg-white-100">
           {thumbnailUrl ? (
             <img
@@ -64,6 +70,51 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onJoinRoom, isJoining = false
               </div>
             </div>
           )}
+
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto z-10 px-4 text-center">
+            {room.status === 'active' ? (
+              <button
+                type="button"
+                onClick={() => handleJoinRoomWrapper(room.id)}
+                disabled={isJoining}
+                className="flex flex-col items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isJoining ? (
+                  <span className="w-12 h-12 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                ) : (
+                  <span className="w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-emerald-400 flex items-center justify-center shadow-lg">
+                    <Play size={22} className="text-black" />
+                  </span>
+                )}
+                <span className="text-white text-xs font-semibold uppercase tracking-wide">
+                  {isJoining ? 'Joining...' : 'Join Room'}
+                </span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleGetNotified}
+                disabled={isSubscribing}
+                className="flex flex-col items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubscribing ? (
+                  <span className="w-12 h-12 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                ) : (
+                  <span className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg">
+                    <Bell size={22} className="text-white" />
+                  </span>
+                )}
+                <span className="text-white text-xs font-semibold uppercase tracking-wide">
+                  {isSubscribing ? 'Subscribing...' : 'Get Notified'}
+                </span>
+              </button>
+            )}
+            {room.status === 'waiting' && room.scheduledTime && (
+              <span className="text-white text-sm font-medium">
+                {formatScheduledTime(room.scheduledTime)}
+              </span>
+            )}
+          </div>
 
           {room.status === 'active' && (
             <div className="absolute top-2 right-2 bg-red-500 px-2 py-1 rounded-full flex items-center space-x-1 animate-pulse">
@@ -105,13 +156,6 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onJoinRoom, isJoining = false
         </div>
       </div>
 
-      <RoomDetailsModal
-        isOpen={isModalOpen}
-        room={room}
-        onClose={() => setIsModalOpen(false)}
-        onJoinRoom={handleJoinRoomWrapper}
-        isJoining={isJoining}
-      />
     </>
   );
 };

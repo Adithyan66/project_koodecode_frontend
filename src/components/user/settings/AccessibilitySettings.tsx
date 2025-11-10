@@ -38,11 +38,11 @@ const AccessibilitySettings: React.FC = () => {
   return (
     <div className="space-y-6 text-gray-200">
       {/* Visual Accessibility */}
-      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
         <div className="mb-6 flex items-center gap-3">
           <Eye className="text-gray-300" size={24} />
           <div>
-            <h2 className="text-xl font-semibold text-white">Visual Accessibility</h2>
+            <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Visual Accessibility</h2>
             <p className="text-sm text-gray-400">Customize visual elements for better readability</p>
           </div>
         </div>
@@ -70,7 +70,7 @@ const AccessibilitySettings: React.FC = () => {
                     onChange={(e) => handleChange(option.key, e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-blue-500"></div>
+                  <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-green-500"></div>
                 </label>
               </div>
             ))}
@@ -87,7 +87,7 @@ const AccessibilitySettings: React.FC = () => {
               max="24"
               value={accessibility.fontSize}
               onChange={(e) => handleChange('fontSize', parseInt(e.target.value))}
-              className="w-full accent-blue-500"
+              className="w-full accent-green-500"
             />
           </div>
 
@@ -103,7 +103,7 @@ const AccessibilitySettings: React.FC = () => {
               step="0.1"
               value={accessibility.lineHeight}
               onChange={(e) => handleChange('lineHeight', parseFloat(e.target.value))}
-              className="w-full accent-blue-500"
+              className="w-full accent-green-500"
             />
           </div>
 
@@ -119,18 +119,18 @@ const AccessibilitySettings: React.FC = () => {
               step="0.5"
               value={accessibility.letterSpacing}
               onChange={(e) => handleChange('letterSpacing', parseFloat(e.target.value))}
-              className="w-full accent-blue-500"
+              className="w-full accent-green-500"
             />
           </div>
         </div>
       </div>
 
       {/* Keyboard Navigation */}
-      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
         <div className="mb-6 flex items-center gap-3">
           <Keyboard className="text-gray-300" size={24} />
           <div>
-            <h2 className="text-xl font-semibold text-white">Keyboard Navigation</h2>
+            <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Keyboard Navigation</h2>
             <p className="text-sm text-gray-400">Customize keyboard interaction settings</p>
           </div>
         </div>
@@ -154,42 +154,42 @@ const AccessibilitySettings: React.FC = () => {
                   onChange={(e) => handleChange(option.key, e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-blue-500"></div>
+                <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-green-500"></div>
               </label>
             </div>
           ))}
         </div>
 
         {/* Keyboard Shortcuts */}
-        <div className="mt-6 rounded-2xl border border-white/10 bg-black/50 p-4">
+        <div className="mt-6 rounded-2xl border border-white/10 bg-white/10 p-4">
           <h3 className="mb-3 font-medium text-white">Keyboard Shortcuts</h3>
           <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
             <div className="flex justify-between text-gray-200">
               <span>Navigate problems</span>
-              <kbd className="rounded border border-white/20 bg-black/60 px-2 py-1 text-xs text-gray-200">↑ ↓</kbd>
+              <kbd className="rounded border border-white/20 bg-white/10 px-2 py-1 text-xs text-gray-200">↑ ↓</kbd>
             </div>
             <div className="flex justify-between text-gray-200">
               <span>Submit solution</span>
-              <kbd className="rounded border border-white/20 bg-black/60 px-2 py-1 text-xs text-gray-200">Ctrl + Enter</kbd>
+              <kbd className="rounded border border-white/20 bg-white/10 px-2 py-1 text-xs text-gray-200">Ctrl + Enter</kbd>
             </div>
             <div className="flex justify-between text-gray-200">
               <span>Open settings</span>
-              <kbd className="rounded border border-white/20 bg-black/60 px-2 py-1 text-xs text-gray-200">Ctrl + ,</kbd>
+              <kbd className="rounded border border-white/20 bg-white/10 px-2 py-1 text-xs text-gray-200">Ctrl + ,</kbd>
             </div>
             <div className="flex justify-between text-gray-200">
               <span>Search problems</span>
-              <kbd className="rounded border border-white/20 bg-black/60 px-2 py-1 text-xs text-gray-200">Ctrl + K</kbd>
+              <kbd className="rounded border border-white/20 bg-white/10 px-2 py-1 text-xs text-gray-200">Ctrl + K</kbd>
             </div>
           </div>
         </div>
       </div>
 
       {/* Screen Reader Support */}
-      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
         <div className="mb-6 flex items-center gap-3">
           <Volume2 className="text-gray-300" size={24} />
           <div>
-            <h2 className="text-xl font-semibold text-white">Screen Reader Support</h2>
+            <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Screen Reader Support</h2>
             <p className="text-sm text-gray-400">Optimize for assistive technologies</p>
           </div>
         </div>
@@ -209,7 +209,7 @@ const AccessibilitySettings: React.FC = () => {
                 onChange={(e) => handleChange('screenReader', e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-blue-500"></div>
+              <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-green-500"></div>
             </label>
           </div>
         </div>

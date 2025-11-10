@@ -107,8 +107,8 @@ const ProfileSettings: React.FC = () => {
 
     return (
         <div className="space-y-6 text-gray-200">
-            <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
-                <h2 className="mb-6 text-xl font-semibold text-white">Profile Information</h2>
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+                <h2 className="mb-6 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Profile Information</h2>
 
                 <div className="mb-6 flex items-center space-x-6">
                     <div className="relative">

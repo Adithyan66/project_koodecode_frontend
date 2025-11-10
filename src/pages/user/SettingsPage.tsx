@@ -73,8 +73,8 @@ const SettingsPage: React.FC<SettingsProps> = () => {
                     <div className="lg:hidden bg-black/85 border-b border-white/10 px-4 py-3">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs uppercase tracking-[0.35em] text-gray-400">Settings</p>
-                                <h1 className="text-xl font-semibold text-white">Control Center</h1>
+                                <p className="text-xs uppercase tracking-[0.35em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-green-500 to-teal-400">Settings</p>
+                                <h1 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Control Center</h1>
                             </div>
                             <button
                                 onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
@@ -92,8 +92,8 @@ const SettingsPage: React.FC<SettingsProps> = () => {
                             `}
                         >
                             <div className="hidden lg:flex flex-col">
-                                <p className="text-xs uppercase tracking-[0.35em] text-gray-400">Settings</p>
-                                <h2 className="mt-2 text-2xl font-semibold text-white">Control Center</h2>
+                                <p className="text-xs uppercase tracking-[0.35em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-green-500 to-teal-400">Settings</p>
+                                <h2 className="mt-2 text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Control Center</h2>
                                 <p className="mt-3 text-sm text-gray-400">
                                     Tailor your profile, privacy, and workflow preferences in one place.
                                 </p>
@@ -113,18 +113,18 @@ const SettingsPage: React.FC<SettingsProps> = () => {
                                                 group flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left transition-all duration-200
                                                 ${
                                                     isActive
-                                                        ? 'border-white/40 bg-white/10 text-white shadow-[0_12px_28px_rgba(255,255,255,0.12)]'
+                                                        ? 'border-green-400 bg-green-400/10 text-white shadow-[0_12px_28px_rgba(74,222,128,0.25)]'
                                                         : 'border-white/10 text-gray-300 hover:border-white/30 hover:bg-white/10 hover:text-white'
                                                 }
                                             `}
                                         >
                                             <span className="flex items-center gap-3">
-                                                <span className={`rounded-xl border px-2.5 py-2 transition ${isActive ? 'border-white/50 bg-white/10' : 'border-white/10 bg-white/5 group-hover:border-white/30 group-hover:bg-white/10'}`}>
+                                                <span className={`rounded-xl border px-2.5 py-2 transition ${isActive ? 'border-green-400 bg-green-400/10' : 'border-white/10 bg-white/5 group-hover:border-white/30 group-hover:bg-white/10'}`}>
                                                     <Icon size={18} />
                                                 </span>
                                                 <span className="font-medium">{category.name}</span>
                                             </span>
-                                            <span className={`h-2 w-2 rounded-full transition ${isActive ? 'bg-white shadow-[0_0_12px_rgba(255,255,255,0.6)]' : 'bg-white/20 group-hover:bg-white group-hover:shadow-[0_0_12px_rgba(255,255,255,0.6)]'}`} />
+                                            <span className={`h-2 w-2 rounded-full transition ${isActive ? 'bg-green-400 shadow-[0_0_12px_rgba(74,222,128,0.7)]' : 'bg-white/20 group-hover:bg-white group-hover:shadow-[0_0_12px_rgba(255,255,255,0.6)]'}`} />
                                         </button>
                                     );
                                 })}
@@ -136,7 +136,7 @@ const SettingsPage: React.FC<SettingsProps> = () => {
                                 onClick={() => setIsMobileSidebarOpen(false)}
                             />
                         )}
-                        <div className="flex-1 bg-gradient-to-br from-black/85 via-black/70 to-black/60">
+                        <div className="flex-1 bg-white/5">
                             <div className="tiny-scrollbar h-full overflow-y-auto p-6">
                                     <ActiveComponent />
                             </div>

@@ -125,11 +125,11 @@ const NotificationSettings: React.FC = () => {
   return (
     <div className="space-y-6 text-gray-200">
       {/* Browser Push Notifications */}
-      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
         <div className="mb-4 flex items-center gap-3">
           <MessageSquare className="text-gray-300" size={24} />
           <div className="flex-1">
-            <h2 className="text-xl font-semibold text-white">Browser Push Notifications</h2>
+            <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Browser Push Notifications</h2>
             <p className="text-sm text-gray-400">
               Receive push notifications even when the browser is closed
             </p>
@@ -156,9 +156,9 @@ const NotificationSettings: React.FC = () => {
               <button
                 onClick={handlePushToggle}
                 disabled={isPushLoading}
-                className={`relative inline-flex h-7 w-12 items-center rounded-full border border-white/20 bg-white/10 transition ${
-                  isPushSubscribed ? 'justify-end bg-blue-500/80' : 'justify-start'
-                } ${isPushLoading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-white/40 hover:bg-white/20'}`}
+                className={`relative inline-flex h-7 w-12 items-center rounded-full border border-white/20 bg-green/10 transition ${
+                  isPushSubscribed ? 'justify-end bg-green-500/80' : 'justify-start'
+                } ${isPushLoading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-green/40 hover:bg-green/20'}`}
               >
                 <span className="m-1 inline-block h-5 w-5 rounded-full bg-white transition" />
               </button>
@@ -171,7 +171,7 @@ const NotificationSettings: React.FC = () => {
             )}
 
             {isPushSubscribed && (
-              <div className="rounded-2xl border border-blue-400/40 bg-blue-500/10 p-3 text-xs text-blue-100">
+              <div className="rounded-2xl border border-green-400/40 bg-green-500/10 p-3 text-xs text-green-100">
                 ✓ Push notifications are enabled for this browser
               </div>
             )}
@@ -183,11 +183,11 @@ const NotificationSettings: React.FC = () => {
         const Icon = category.icon;
         const categoryState = notifications[category.key as keyof typeof notifications];
         return (
-          <div key={category.key} className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+          <div key={category.key} className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
             <div className="mb-6 flex items-center gap-3">
               <Icon className="text-gray-300" size={24} />
               <div>
-                <h2 className="text-xl font-semibold text-white">{category.title}</h2>
+                <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">{category.title}</h2>
                 <p className="text-sm text-gray-400">{category.description}</p>
               </div>
             </div>
@@ -208,7 +208,7 @@ const NotificationSettings: React.FC = () => {
                       onChange={(e) => handleNotificationChange(category.key, setting.key, e.target.checked)}
                       className="peer sr-only"
                     />
-                    <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-blue-500"></div>
+                    <div className="h-6 w-11 rounded-full bg-white/10 transition-all peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-white/20 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-white/40 after:bg-white after:transition-all peer-checked:after:translate-x-full peer-checked:border-white peer-checked:bg-green-500"></div>
                   </label>
                 </div>
               ))}
@@ -218,8 +218,8 @@ const NotificationSettings: React.FC = () => {
       })}
 
       {/* Quick Actions */}
-      <div className="rounded-3xl border border-white/10 bg-black/65 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
-        <h2 className="mb-4 text-xl font-semibold text-white">Quick Actions</h2>
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+        <h2 className="mb-4 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Quick Actions</h2>
         <div className="flex flex-wrap gap-3">
           <button
             onClick={() => {
