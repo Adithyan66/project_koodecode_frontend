@@ -157,7 +157,7 @@ const ProblemSolvingPage: React.FC = () => {
     const acceptanceRate = getAcceptanceRate(problemData.acceptedSubmissions, problemData.totalSubmissions);
 
     return (
-        <div className="h-screen bg-gray-900 text-white flex flex-col">
+        <div className="h-screen bg-gray-950 text-white flex flex-col">
             <Navbar />
             <div ref={containerRef} className="flex flex-1 overflow-hidden relative p-1 ">
                 <div 

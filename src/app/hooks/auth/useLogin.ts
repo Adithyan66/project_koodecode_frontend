@@ -101,11 +101,20 @@ export const useLogin = () => {
 
         try {
             await dispatch(loginUser({ email, password })).unwrap();
-            toast.success('Login successful!');
         } catch (error) {
+            const responseError = error as
+                | string
+                | {
+                      message?: string;
+                      data?: { message?: string; error?: string };
+                  };
             const message =
-                (error as { data?: { message?: string } })?.data?.message ||
-                'Login failed. Please check your credentials.';
+                typeof responseError === 'string'
+                    ? responseError
+                    : responseError?.data?.message ||
+                      responseError?.data?.error ||
+                      responseError?.message ||
+                      'Login failed. Please check your credentials.';
             toast.error(message);
         } finally {
             setIsSubmitting(false);

@@ -61,7 +61,7 @@ const TestCaseDisplay: React.FC<TestCaseDisplayProps> = ({ activeTestCase, setAc
                             <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-1.5 font-semibold">
                                 {key}
                             </label>
-                            <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-2.5 rounded-md border border-gray-700/50 shadow-inner group-hover:border-gray-600/70 transition-colors">
+                            <div className="bg-gradient-to-b from-white/5 via-white/2 to-transparent p-2.5 rounded-md border border-gray-700/50 shadow-inner group-hover:border-gray-600/70 transition-colors">
                                 <pre className="text-emerald-400 font-mono text-xs leading-relaxed whitespace-pre-wrap break-words">
                                     {typeof value === 'string' ? value : JSON.stringify(value)}
                                 </pre>
@@ -73,7 +73,7 @@ const TestCaseDisplay: React.FC<TestCaseDisplayProps> = ({ activeTestCase, setAc
                             <span>Expected Output</span>
                             <div className="flex-1 h-px bg-gradient-to-r from-gray-600 to-transparent" />
                         </label>
-                        <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-2.5 rounded-md border border-blue-500/30 shadow-inner group-hover:border-blue-500/50 transition-colors">
+                        <div className="bg-gradient-to-b from-white/5 via-white/2 to-transparent p-2.5 rounded-md border border-blue-500/30 shadow-inner group-hover:border-blue-500/50 transition-colors">
                             <pre className="text-blue-400 font-mono text-xs leading-relaxed whitespace-pre-wrap break-words">
                                 {typeof sampleTestCases[activeTestCase - 1].expectedOutput === 'string'
                                     ? sampleTestCases[activeTestCase - 1].expectedOutput

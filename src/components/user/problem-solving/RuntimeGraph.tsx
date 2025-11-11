@@ -44,7 +44,7 @@ const RuntimeGraph: React.FC<RuntimeGraphProps> = ({ data, userRuntime, beats, l
                 </div>
             </div>
 
-            <div className="relative bg-gray-900 rounded-lg p-4 border border-gray-700/50">
+            <div className="relative bg-white-5 rounded-lg p-4 border border-gray-700/50">
                 <div className="flex items-end justify-between space-x-1 h-24">
                     {data.map((point, index) => {
                         const height = (point.percentage / maxPercentage) * 100;

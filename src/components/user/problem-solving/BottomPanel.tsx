@@ -35,8 +35,8 @@ const BottomPanel: React.FC<BottomPanelProps> = ({
     runCodeResults,
     submissionResults: _submissionResults,
 }) => (
-    <div className="h-full bg-gradient-to-b from-gray-900 to-black flex flex-col">
-        <div className="flex justify-between items-center bg-gray-800/50 backdrop-blur-sm px-6 py-3 border-b border-gray-700/50">
+    <div className="h-full bg-gradient-to-b from-white/5 via-white/2 to-transparent flex flex-col">
+        <div className="flex justify-between items-center bg-white-5 backdrop-blur-sm px-6 py-3 border-b border-gray-700/50">
             <div className="flex space-x-1">
                 <button
                     onClick={() => setActiveTab('testcase')}

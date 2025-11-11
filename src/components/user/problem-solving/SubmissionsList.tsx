@@ -78,12 +78,12 @@ const SubmissionsList: React.FC<SubmissionsListProps> = ({ submissions, onSelect
                     onClick={() => onSelectSubmission(submission)}
                     className="w-full group"
                 >
-                    <div className="bg-gradient-to-br from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 border border-gray-700/50 hover:border-gray-600 rounded-xl p-4 transition-all duration-200 shadow-lg hover:shadow-xl">
+                    <div className="bg-gradient-to-b from-white/5 via-white/2 to-transparent hover:from-white-5 hover:to-gray-900 border border-gray-700/50 hover:border-gray-600 rounded-xl p-4 transition-all duration-200 shadow-lg hover:shadow-xl">
                         <div className="flex items-start justify-between">
                             <div className="flex items-start space-x-3 flex-1">
                                 <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0 mt-1 group-hover:scale-110 transition-transform">
                                     {getVerdictIcon(submission.overallVerdict)}
-                                </div>
+                                </div>      
                                 
                                 <div className="flex-1 text-left space-y-2">
                                     <div className="flex items-center space-x-2">

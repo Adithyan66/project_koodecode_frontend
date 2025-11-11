@@ -150,7 +150,7 @@ const SubmissionDetailedView: React.FC<SubmissionDetailedViewProps> = ({ submiss
                 </div>
             )}
 
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-700/50 overflow-hidden">
+            <div className="bg-gradient-to-b from-white/5 via-white/2 to-transparent rounded-xl border border-gray-700/50 overflow-hidden">
                 <div className="border-b border-gray-700/50 bg-gray-800/30 px-6 py-3">
                     <div className="flex items-center space-x-2">
                         <Code2 size={16} className="text-blue-400" />

@@ -130,7 +130,7 @@ const RoomPage: React.FC = () => {
     };
 
     return (
-        <div className="h-screen bg-black text-white flex flex-col">
+        <div className="h-screen bg-gray-950 text-white flex flex-col">
             <Navbar />
             <div className="flex flex-1 overflow-hidden" ref={containerRef}>
                 {(isResizingVertical || isResizingHorizontal) && isDesktop && (

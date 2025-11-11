@@ -30,7 +30,7 @@ const DescriptionSection: React.FC<DescriptionSectionProps> = ({ problemData, fo
                     <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full" />
                     <h3 className="text-base font-semibold text-white">Example {index + 1}</h3>
                 </div>
-                <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-700/50 overflow-hidden shadow-lg">
+                <div className="bg-gradient-to-b from-white/5 via-white/2 to-transparent rounded-xl border border-gray-700/50 overflow-hidden shadow-lg">
                     <div className="p-5 space-y-4">
                         <div className="space-y-2">
                             <div className="text-xs uppercase tracking-wider text-blue-400 font-semibold">Input</div>
@@ -76,7 +76,7 @@ const DescriptionSection: React.FC<DescriptionSectionProps> = ({ problemData, fo
                     <div className="w-1 h-6 bg-gradient-to-b from-orange-500 to-red-500 rounded-full" />
                     <h3 className="text-base font-semibold text-white">Constraints</h3>
                 </div>
-                <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-700/50 p-5 shadow-lg">
+                <div className="bg-gradient-to-b from-white/5 via-white/2 to-transparent rounded-xl border border-gray-700/50 p-5 shadow-lg">
                     <ul className="space-y-2.5">
                         {formattedConstraints.map((constraint, index) => (
                             <li key={index} className="flex items-start space-x-2">
