@@ -38,7 +38,13 @@ function App() {
 
         </BrowserRouter>
       </GoogleOAuthProvider>
-      <ToastContainer position="top-center" autoClose={4000} hideProgressBar />
+      <ToastContainer
+        position="top-right"
+        autoClose={4000}
+        hideProgressBar
+        style={{ width: "auto", marginTop: "28px" }}
+        toastStyle={{ whiteSpace: "nowrap", width: "max-content", maxWidth: "80vw", minWidth: "unset" }}
+      />
     </>
   )
 }

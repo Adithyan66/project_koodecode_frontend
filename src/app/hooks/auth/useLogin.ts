@@ -10,7 +10,6 @@ export type LoginErrors = {
 };
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export const useLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -93,7 +92,7 @@ export const useLogin = () => {
         event.preventDefault();
 
         if (!validateForm()) {
-            toast.error('Please fix the errors in the form');
+            toast.error('Please fix the errors in the form', { theme: 'dark' });
             return;
         }
 
@@ -115,7 +114,7 @@ export const useLogin = () => {
                       responseError?.data?.error ||
                       responseError?.message ||
                       'Login failed. Please check your credentials.';
-            toast.error(message);
+            toast.error(message, { theme: 'dark' });
         } finally {
             setIsSubmitting(false);
         }
