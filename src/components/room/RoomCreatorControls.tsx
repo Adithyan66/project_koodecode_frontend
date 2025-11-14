@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 import { X, Users, Settings, UserX, Code, Edit3, Crown, Mail } from 'lucide-react';
 import { useAppSelector } from '../../app/hooks';
-import { roomService } from '../../services/axios/user/room';
 import { roomSocketService } from '../../services/roomSocketService';
 import { imageKitService } from '../../services/ImageKitService';
 import type { Room } from '../../types/room';
@@ -46,18 +46,21 @@ const RoomCreatorControls: React.FC<RoomCreatorControlsProps> = ({ room: roomPro
 
   const handleKickUser = async (userId: string, username: string) => {
     if (userId === user?.id) {
-      alert('You cannot kick yourself from the room.');
+      toast.warn('You cannot kick yourself from the room.');
       return;
     }
 
-    if (confirm(`Are you sure you want to kick ${username} from the room?`)) {
-      try {
-        await roomService.kickUser(room.roomId, userId, 'Kicked by room creator');
-        // The socket will handle the UI update
-      } catch (error) {
-        console.error('Failed to kick user:', error);
-        alert('Failed to kick user. Please try again.');
-      }
+    if (!roomSocketService.chatsocket || !roomSocketService.isConnected()) {
+      toast.error('Socket connection lost. Refresh the page and try again.');
+      return;
+    }
+
+    try {
+      roomSocketService.kickUser(userId, 'Kicked by room creator');
+      toast.success(`${username} removed from the room`);
+    } catch (error) {
+      console.error('Failed to kick user via socket:', error);
+      toast.error('Failed to kick user. Please try again.');
     }
   };
 
@@ -262,7 +265,7 @@ const RoomCreatorControls: React.FC<RoomCreatorControlsProps> = ({ room: roomPro
                 room.status === 'waiting' ? 'bg-yellow-600/20 text-yellow-400 border border-yellow-600/30' : 
                 'bg-gray-600/20 text-gray-400 border border-gray-600/30'
               }`}>
-                {room.status.charAt(0).toUpperCase() + room.status.slice(1)}
+                {/* {room.status.charAt(0).toUpperCase() + room.status.slice(1)} */}
               </span>
             </div>
           </div>

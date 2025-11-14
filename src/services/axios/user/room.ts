@@ -54,7 +54,7 @@ export const roomService = {
 
   async kickUser(roomId: string, userId: string, reason?: string): Promise<{ success: boolean; error?: string }> {
     try {
-      const response = await httpClient.delete(`/rooms/${roomId}/participants/${userId}`, {
+      const response = await httpClient.delete(`/user/rooms/${roomId}/participants/${userId}`, {
         data: { reason }
       });
       return response.data;

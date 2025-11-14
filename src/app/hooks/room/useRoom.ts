@@ -349,8 +349,7 @@ export const useRoom = () => {
         console.log(`User ${data.targetUserId} was kicked by ${data.kickedBy}`);
     }, [dispatch]);
 
-    const handleKicked = useCallback((data: any) => {
-        alert(`You have been kicked from the room. Reason: ${data.reason || 'No reason provided'}`);
+    const handleKicked = useCallback(() => {
         handleLeaveRoom();
     }, [handleLeaveRoom]);
 
