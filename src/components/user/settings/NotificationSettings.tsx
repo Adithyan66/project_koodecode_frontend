@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
-import { Save, Mail, Bell, MessageSquare } from 'lucide-react';
+import React from 'react';
+import {
+  // Save, 
+  // Mail, Bell,
+  MessageSquare
+} from 'lucide-react';
 import { toast } from 'react-toastify';
 import { usePushNotifications } from '../../../app/hooks/usePushNotifications';
 
@@ -13,32 +17,32 @@ const NotificationSettings: React.FC = () => {
     unsubscribe: unsubscribePush
   } = usePushNotifications();
 
-  const [notifications, setNotifications] = useState({
-    email: {
-      newProblems: true,
-      achievements: true,
-      contestReminders: true,
-      discussionReplies: false,
-      weeklyDigest: true,
-      securityAlerts: true
-    },
-    inApp: {
-      newProblems: true,
-      achievements: true,
-      contestReminders: true,
-      discussionReplies: true,
-      submissions: true,
-      systemUpdates: false
-    },
-    push: {
-      contestStart: true,
-      achievements: false,
-      directMessages: true,
-      submissions: false
-    }
-  });
+  // const [notifications, setNotifications] = useState({
+  //   email: {
+  //     newProblems: true,
+  //     achievements: true,
+  //     contestReminders: true,
+  //     discussionReplies: false,
+  //     weeklyDigest: true,
+  //     securityAlerts: true
+  //   },
+  //   inApp: {
+  //     newProblems: true,
+  //     achievements: true,
+  //     contestReminders: true,
+  //     discussionReplies: true,
+  //     submissions: true,
+  //     systemUpdates: false
+  //   },
+  //   push: {
+  //     contestStart: true,
+  //     achievements: false,
+  //     directMessages: true,
+  //     submissions: false
+  //   }
+  // });
 
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
 
   const handlePushToggle = async () => {
     if (isPushSubscribed) {
@@ -58,69 +62,69 @@ const NotificationSettings: React.FC = () => {
     }
   };
 
-  const handleNotificationChange = (category: string, key: string, value: boolean) => {
-    setNotifications(prev => ({
-      ...prev,
-      [category]: {
-        ...prev[category as keyof typeof prev],
-        [key]: value
-      }
-    }));
-  };
+  // const handleNotificationChange = (category: string, key: string, value: boolean) => {
+  //   setNotifications(prev => ({
+  //     ...prev,
+  //     [category]: {
+  //       ...prev[category as keyof typeof prev],
+  //       [key]: value
+  //     }
+  //   }));
+  // };
 
-  const handleSave = async () => {
-    setIsLoading(true);
-    try {
-      console.log('Saving notification settings:', notifications);
-    } catch (error) {
-      console.error('Failed to save notification settings:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const handleSave = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     console.log('Saving notification settings:', notifications);
+  //   } catch (error) {
+  //     console.error('Failed to save notification settings:', error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
-  const notificationCategories = [
-    {
-      key: 'email',
-      title: 'Email Notifications',
-      icon: Mail,
-      description: 'Receive notifications via email',
-      settings: [
-        { key: 'newProblems', label: 'New Problems', description: 'When new coding problems are added' },
-        { key: 'achievements', label: 'Achievements & Badges', description: 'When you earn new badges or achievements' },
-        { key: 'contestReminders', label: 'Contest Reminders', description: 'Reminders about upcoming contests' },
-        { key: 'discussionReplies', label: 'Discussion Replies', description: 'When someone replies to your discussions' },
-        { key: 'weeklyDigest', label: 'Weekly Digest', description: 'Weekly summary of your coding activity' },
-        { key: 'securityAlerts', label: 'Security Alerts', description: 'Important security-related notifications' }
-      ]
-    },
-    {
-      key: 'inApp',
-      title: 'In-App Notifications',
-      icon: Bell,
-      description: 'Show notifications within the application',
-      settings: [
-        { key: 'newProblems', label: 'New Problems', description: 'When new coding problems are added' },
-        { key: 'achievements', label: 'Achievements & Badges', description: 'When you earn new badges or achievements' },
-        { key: 'contestReminders', label: 'Contest Reminders', description: 'Reminders about upcoming contests' },
-        { key: 'discussionReplies', label: 'Discussion Replies', description: 'When someone replies to your discussions' },
-        { key: 'submissions', label: 'Submission Results', description: 'When your code submissions are processed' },
-        { key: 'systemUpdates', label: 'System Updates', description: 'Platform updates and maintenance notifications' }
-      ]
-    },
-    {
-      key: 'push',
-      title: 'Push Notifications',
-      icon: MessageSquare,
-      description: 'Receive push notifications on your device',
-      settings: [
-        { key: 'contestStart', label: 'Contest Started', description: 'When contests you registered for begin' },
-        { key: 'achievements', label: 'New Achievements', description: 'When you earn new badges or achievements' },
-        { key: 'directMessages', label: 'Direct Messages', description: 'When someone sends you a direct message' },
-        { key: 'submissions', label: 'Submission Results', description: 'When your code submissions are processed' }
-      ]
-    }
-  ];
+  // const notificationCategories = [
+  //   {
+  //     key: 'email',
+  //     title: 'Email Notifications',
+  //     icon: Mail,
+  //     description: 'Receive notifications via email',
+  //     settings: [
+  //       { key: 'newProblems', label: 'New Problems', description: 'When new coding problems are added' },
+  //       { key: 'achievements', label: 'Achievements & Badges', description: 'When you earn new badges or achievements' },
+  //       { key: 'contestReminders', label: 'Contest Reminders', description: 'Reminders about upcoming contests' },
+  //       { key: 'discussionReplies', label: 'Discussion Replies', description: 'When someone replies to your discussions' },
+  //       { key: 'weeklyDigest', label: 'Weekly Digest', description: 'Weekly summary of your coding activity' },
+  //       { key: 'securityAlerts', label: 'Security Alerts', description: 'Important security-related notifications' }
+  //     ]
+  //   },
+  //   {
+  //     key: 'inApp',
+  //     title: 'In-App Notifications',
+  //     icon: Bell,
+  //     description: 'Show notifications within the application',
+  //     settings: [
+  //       { key: 'newProblems', label: 'New Problems', description: 'When new coding problems are added' },
+  //       { key: 'achievements', label: 'Achievements & Badges', description: 'When you earn new badges or achievements' },
+  //       { key: 'contestReminders', label: 'Contest Reminders', description: 'Reminders about upcoming contests' },
+  //       { key: 'discussionReplies', label: 'Discussion Replies', description: 'When someone replies to your discussions' },
+  //       { key: 'submissions', label: 'Submission Results', description: 'When your code submissions are processed' },
+  //       { key: 'systemUpdates', label: 'System Updates', description: 'Platform updates and maintenance notifications' }
+  //     ]
+  //   },
+  //   {
+  //     key: 'push',
+  //     title: 'Push Notifications',
+  //     icon: MessageSquare,
+  //     description: 'Receive push notifications on your device',
+  //     settings: [
+  //       { key: 'contestStart', label: 'Contest Started', description: 'When contests you registered for begin' },
+  //       { key: 'achievements', label: 'New Achievements', description: 'When you earn new badges or achievements' },
+  //       { key: 'directMessages', label: 'Direct Messages', description: 'When someone sends you a direct message' },
+  //       { key: 'submissions', label: 'Submission Results', description: 'When your code submissions are processed' }
+  //     ]
+  //   }
+  // ];
 
   return (
     <div className="space-y-6 text-gray-200">
@@ -156,9 +160,8 @@ const NotificationSettings: React.FC = () => {
               <button
                 onClick={handlePushToggle}
                 disabled={isPushLoading}
-                className={`relative inline-flex h-7 w-12 items-center rounded-full border border-white/20 bg-green/10 transition ${
-                  isPushSubscribed ? 'justify-end bg-green-500/80' : 'justify-start'
-                } ${isPushLoading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-green/40 hover:bg-green/20'}`}
+                className={`relative inline-flex h-7 w-12 items-center rounded-full border border-white/20 bg-green/10 transition ${isPushSubscribed ? 'justify-end bg-green-500/80' : 'justify-start'
+                  } ${isPushLoading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-green/40 hover:bg-green/20'}`}
               >
                 <span className="m-1 inline-block h-5 w-5 rounded-full bg-white transition" />
               </button>

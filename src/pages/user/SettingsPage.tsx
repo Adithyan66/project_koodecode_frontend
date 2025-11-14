@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import {
     User,
-    Code,
+    // Code,
     Shield,
     Bell,
-    Accessibility,
-    Database,
+    // Accessibility,
+    // Database,
     Menu,
     X
 } from 'lucide-react';
 
 import ProfileSettings from '../../components/user/settings/ProfileSettings';
-import CodingPreferences from '../../components/user/settings/CodingPreferences';
+// import CodingPreferences from '../../components/user/settings/CodingPreferences';
 import SecurityPrivacy from '../../components/user/settings/SecurityPrivacy';
 import NotificationSettings from '../../components/user/settings/NotificationSettings';
-import AccessibilitySettings from '../../components/user/settings/AccessibilitySettings';
-import AccountData from '../../components/user/settings/AccountData';
+// import AccessibilitySettings from '../../components/user/settings/AccessibilitySettings';
+// import AccountData from '../../components/user/settings/AccountData';
 import Navbar from '../../components/user/Navbar';
 
 interface SettingsProps { }

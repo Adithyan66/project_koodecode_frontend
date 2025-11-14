@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { Save, Eye, EyeOff, Smartphone, Trash2, Shield } from 'lucide-react';
+import {
+  Save, Eye, EyeOff,
+  //Smartphone, Trash2, Shield
+} from 'lucide-react';
 import { authAPI } from '../../../services/axios/auth/authService';
 import { toast } from 'react-toastify';
 
@@ -10,24 +13,24 @@ const SecurityPrivacy: React.FC = () => {
     confirmPassword: ''
   });
 
-  const [privacy, setPrivacy] = useState({
-    profileVisibility: 'public' as 'public' | 'private',
-    showEmail: false,
-    showSolutions: true,
-    showStats: true,
-    allowDirectMessages: true
-  });
+  // const [privacy, setPrivacy] = useState({
+  //   profileVisibility: 'public' as 'public' | 'private',
+  //   showEmail: false,
+  //   showSolutions: true,
+  //   showStats: true,
+  //   allowDirectMessages: true
+  // });
 
-  const [twoFactor, setTwoFactor] = useState({
-    enabled: false,
-    backupCodes: [] as string[]
-  });
+  // const [twoFactor, setTwoFactor] = useState({
+  //   enabled: false,
+  //   backupCodes: [] as string[]
+  // });
 
-  const [activeSessions] = useState([
-    { id: 1, device: 'Chrome on Windows', location: 'New York, US', lastActive: '2 hours ago', current: true },
-    { id: 2, device: 'Mobile App', location: 'New York, US', lastActive: '1 day ago', current: false },
-    { id: 3, device: 'Firefox on Linux', location: 'California, US', lastActive: '3 days ago', current: false }
-  ]);
+  // const [activeSessions] = useState([
+  //   { id: 1, device: 'Chrome on Windows', location: 'New York, US', lastActive: '2 hours ago', current: true },
+  //   { id: 2, device: 'Mobile App', location: 'New York, US', lastActive: '1 day ago', current: false },
+  //   { id: 3, device: 'Firefox on Linux', location: 'California, US', lastActive: '3 days ago', current: false }
+  // ]);
 
   const [showPassword, setShowPassword] = useState({
     current: false,
@@ -41,9 +44,9 @@ const SecurityPrivacy: React.FC = () => {
     setPasswordData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handlePrivacyChange = (field: string, value: any) => {
-    setPrivacy(prev => ({ ...prev, [field]: value }));
-  };
+  // const handlePrivacyChange = (field: string, value: any) => {
+  //   setPrivacy(prev => ({ ...prev, [field]: value }));
+  // };
 
   const handlePasswordSave = async () => {
     setIsLoading(true);
@@ -60,24 +63,24 @@ const SecurityPrivacy: React.FC = () => {
     }
   };
 
-  const handlePrivacySave = async () => {
-    setIsLoading(true);
-    try {
-      console.log('Saving privacy settings:', privacy);
-    } catch (error) {
-      console.error('Failed to save privacy settings:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const handlePrivacySave = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     console.log('Saving privacy settings:', privacy);
+  //   } catch (error) {
+  //     console.error('Failed to save privacy settings:', error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
-  const enable2FA = () => {
-    setTwoFactor(prev => ({ ...prev, enabled: !prev.enabled }));
-  };
+  // const enable2FA = () => {
+  //   setTwoFactor(prev => ({ ...prev, enabled: !prev.enabled }));
+  // };
 
-  const terminateSession = (sessionId: number) => {
-    console.log('Terminating session:', sessionId);
-  };
+  // const terminateSession = (sessionId: number) => {
+  //   console.log('Terminating session:', sessionId);
+  // };
 
   return (
     <div className="space-y-6 text-gray-200">
