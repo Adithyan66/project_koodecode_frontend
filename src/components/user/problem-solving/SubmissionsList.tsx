@@ -109,7 +109,7 @@ const SubmissionsList: React.FC<SubmissionsListProps> = ({ submissions, onSelect
                                             <div className="text-gray-500">Memory</div>
                                             <div className="text-white font-medium">
                                                 {submission.testCaseResults && submission.testCaseResults.length > 0
-                                                    ? `${Math.max(...submission.testCaseResults.map(r => r.memoryUsage))}KB`
+                                                    ? `${Math.max(...submission.testCaseResults.map((r) => r.memoryUsage ?? 0))}KB`
                                                     : submission.maxMemoryUsage ? `${submission.maxMemoryUsage}KB` : 'N/A'}
                                             </div>
                                         </div>
