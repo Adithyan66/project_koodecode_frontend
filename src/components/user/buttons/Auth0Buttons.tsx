@@ -6,6 +6,24 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { googleOAuthLogin } from '../../../features/auth/userThunks';
+import { toast } from 'react-toastify';
+
+const getBackendMessage = (payload: unknown, fallback: string) => {
+    if (!payload) {
+        return fallback;
+    }
+
+    if (typeof payload === 'string') {
+        return payload;
+    }
+
+    if (typeof payload === 'object') {
+        const data = payload as { message?: string; error?: string };
+        return data.message || data.error || fallback;
+    }
+
+    return fallback;
+};
 
 interface AuthOButtonsProps {
     isSubmitting: boolean;
@@ -43,18 +61,23 @@ const AuthOButtons: React.FC<AuthOButtonsProps> = ({ isSubmitting, process }) =>
                         navigate("/")
                     }
                 } else {
-                    console.log(error);
-                    // setError(result.payload as string || 'Google authentication failed');
+                    const message = getBackendMessage(result.payload, 'Google authentication failed');
+                    setError(message);
+                    toast.error(message);
                 }
             } catch (error) {
-                setError('Google authentication failed. Please try again.');
+                const message = getBackendMessage(error, 'Google authentication failed. Please try again.');
+                setError(message);
+                toast.error(message);
             } finally {
                 setIsGoogleLoading(false);
             }
         },
         onError: (error) => {
             console.error('Google OAuth error:', error);
-            setError('Google authentication failed. Please try again.');
+            const message = getBackendMessage(error, 'Google authentication failed. Please try again.');
+            setError(message);
+            toast.error(message);
         },
     });
 

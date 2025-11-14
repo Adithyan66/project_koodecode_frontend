@@ -100,8 +100,12 @@ export const googleOAuthLogin = createAsyncThunk<
 
             return user as UserDetails;
         } catch (error: any) {
+            const backendMessage =
+                error.response?.data?.message ||
+                error.response?.data?.error ||
+                'Google authentication failed';
             return rejectWithValue({
-                message: error.response?.data?.error || 'Google authentication failed'
+                message: backendMessage
             });
         }
     }
@@ -129,8 +133,12 @@ export const githubOAuthLogin = createAsyncThunk<
 
             return user as UserDetails;
         } catch (error: any) {
+            const backendMessage =
+                error.response?.data?.message ||
+                error.response?.data?.error ||
+                'GitHub authentication failed';
             return rejectWithValue({
-                message: error.response?.data?.error || 'GitHub authentication failed'
+                message: backendMessage
             });
         }
     }
@@ -194,11 +202,8 @@ export const forgotPassword = createAsyncThunk(
     async (data: any, {  rejectWithValue }) => {
 
         try {
-            console.log("ivte varatteee,", data.email, data.otp, data.password);
 
             let response = await authAPI.resetPassword(data.email, data.otp, data.password)
-
-            console.log(response.data.user);
 
             const { token, ...user } = response.data.user;
 

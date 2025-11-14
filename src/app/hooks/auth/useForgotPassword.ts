@@ -1,9 +1,55 @@
 import { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { authAPI } from '../../../services/axios/auth/authService';
 import { forgotPassword } from '../../../features/auth/userThunks';
 import { useAppDispatch, useAppSelector } from '../../hooks';
+
+type BackendPayload = {
+    success?: boolean;
+    message?: string;
+    error?: string;
+    [key: string]: unknown;
+};
+
+const getPayload = (response: unknown): BackendPayload => {
+    if (!response || typeof response !== 'object') {
+        return {};
+    }
+
+    const payload = response as Record<string, unknown>;
+
+    if ('data' in payload && payload.data && typeof payload.data === 'object') {
+        return payload.data as BackendPayload;
+    }
+
+    return payload as BackendPayload;
+};
+
+const getBackendMessage = (payload: BackendPayload | undefined, fallback: string) => {
+    return payload?.message || payload?.error || fallback;
+};
+
+const isSuccessResponse = (payload?: BackendPayload) => {
+    return payload?.success !== false;
+};
+
+const extractErrorMessage = (error: unknown, fallback: string) => {
+    if (axios.isAxiosError(error)) {
+        return getBackendMessage(getPayload(error.response), fallback);
+    }
+
+    if (typeof error === 'string') {
+        return error;
+    }
+
+    if (error && typeof error === 'object') {
+        return getBackendMessage(error as BackendPayload, fallback);
+    }
+
+    return fallback;
+};
 
 export const useForgotPassword = () => {
     // States for different steps
@@ -168,27 +214,39 @@ export const useForgotPassword = () => {
     }, [otp, errors.otp]);
 
     const handleOtpVerify = useCallback(async () => {
-        const otpString = otp.join("");
+        const otpString = otp.join('');
 
-        // Validate OTP length before API call
         if (otpString.length !== 5 || !/^\d{5}$/.test(otpString)) {
             setErrors(prev => ({
                 ...prev,
-                "otp": "Please enter a complete 5-digit OTP"
+                otp: 'Please enter a complete 5-digit OTP'
             }));
             return;
         }
 
         try {
-            await authAPI.verifyOtp(email, +otpString);
+            const response = getPayload(await authAPI.verifyOtp(email, +otpString));
+            const message = getBackendMessage(response, 'OTP verified');
+
+            if (!isSuccessResponse(response)) {
+                setErrors(prev => ({
+                    ...prev,
+                    otp: message
+                }));
+                toast.error(message);
+                return;
+            }
+
             setEnablePassword(false);
             setOtpDisable(true);
-            toast.success("OTP verified");
-        } catch (error: any) {
+            toast.success(message);
+        } catch (error) {
+            const message = extractErrorMessage(error, 'OTP verification failed');
             setErrors(prev => ({
                 ...prev,
-                "otp": error?.response?.data?.message || "OTP verification failed"
+                otp: message
             }));
+            toast.error(message);
         }
     }, [email, otp]);
 
@@ -217,8 +275,9 @@ export const useForgotPassword = () => {
             !errors.confirmPassword;
     }, [newPassword, confirmPassword, errors.newPassword, errors.confirmPassword]);
 
-    const resendOtp = useCallback(async (email: string) => {
-        await authAPI.requestPasswordReset(email);
+    const requestPasswordResetOtp = useCallback(async (targetEmail: string) => {
+        const response = await authAPI.requestPasswordReset(targetEmail);
+        return getPayload(response);
     }, []);
 
     // Form submission handlers
@@ -233,16 +292,23 @@ export const useForgotPassword = () => {
         setIsSubmitting(true);
 
         try {
-            await authAPI.requestPasswordReset(email);
-            toast.success('OTP sent to your email address');
+            const response = await requestPasswordResetOtp(email);
+            const message = getBackendMessage(response, 'OTP sent to your email address');
+
+            if (!isSuccessResponse(response)) {
+                toast.error(message);
+                return;
+            }
+
+            toast.success(message);
             setCurrentStep('otp');
             setTimeLeft(60);
-        } catch (error: any) {
-            toast.error(error?.message || 'Failed to send OTP. Please try again.');
+        } catch (error) {
+            toast.error(extractErrorMessage(error, 'Failed to send OTP. Please try again.'));
         } finally {
             setIsSubmitting(false);
         }
-    }, [email, validateField]);
+    }, [email, validateField, requestPasswordResetOtp]);
 
     const handlePasswordResetSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
@@ -258,15 +324,17 @@ export const useForgotPassword = () => {
         setIsSubmitting(true);
 
         try {
-            await dispatch(forgotPassword({ 
-                email, 
-                otp: Number(otp.join('')), 
-                password: newPassword 
-            })).unwrap();
+            await dispatch(
+                forgotPassword({
+                    email,
+                    otp: Number(otp.join('')),
+                    password: newPassword
+                })
+            ).unwrap();
 
             toast.success('Password reset successfully');
-        } catch (error: any) {
-            toast.error(error?.message || 'Failed to reset password. Please try again.');
+        } catch (error) {
+            toast.error(extractErrorMessage(error, 'Failed to reset password. Please try again.'));
         } finally {
             setIsSubmitting(false);
         }
@@ -278,11 +346,18 @@ export const useForgotPassword = () => {
         setIsLoading(true);
 
         try {
-            await resendOtp(email);
+            const response = await requestPasswordResetOtp(email);
+            const message = getBackendMessage(response, 'OTP resent successfully');
+
+            if (!isSuccessResponse(response)) {
+                toast.error(message);
+                return;
+            }
+
             setOtp(['', '', '', '', '']);
             setOtpDisable(false);
-            setConfirmPassword("");
-            setNewPassword("");
+            setConfirmPassword('');
+            setNewPassword('');
             setEnablePassword(true);
             setErrors({
                 email: '',
@@ -291,13 +366,13 @@ export const useForgotPassword = () => {
                 confirmPassword: ''
             });
             setTimeLeft(60);
-            toast.success('OTP resent successfully');
-        } catch (error: any) {
-            toast.error(error?.message || 'Failed to resend OTP');
+            toast.success(message);
+        } catch (error) {
+            toast.error(extractErrorMessage(error, 'Failed to resend OTP'));
         } finally {
             setIsLoading(false);
         }
-    }, [timeLeft, isLoading, email, resendOtp]);
+    }, [timeLeft, isLoading, email, requestPasswordResetOtp]);
 
     const handleBackToEmail = useCallback(() => {
         setCurrentStep('email');

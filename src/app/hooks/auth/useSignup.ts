@@ -7,6 +7,51 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { signupUser } from '../../../features/auth/userThunks';
 import { authAPI } from '../../../services/axios/auth/authService';
 
+type BackendPayload = {
+    success?: boolean;
+    message?: string;
+    error?: string;
+    [key: string]: unknown;
+};
+
+const getPayload = (response: unknown): BackendPayload => {
+    if (!response || typeof response !== 'object') {
+        return {};
+    }
+
+    const payload = response as Record<string, unknown>;
+
+    if ('data' in payload && payload.data && typeof payload.data === 'object') {
+        return payload.data as BackendPayload;
+    }
+
+    return payload as BackendPayload;
+};
+
+const getBackendMessage = (payload: BackendPayload | undefined, fallback: string) => {
+    return payload?.message || payload?.error || fallback;
+};
+
+const isSuccessResponse = (payload?: BackendPayload) => {
+    return payload?.success !== false;
+};
+
+const extractErrorMessage = (error: unknown, fallback: string) => {
+    if (axios.isAxiosError(error)) {
+        return getBackendMessage(getPayload(error.response), fallback);
+    }
+
+    if (typeof error === 'string') {
+        return error;
+    }
+
+    if (error && typeof error === 'object') {
+        return getBackendMessage(error as BackendPayload, fallback);
+    }
+
+    return fallback;
+};
+
 type UseSignupReturn = {
     confirmPassword: string;
     createAccount: () => Promise<void>;
@@ -190,24 +235,19 @@ export const useSignup = (): UseSignupReturn => {
         setIsLoading(true);
 
         try {
-            const response = await authAPI.signUpOtp(email, username, name);
+            const response = getPayload(await authAPI.signUpOtp(email, username, name));
+            const message = getBackendMessage(response, 'OTP sent to your email successfully!');
 
-            if (response.data.success) {
-                setTimeLeft(59);
-                setOtpPage(true);
-                toast.success('OTP sent to your email successfully!');
-                return;
-            }
-
-            toast.error(response.data.message || 'Failed to send OTP');
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                const message = error.response?.data?.error || 'Failed to send OTP. Please try again.';
+            if (!isSuccessResponse(response)) {
                 toast.error(message);
                 return;
             }
 
-            toast.error('An unexpected error occurred');
+            setTimeLeft(59);
+            setOtpPage(true);
+            toast.success(message);
+        } catch (error) {
+            toast.error(extractErrorMessage(error, 'Failed to send OTP. Please try again.'));
         } finally {
             setIsLoading(false);
         }
@@ -231,17 +271,7 @@ export const useSignup = (): UseSignupReturn => {
 
             toast.success('Account created successfully!');
         } catch (error_) {
-            if ((error_ as { error?: string }).error) {
-                toast.error((error_ as { error?: string }).error);
-                return;
-            }
-
-            if (typeof error_ === 'string') {
-                toast.error(error_);
-                return;
-            }
-
-            toast.error('Failed to create account. Please try again.');
+            toast.error(extractErrorMessage(error_, 'Failed to create account. Please try again.'));
         } finally {
             setIsLoading(false);
         }

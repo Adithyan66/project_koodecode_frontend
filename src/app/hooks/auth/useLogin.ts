@@ -126,7 +126,7 @@ export const useLogin = () => {
         }
 
         if (isAdmin) {
-            navigate('/admin/dashboard');
+            navigate('/');
         } else {
             navigate('/');
         }

@@ -4,6 +4,24 @@ import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch } from '../../../app/hooks';
 import { githubOAuthLogin } from '../../../features/auth/userThunks';
+import { toast } from 'react-toastify';
+
+const getBackendMessage = (payload: unknown, fallback: string) => {
+    if (!payload) {
+        return fallback;
+    }
+
+    if (typeof payload === 'string') {
+        return payload;
+    }
+
+    if (typeof payload === 'object') {
+        const data = payload as { message?: string; error?: string };
+        return data.message || data.error || fallback;
+    }
+
+    return fallback;
+};
 
 const GitHubCallback: React.FC = () => {
     const navigate = useNavigate();
@@ -18,16 +36,23 @@ const GitHubCallback: React.FC = () => {
 
             if (error) {
                 console.error('GitHub OAuth error:', error);
+                toast.error(getBackendMessage(error, 'GitHub authentication failed. Please try again.'));
                 navigate('/login');
                 return;
             }
 
             if (code) {
-                const result = await dispatch(githubOAuthLogin({ code }));
+                try {
+                    const result = await dispatch(githubOAuthLogin({ code }));
 
-                if (githubOAuthLogin.fulfilled.match(result)) {
-                    navigate('/');
-                } else {
+                    if (githubOAuthLogin.fulfilled.match(result)) {
+                        navigate('/');
+                    } else {
+                        toast.error(getBackendMessage(result.payload, 'GitHub authentication failed. Please try again.'));
+                        navigate('/login');
+                    }
+                } catch (err) {
+                    toast.error(getBackendMessage(err, 'GitHub authentication failed. Please try again.'));
                     navigate('/login');
                 }
             }
