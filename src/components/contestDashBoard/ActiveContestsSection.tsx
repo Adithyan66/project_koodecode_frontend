@@ -73,7 +73,7 @@ const ActiveContestsSection = ({ activeContest, timeLeft, loadingActive }: Activ
           <ActiveContestShimmer />
         </div>
       ) : activeContest.length === 0 ? (
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl p-12 text-center">
+        <div className=" p-12 text-center">
           <Clock className="h-16 w-16 text-gray-600 mx-auto mb-4 animate-pulse" />
           <h3 className="text-2xl font-bold text-gray-300 mb-2">No Active Contests</h3>
           <p className="text-gray-500">Check back later for upcoming contests</p>
