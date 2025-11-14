@@ -48,6 +48,8 @@ export default function Router() {
 
             <Route path="/store" element={<UserProtected><StorePage /></UserProtected>} />
 
+            <Route path='*' element={<LandingPage/>}/>
+
         </Routes>
     )
 }

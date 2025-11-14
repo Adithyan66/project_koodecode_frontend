@@ -267,13 +267,13 @@ export const useRoom = () => {
                     try {
                         await dispatch(joinRoomThunk({ roomId: roomId!, password: retryPassword })).unwrap();
                     } catch {
-                        navigate('/rooms');
+                        navigate('/');
                     }
                 } else {
-                    navigate('/rooms');
+                    navigate('/');
                 }
             } else {
-                navigate('/rooms');
+                navigate('/');
             }
         }
     }, [dispatch, navigate, passwordFromState, roomId]);
