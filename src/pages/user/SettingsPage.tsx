@@ -31,12 +31,12 @@ const SettingsPage: React.FC<SettingsProps> = () => {
             icon: User,
             component: ProfileSettings
         },
-        {
-            id: 'coding',
-            name: 'Coding Preferences',
-            icon: Code,
-            component: CodingPreferences
-        },
+        // {
+        //     id: 'coding',
+        //     name: 'Coding Preferences',
+        //     icon: Code,
+        //     component: CodingPreferences
+        // },
         {
             id: 'security',
             name: 'Security & Privacy',
@@ -49,18 +49,18 @@ const SettingsPage: React.FC<SettingsProps> = () => {
             icon: Bell,
             component: NotificationSettings
         },
-        {
-            id: 'accessibility',
-            name: 'Accessibility',
-            icon: Accessibility,
-            component: AccessibilitySettings
-        },
-        {
-            id: 'account',
-            name: 'Account & Data',
-            icon: Database,
-            component: AccountData
-        }
+        // {
+        //     id: 'accessibility',
+        //     name: 'Accessibility',
+        //     icon: Accessibility,
+        //     component: AccessibilitySettings
+        // },
+        // {
+        //     id: 'account',
+        //     name: 'Account & Data',
+        //     icon: Database,
+        //     component: AccountData
+        // }
     ];
 
     const ActiveComponent = settingsCategories.find(cat => cat.id === activeTab)?.component || ProfileSettings;

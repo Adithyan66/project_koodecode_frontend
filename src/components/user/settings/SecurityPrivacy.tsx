@@ -167,7 +167,7 @@ const SecurityPrivacy: React.FC = () => {
       </div>
 
       {/* Two-Factor Authentication */}
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+      {/* <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
         <h2 className="mb-6 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Two-Factor Authentication</h2>
 
         <div className="mb-4 flex items-center justify-between">
@@ -207,10 +207,10 @@ const SecurityPrivacy: React.FC = () => {
             </p>
           </div>
         )}
-      </div>
+      </div> */}
 
       {/* Privacy Settings */}
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+      {/* <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
         <h2 className="mb-6 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Privacy Settings</h2>
 
         <div className="space-y-6">
@@ -267,10 +267,10 @@ const SecurityPrivacy: React.FC = () => {
             <span>{isLoading ? 'Saving...' : 'Save Privacy Settings'}</span>
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Active Sessions */}
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+      {/* <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
         <h2 className="mb-6 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Active Sessions</h2>
 
         <div className="space-y-3">
@@ -298,7 +298,7 @@ const SecurityPrivacy: React.FC = () => {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

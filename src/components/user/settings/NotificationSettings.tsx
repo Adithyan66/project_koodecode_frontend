@@ -179,7 +179,7 @@ const NotificationSettings: React.FC = () => {
         )}
       </div>
 
-      {notificationCategories.map(category => {
+      {/* {notificationCategories.map(category => {
         const Icon = category.icon;
         const categoryState = notifications[category.key as keyof typeof notifications];
         return (
@@ -215,10 +215,10 @@ const NotificationSettings: React.FC = () => {
             </div>
           </div>
         );
-      })}
+      })} */}
 
       {/* Quick Actions */}
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
+      {/* <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_45px_rgba(15,15,15,0.35)] backdrop-blur">
         <h2 className="mb-4 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-lime-400 to-green-500">Quick Actions</h2>
         <div className="flex flex-wrap gap-3">
           <button
@@ -252,10 +252,10 @@ const NotificationSettings: React.FC = () => {
             Disable All (Keep Security)
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Save Button */}
-      <div className="flex justify-end">
+      {/* <div className="flex justify-end">
         <button
           onClick={handleSave}
           disabled={isLoading}
@@ -264,7 +264,7 @@ const NotificationSettings: React.FC = () => {
           <Save size={16} />
           <span>{isLoading ? 'Saving...' : 'Save Notification Settings'}</span>
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };
