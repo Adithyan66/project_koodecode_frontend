@@ -50,6 +50,13 @@ const Navbar: React.FC = () => {
         setIsModalOpen(!isModalOpen);
     };
 
+    const handleSupportClick = () => {
+        setIsModalOpen(false);
+        if (typeof window !== 'undefined') {
+            window.location.href = 'mailto:koodecode@gmail.com';
+        }
+    };
+
     return (
         <nav className="flex items-center justify-between px-6 py-2 bg-black relative h-14">
             <div className="flex items-center space-x-2">
@@ -160,14 +167,14 @@ const Navbar: React.FC = () => {
                                         <Settings size={18} />
                                         <span>Settings</span>
                                     </Link>
-                                    <Link
-                                        to="/support"
-                                        className="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                                        onClick={() => setIsModalOpen(false)}
+                                    <button
+                                        type="button"
+                                        className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors text-left"
+                                        onClick={handleSupportClick}
                                     >
                                         <HelpCircle size={18} />
                                         <span>Help & Support</span>
-                                    </Link>
+                                    </button>
                                 </div>
 
                                 <div className="border-t border-gray-700 pt-1">
@@ -214,14 +221,14 @@ const Navbar: React.FC = () => {
                                         <Settings size={18} />
                                         <span>Settings</span>
                                     </Link>
-                                    <Link
-                                        to="/support"
-                                        className="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                                        onClick={() => setIsModalOpen(false)}
+                                    <button
+                                        type="button"
+                                        className="w-full flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors text-left"
+                                        onClick={handleSupportClick}
                                     >
                                         <HelpCircle size={18} />
                                         <span>Help & Support</span>
-                                    </Link>
+                                    </button>
                                 </div>
                             </>
                         )}

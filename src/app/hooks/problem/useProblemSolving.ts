@@ -2,27 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import type { ProblemData, SampleTestCase, RunCodeResponse, SubmissionResponse } from '../../../types/problem';
 import { fetchProblemDetail, runCodeApi, submitCodeApi } from '../../../services/axios/auth/problem';
 import { languageMap } from '../../../utils/problem-related';
 
-// const languageMap: Record<number, { value: string; label: string }> = {
-
-//     50: { value: 'c', label: 'C' },
-//     51: { value: 'csharp', label: 'C#' },
-//     54: { value: 'cpp', label: 'C++' },
-//     60: { value: 'go', label: 'Go' },
-//     62: { value: 'java', label: 'Java' },
-//     63: { value: 'javascript', label: 'JavaScript' },
-//     68: { value: 'php', label: 'PHP' },
-//     71: { value: 'python', label: 'Python' },
-//     72: { value: 'ruby', label: 'Ruby' },
-//     73: { value: 'rust', label: 'Rust' },
-//     74: { value: 'typescript', label: 'TypeScript' },
-//     78: { value: 'kotlin', label: 'Kotlin' },
-//     83: { value: 'swift', label: 'Swift' },
-// };
 
 export const useProblemSolving = () => {
 
@@ -88,7 +71,6 @@ export const useProblemSolving = () => {
             const testCaseIds = sampleTestCases.map(tc => tc.id);
             const results = await runCodeApi(problemData.id, code, getLanguageId(selectedLanguage), testCaseIds);
             setRunCodeResults(results);
-            toast.success(`${results.passedTestCases}/${results.totalTestCases} test cases passed`);
         } catch (err) {
             // Error already toasted in API
         } finally {
@@ -103,11 +85,6 @@ export const useProblemSolving = () => {
         try {
             const results = await submitCodeApi(problemData.id, code, getLanguageId(selectedLanguage));
             setSubmissionResults(results);
-            if (results.overallVerdict === 'Accepted') {
-                toast.success(`✅ Accepted! ${results.testCasesPassed}/${results.totalTestCases} test cases passed`);
-            } else {
-                toast.error(`❌ ${results.overallVerdict} - ${results.testCasesPassed}/${results.totalTestCases} test cases passed`);
-            }
             setActiveTab('result');
         } catch (err) {
             // Error already toasted in API
